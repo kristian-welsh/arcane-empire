@@ -1,7 +1,9 @@
-
 import Phaser from 'phaser';
 import { useEffect, useRef } from 'preact/hooks';
-import MainMenuScene from '../scenes/MainMenu';
+import GameScene from '../scenes/GameScene';
+import InitialScene from '../scenes/InitialScene';
+import MenuScene from '../scenes/MenuScene';
+import PostGameScene from '../scenes/PostGameScene';
 
 export const GameComponent = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
@@ -23,9 +25,7 @@ export const GameComponent = () => {
       parent: 'game-container',
       width: window.innerWidth,
       height: window.innerHeight,
-      scene: [
-        MainMenuScene,
-      ],
+      scene: [InitialScene, MenuScene, GameScene, PostGameScene],
       physics: {
         default: 'arcade',
         arcade: {

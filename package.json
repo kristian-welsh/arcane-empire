@@ -6,14 +6,24 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "prettier": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,scss,md}",
+    "preppush": "npm run prettier && npm run lint"
   },
   "dependencies": {
+    "luxon": "^3.4.4",
     "phaser": "^3.80.1",
     "preact": "^10.19.6"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.2",
+    "@types/luxon": "^3.4.2",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-preact": "^0.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }
