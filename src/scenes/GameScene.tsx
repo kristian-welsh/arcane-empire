@@ -4,6 +4,7 @@
  */
 
 import { secondsToMMSS, startScene } from '../helpers';
+import { WorldModel, WorldRenderer } from '../helpers/world_generation/WorldGeneration';
 
 export default class GameScene extends Phaser.Scene {
   private startTime: number = 0;
@@ -11,11 +12,21 @@ export default class GameScene extends Phaser.Scene {
   private elapsedSeconds: number = 0;
   private gameTimeText: Phaser.GameObjects.Text | undefined;
 
+  private worldModel: WorldModel;
+  private worldView: WorldRenderer;
+
   public constructor() {
     super({ key: 'GameScene' });
+
+    this.worldModel = new WorldModel(0, 30, 30);
+    this.worldView = new WorldRenderer(this, this.worldModel);
   }
 
-  public preload() {}
+  public preload() {
+    this.worldView.preloadWorldTiles();
+
+    this.load.image
+  }
 
   public create() {
     const background = this.add.rectangle(
@@ -56,6 +67,8 @@ export default class GameScene extends Phaser.Scene {
       },
       this
     );
+
+    this.worldView.drawWorld();
   }
 
   public update(time: number): void {
