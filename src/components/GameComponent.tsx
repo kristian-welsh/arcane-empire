@@ -1,59 +1,63 @@
 import Phaser from 'phaser';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { useResizeObserver } from 'usehooks-ts';
 import GameScene from '../scenes/GameScene';
 import InitialScene from '../scenes/InitialScene';
 import MenuScene from '../scenes/MenuScene';
 import PostGameScene from '../scenes/PostGameScene';
 
-export const GameComponent = () => {
+export const GameComponent = ({ className }: { className: string }) => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
-  let game: Phaser.Game | null = null;
 
-  const resize = () => {
-    if (game) {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const scale = Math.min(width / 800, height / 600);
+  const [game, setGame] = useState<Phaser.Game | null>(null);
 
-      game.scale.setGameSize(800 * scale, 600 * scale);
-    }
-  };
+  const { width, height } = useResizeObserver({
+    ref: gameContainerRef,
+    onResize: ({ width, height }): void => {
+      if (game != null && width != null && height != null) {
+        game.scale.resize(width, height);
+        game.scale.updateCenter();
+      }
+    },
+  });
 
   useEffect(() => {
-    const config = {
-      type: Phaser.AUTO,
-      parent: 'game-container',
-      width: window.innerWidth,
-      height: window.innerHeight,
-      scene: [InitialScene, MenuScene, GameScene, PostGameScene],
-      physics: {
-        default: 'arcade',
-        arcade: {
-          gravity: { x: 0, y: 0 },
+    if (gameContainerRef.current) {
+      const config: Phaser.Types.Core.GameConfig = {
+        type: Phaser.AUTO,
+        parent: 'game-container',
+        width,
+        height,
+        scene: [InitialScene, MenuScene, GameScene, PostGameScene],
+        physics: {
+          default: 'arcade',
+          arcade: {
+            gravity: { x: 0, y: 0 },
+          },
         },
-      },
-      scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-      },
-    };
+        scale: {
+          mode: Phaser.Scale.NONE,
+          autoCenter: Phaser.Scale.NO_CENTER,
+        },
+        callbacks: {
+          postBoot: (game) => {
+            game.canvas.style.width = '100%';
+            game.canvas.style.height = '100%';
+          },
+        },
+      };
 
-    game = new Phaser.Game(config);
+      const game = new Phaser.Game(config);
+      setGame(game);
 
-    window.addEventListener('resize', resize);
-    resize();
-
-    return () => {
-      game && game.destroy(true);
-      window.removeEventListener('resize', resize);
-    };
+      gameContainerRef.current.appendChild(game.canvas);
+      return () => {
+        if (game != null) {
+          game.destroy(true);
+        }
+      };
+    }
   }, []);
 
-  useEffect(() => {
-    if (game && gameContainerRef.current) {
-      gameContainerRef.current.appendChild(game.canvas);
-    }
-  }, [game]);
-
-  return <div ref={gameContainerRef} />;
+  return <div className={className} ref={gameContainerRef} />;
 };

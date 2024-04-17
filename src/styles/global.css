@@ -1,3 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  margin: 0;
+}
+
 body {
   background-color: #070750;
   background-image: radial-gradient(
@@ -22,4 +31,18 @@ body {
     40px 60px,
     130px 270px,
     70px 100px;
+  font-family: 'Noto Sans', sans-serif;
+  font-variation-settings: 'wdth' 100;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+canvas {
+  /* And see postBoot() in JS */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  aspect-ratio: unset;
+  /* <https://caniuse.com/#feat=object-fit> */
 }

@@ -67,12 +67,10 @@ export default class GameScene extends Phaser.Scene {
 
     this.elapsedSeconds = Math.floor((time - this.startTime) / 1000);
 
-    this.gameTimeText &&
-      this.gameTimeText.setText(secondsToMMSS(this.elapsedSeconds));
-    this.gameTimeText &&
-      this.gameTimeText.setPosition(
-        this.scale.width / 1.05 - this.gameTimeText.width,
-        this.scale.height / 40
-      );
+    this.gameTimeText?.setText(secondsToMMSS(this.elapsedSeconds));
+    this.gameTimeText?.setPosition(
+      this.scale.width / 1.05 - this.gameTimeText.width,
+      this.scale.height / 40
+    );
   }
 }
