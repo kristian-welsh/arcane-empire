@@ -2,15 +2,24 @@ import { GameComponent } from './components/GameComponent';
 import './styles/global.css';
 
 export function App() {
+  const messages = [
+    'Hello World!',
+    'Another one 🤙',
+    'Woooo there is now a messages panel :D',
+  ];
+
   return (
-    <div style="display: flex; flex-wrap: wrap; flex-direction: row; align-items: stretch;">
-      <GameComponent style="width: 80%; height: 100vh; overflow-y: hidden;" />
-      <div style="width: 20%; background-color: #333; display: flex; align-items: stretch;">
-        <div style="margin: 1rem; width: 100%; display: flex; align-items: center; text-align: center; justify-content: center; background-color: #555; border-radius: 0.5rem;">
-          <span style="font-size: xx-large; padding: 0.5rem 1rem; border-radius: 1.25rem; background-color: #b4b4b4;">
-            Hello World!
+    <div className="flex flex-wrap flex-row items-stretch">
+      <GameComponent className="w-4/5 h-screen overflow-y-hidden" />
+      <div className="w-1/5 bg-gray-600 flex justify-end items-end p-2 flex-col gap-y-2">
+        {messages.map((message, i) => (
+          <span
+            key={i}
+            className="text-xl px-4 py-2 rounded-2xl bg-gray-300 text-pretty"
+          >
+            {message}
           </span>
-        </div>
+        ))}
       </div>
     </div>
   );
