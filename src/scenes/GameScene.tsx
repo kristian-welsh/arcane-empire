@@ -4,7 +4,7 @@
  */
 
 import { secondsToMMSS, startScene } from '../helpers';
-import { WorldModel, WorldRenderer } from '../helpers/world_generation/WorldGeneration';
+import { WorldModel, WorldRenderer as WorldView } from '../helpers/world_generation/WorldGeneration';
 
 export default class GameScene extends Phaser.Scene {
   private startTime: number = 0;
@@ -13,19 +13,17 @@ export default class GameScene extends Phaser.Scene {
   private gameTimeText: Phaser.GameObjects.Text | undefined;
 
   private worldModel: WorldModel;
-  private worldView: WorldRenderer;
+  private worldView: WorldView;
 
   public constructor() {
     super({ key: 'GameScene' });
 
     this.worldModel = new WorldModel(0, 30, 30);
-    this.worldView = new WorldRenderer(this, this.worldModel);
+    this.worldView = new WorldView(this, this.worldModel);
   }
 
   public preload() {
     this.worldView.preloadWorldTiles();
-
-    this.load.image
   }
 
   public create() {
@@ -52,13 +50,18 @@ export default class GameScene extends Phaser.Scene {
       }
     );
 
-    const startButton = this.add
-      .text(this.cameras.main.centerX, this.cameras.main.centerY, 'End game', {
+    const startButton = this.add.text(
+      this.cameras.main.centerX,
+      this.cameras.main.centerY,
+      'End game',
+      {
         fontSize: '24px',
         color: '#FFFFFF',
       })
       .setOrigin(0.5);
+
     startButton.setInteractive({ useHandCursor: true });
+
     startButton.on(
       'pointerup',
       () => {

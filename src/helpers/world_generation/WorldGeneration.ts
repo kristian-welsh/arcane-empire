@@ -2,9 +2,10 @@ import forest_path from "../../assets/environment/tiles/forest.png";
 import grass_path from "../../assets/environment/tiles/grass.png";
 import mountain_path from "../../assets/environment/tiles/mountains.png";
 import ocean_path from "../../assets/environment/tiles/ocean_deep.png";
+import { randomInt } from "../math/MathHelper";
 
 // Define enum for tile types
-enum TileType {
+export enum TerrainType {
     Forest,
     Grass,
     Mountain,
@@ -12,19 +13,19 @@ enum TileType {
 }
 
 // Define a class for the tile
-class Tile {
+export class Tile {
 
-    type: TileType
+    terrainType: TerrainType
 
-    constructor(type: TileType) {
-        this.type = type;
+    constructor(terrainType: TerrainType) {
+        this.terrainType = terrainType;
     }
 }
 
 const renderingConfig = {
     tileWidth: 32,
     tileHeight: 34,
-    tileScale: 1.75,
+    tileScale: 2,
     scaledTileWidth: function (): number {
         return this.tileWidth * this.tileScale
     },
@@ -33,29 +34,25 @@ const renderingConfig = {
     },
 }
 
-export const getTileTypeKey = (type: TileType) => {
+export const getTileTypeKey = (type: TerrainType) => {
     switch (type) {
-        case TileType.Forest:
+        case TerrainType.Forest:
             return "Forest";
-        case TileType.Grass:
+        case TerrainType.Grass:
             return "Grass";
-        case TileType.Mountain:
+        case TerrainType.Mountain:
             return "Mountain";
-        case TileType.Ocean:
+        case TerrainType.Ocean:
             return "Ocean";
     }
 }
 
-function randomInt(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 export class WorldModel {
 
-    seed: number
-    width: number
-    height: number
-    tiles: Tile[][]
+    seed: number;
+    width: number;
+    height: number;
+    tiles: Tile[][];
 
     public constructor(seed: number, width: number, height: number) {
 
@@ -71,7 +68,7 @@ export class WorldModel {
             this.tiles[y] = [];
 
             for (let x = 0; x < width; x++) {
-                this.tiles[y][x] = new Tile(randomInt(0, 3));
+                this.tiles[y][x] = new Tile(randomInt(4));
             }
         }
     }
@@ -87,7 +84,7 @@ export class WorldModel {
     }
 
     // Method to set a tile at given coordinates
-    public setTile(x: number, y: number, type: TileType): void {
+    public setTile(x: number, y: number, type: TerrainType): void {
 
         if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
             this.tiles[y][x] = new Tile(type);
@@ -99,6 +96,7 @@ export class WorldRenderer {
 
     scene: Phaser.Scene;
     worldModel: WorldModel;
+    tilesContainer: Phaser.GameObjects.Container | undefined;
 
     public constructor(scene: Phaser.Scene, worldModel: WorldModel) {
         this.scene = scene;
@@ -106,14 +104,17 @@ export class WorldRenderer {
     }
 
     public preloadWorldTiles(): void {
-        this.scene.load.image("Forest", forest_path);
-        this.scene.load.image("Grass", grass_path);
-        this.scene.load.image("Ocean", ocean_path);
-        this.scene.load.image("Mountain", mountain_path);
-
+        this.scene.load.image(getTileTypeKey(TerrainType.Forest), forest_path);
+        this.scene.load.image(getTileTypeKey(TerrainType.Grass), grass_path);
+        this.scene.load.image(getTileTypeKey(TerrainType.Ocean), ocean_path);
+        this.scene.load.image(getTileTypeKey(TerrainType.Mountain), mountain_path);
     }
 
-    public drawWorld(): void {
+    public drawWorld(): Phaser.GameObjects.Container {
+        
+        this.tilesContainer = this.scene.add.container();
+
+        // Create images for each terain tile and group them in the map container
 
         for (let y = 0; y < this.worldModel.tiles.length; y++) {
 
@@ -123,10 +124,40 @@ export class WorldRenderer {
                 let tilePositionX: number = renderingConfig.scaledTileWidth() * x;
                 let tilePositionY: number = renderingConfig.scaledTileHeight() * y * 0.75;
 
-                let tileSpriteKey: string = getTileTypeKey(this.worldModel.tiles[x][y].type);
+                let tileSpriteKey: string = getTileTypeKey(this.worldModel.tiles[x][y].terrainType);
 
-                this.scene.add.image(tilePositionX + offsetX, tilePositionY, tileSpriteKey).setScale(renderingConfig.tileScale);
+                let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(tilePositionX + offsetX, tilePositionY, tileSpriteKey);
+                terrainSprite.setScale(renderingConfig.tileScale);
+
+                this.tilesContainer.add(terrainSprite);
             }
         }
+
+        // Make the map draggable
+
+        this.tilesContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.getTotalMapWidth(), this.getTotalMapWidth()), Phaser.Geom.Rectangle.Contains);
+
+        this.scene.input.setDraggable([this.tilesContainer])
+
+        this.tilesContainer.on('drag', this.onDragMap, this);
+
+        return this.tilesContainer;
+    }
+
+    public getTotalMapWidth(): number {
+        return (renderingConfig.scaledTileWidth() * (this.worldModel.tiles[0].length - 1)) + renderingConfig.scaledTileWidth() / 2;
+    }
+
+    public getTotalMapHeight(): number {
+        return (renderingConfig.scaledTileHeight() * this.worldModel.tiles.length) * 0.75 - renderingConfig.scaledTileHeight() / 2;
+    }
+
+    public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
+
+        if (this.tilesContainer === undefined)
+            return;
+
+        this.tilesContainer.x = Phaser.Math.Clamp(dragX, -this.getTotalMapWidth() + this.scene.sys.canvas.width, 0);
+        this.tilesContainer.y = Phaser.Math.Clamp(dragY, -this.getTotalMapHeight() + this.scene.sys.canvas.height, 0);
     }
 }
