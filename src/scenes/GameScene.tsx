@@ -3,6 +3,7 @@
  * This scene is responsible for handling the whole game logic. When the game ends, it will transition to the PostGameScene.
  */
 
+import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
 
 export default class GameScene extends Phaser.Scene {
@@ -10,6 +11,7 @@ export default class GameScene extends Phaser.Scene {
   private gameStarted: boolean = false;
   private elapsedSeconds: number = 0;
   private gameTimeText: Phaser.GameObjects.Text | undefined;
+  private eventSubscription: (() => void) | undefined;
 
   public constructor() {
     super({ key: 'GameScene' });
@@ -18,6 +20,8 @@ export default class GameScene extends Phaser.Scene {
   public preload() {}
 
   public create() {
+    this.eventSubscription = eventEmitter.subscribe('update-data', this.handleDataUpdate.bind(this));
+
     const background = this.add.rectangle(
       0,
       0,
@@ -72,5 +76,15 @@ export default class GameScene extends Phaser.Scene {
       this.scale.width / 1.05 - this.gameTimeText.width,
       this.scale.height / 40
     );
+  }
+
+  public handleDataUpdate = (data: GameData) =>  {
+    console.log('Data received in GameScene: ', data);
+  }
+
+  public shutdown() {
+    if (this.eventSubscription) {
+      this.eventSubscription();
+    }
   }
 }
