@@ -16,6 +16,7 @@ export const GameComponent = ({ style }: { style: string }) => {
     onResize: ({ width, height }): void => {
       if (game != null && width != null && height != null) {
         game.scale.resize(width, height);
+        game.scale.updateCenter();
       }
     },
   });

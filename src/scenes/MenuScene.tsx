@@ -37,7 +37,7 @@ export default class MenuScene extends Phaser.Scene {
         }
       )
       .setOrigin(0.5);
-    
+
     const startButton = this.add
       .text(this.cameras.main.centerX, this.cameras.main.centerY, 'Start', {
         fontSize: '24px',
