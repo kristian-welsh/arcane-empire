@@ -23,15 +23,9 @@ export class Tile {
 }
 
 const renderingConfig = {
-    tileWidth: 32,
-    tileHeight: 34,
-    tileScale: 2,
-    scaledTileWidth: function (): number {
-        return this.tileWidth * this.tileScale
-    },
-    scaledTileHeight: function (): number {
-        return this.tileHeight * this.tileScale
-    },
+    tileSpriteWidth: 32,
+    tileSpriteHeight: 34,
+    horizontallyDisplayedTileCount: 20,
 }
 
 export const getTileTypeKey = (type: TerrainType) => {
@@ -92,18 +86,22 @@ export class WorldModel {
     }
 }
 
-export class WorldRenderer {
+export class WorldView {
 
     scene: Phaser.Scene;
     worldModel: WorldModel;
-    tilesContainer: Phaser.GameObjects.Container | undefined;
+    draggableContainer: Phaser.GameObjects.Container | undefined;
+
+    tileScale: number = 1;
 
     public constructor(scene: Phaser.Scene, worldModel: WorldModel) {
+
         this.scene = scene;
         this.worldModel = worldModel;
     }
 
     public preloadWorldTiles(): void {
+
         this.scene.load.image(getTileTypeKey(TerrainType.Forest), forest_path);
         this.scene.load.image(getTileTypeKey(TerrainType.Grass), grass_path);
         this.scene.load.image(getTileTypeKey(TerrainType.Ocean), ocean_path);
@@ -111,53 +109,63 @@ export class WorldRenderer {
     }
 
     public drawWorld(): Phaser.GameObjects.Container {
-        
-        this.tilesContainer = this.scene.add.container();
+
+        this.tileScale = this.scene.sys.canvas.width / (renderingConfig.horizontallyDisplayedTileCount * renderingConfig.tileSpriteWidth);
+
+        this.draggableContainer = this.scene.add.container();
 
         // Create images for each terain tile and group them in the map container
 
         for (let y = 0; y < this.worldModel.tiles.length; y++) {
 
-            let offsetX = y % 2 == 1 ? renderingConfig.scaledTileWidth() / 2 : 0;
-
             for (let x = 0; x < this.worldModel.tiles[y].length; x++) {
-                let tilePositionX: number = renderingConfig.scaledTileWidth() * x;
-                let tilePositionY: number = renderingConfig.scaledTileHeight() * y * 0.75;
+
+                let pixelPosition: Phaser.Math.Vector2 = this.convertGridToPixelCoords(x, y);
 
                 let tileSpriteKey: string = getTileTypeKey(this.worldModel.tiles[x][y].terrainType);
 
-                let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(tilePositionX + offsetX, tilePositionY, tileSpriteKey);
-                terrainSprite.setScale(renderingConfig.tileScale);
+                let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
+                terrainSprite.setScale(this.tileScale);
 
-                this.tilesContainer.add(terrainSprite);
+                this.draggableContainer.add(terrainSprite);
             }
         }
 
         // Make the map draggable
 
-        this.tilesContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.getTotalMapWidth(), this.getTotalMapWidth()), Phaser.Geom.Rectangle.Contains);
+        this.draggableContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.getTotalMapWidth(), this.getTotalMapWidth()), Phaser.Geom.Rectangle.Contains);
 
-        this.scene.input.setDraggable([this.tilesContainer])
+        this.scene.input.setDraggable([this.draggableContainer])
 
-        this.tilesContainer.on('drag', this.onDragMap, this);
+        this.draggableContainer.on('drag', this.onDragMap, this);
 
-        return this.tilesContainer;
+        return this.draggableContainer;
+    }
+
+    public convertGridToPixelCoords(x: number, y: number): Phaser.Math.Vector2 {
+
+        let offsetX = y % 2 == 1 ? (this.tileScale * renderingConfig.tileSpriteWidth) / 2 : 0;
+
+        let tilePositionX: number = ((this.tileScale * renderingConfig.tileSpriteWidth) * x) + offsetX;
+        let tilePositionY: number = (this.tileScale * renderingConfig.tileSpriteHeight) * y * 0.75;
+
+        return new Phaser.Math.Vector2(tilePositionX, tilePositionY);
     }
 
     public getTotalMapWidth(): number {
-        return (renderingConfig.scaledTileWidth() * (this.worldModel.tiles[0].length - 1)) + renderingConfig.scaledTileWidth() / 2;
+        return ((this.tileScale * renderingConfig.tileSpriteWidth) * (this.worldModel.tiles[0].length - 1)) + (this.tileScale * renderingConfig.tileSpriteWidth) / 2;
     }
 
     public getTotalMapHeight(): number {
-        return (renderingConfig.scaledTileHeight() * this.worldModel.tiles.length) * 0.75 - renderingConfig.scaledTileHeight() / 2;
+        return ((this.tileScale * renderingConfig.tileSpriteHeight) * this.worldModel.tiles.length) * 0.75 - (this.tileScale * renderingConfig.tileSpriteHeight) / 2;
     }
 
     public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 
-        if (this.tilesContainer === undefined)
+        if (this.draggableContainer === undefined)
             return;
 
-        this.tilesContainer.x = Phaser.Math.Clamp(dragX, -this.getTotalMapWidth() + this.scene.sys.canvas.width, 0);
-        this.tilesContainer.y = Phaser.Math.Clamp(dragY, -this.getTotalMapHeight() + this.scene.sys.canvas.height, 0);
+        this.draggableContainer.x = Phaser.Math.Clamp(dragX, -this.getTotalMapWidth() + this.scene.sys.canvas.width, 0);
+        this.draggableContainer.y = Phaser.Math.Clamp(dragY, -this.getTotalMapHeight() + this.scene.sys.canvas.height, 0);
     }
 }
