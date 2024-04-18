@@ -5,7 +5,7 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { WorldModel, WorldView as WorldView } from '../helpers/world_generation/WorldGeneration';
+import { WorldModel, WorldView as WorldView } from '../systems/world_generation/WorldGeneration';
 
 export default class GameScene extends Phaser.Scene {
   private startTime: number = 0;

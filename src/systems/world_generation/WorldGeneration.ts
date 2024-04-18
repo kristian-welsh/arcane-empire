@@ -2,7 +2,7 @@ import forest_path from "../../assets/environment/tiles/forest.png";
 import grass_path from "../../assets/environment/tiles/grass.png";
 import mountain_path from "../../assets/environment/tiles/mountains.png";
 import ocean_path from "../../assets/environment/tiles/ocean_deep.png";
-import { randomInt } from "../math/MathHelper";
+import { randomInt } from "../../helpers/math/MathHelper";
 
 // Define enum for tile types
 export enum TerrainType {
