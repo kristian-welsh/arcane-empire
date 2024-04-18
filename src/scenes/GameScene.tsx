@@ -5,7 +5,9 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { WorldModel, WorldView as WorldView } from '../systems/world_generation/WorldGeneration';
+import { defaultMapLayout } from '../setup/constants';
+import { WorldModel } from '../systems/world_generation/WorldModel';
+import { WorldView } from '../systems/world_generation/WorldView';
 
 export default class GameScene extends Phaser.Scene {
   private startTime: number = 0;
@@ -20,7 +22,7 @@ export default class GameScene extends Phaser.Scene {
   public constructor() {
     super({ key: 'GameScene' });
 
-    this.worldModel = new WorldModel(0, 30, 30);
+    this.worldModel = new WorldModel(defaultMapLayout);
     this.worldView = new WorldView(this, this.worldModel);
   }
 
