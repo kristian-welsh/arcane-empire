@@ -5,6 +5,9 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
+import { defaultMapLayout } from '../setup/constants';
+import { WorldModel } from '../systems/world_generation/WorldModel';
+import { WorldView } from '../systems/world_generation/WorldView';
 
 export default class GameScene extends Phaser.Scene {
   private startTime: number = 0;
@@ -13,11 +16,19 @@ export default class GameScene extends Phaser.Scene {
   private gameTimeText: Phaser.GameObjects.Text | undefined;
   private eventSubscription: (() => void) | undefined;
 
+  private worldModel: WorldModel;
+  private worldView: WorldView;
+
   public constructor() {
     super({ key: 'GameScene' });
+
+    this.worldModel = new WorldModel(defaultMapLayout);
+    this.worldView = new WorldView(this, this.worldModel);
   }
 
-  public preload() {}
+  public preload() {
+    this.worldView.preloadWorldTiles();
+  }
 
   public create() {
     this.eventSubscription = eventEmitter.subscribe('update-data', this.handleDataUpdate.bind(this));
@@ -45,13 +56,18 @@ export default class GameScene extends Phaser.Scene {
       }
     );
 
-    const startButton = this.add
-      .text(this.cameras.main.centerX, this.cameras.main.centerY, 'End game', {
+    const startButton = this.add.text(
+      this.cameras.main.centerX,
+      this.cameras.main.centerY,
+      'End game',
+      {
         fontSize: '24px',
         color: '#FFFFFF',
       })
       .setOrigin(0.5);
+
     startButton.setInteractive({ useHandCursor: true });
+
     startButton.on(
       'pointerup',
       () => {
@@ -60,6 +76,8 @@ export default class GameScene extends Phaser.Scene {
       },
       this
     );
+
+    this.worldView.drawWorld();
   }
 
   public update(time: number): void {
