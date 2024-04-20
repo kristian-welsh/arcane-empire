@@ -5,7 +5,7 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { defaultMapLayout } from '../setup/constants';
+import { defaultGenerationSettings, defaultGridSize } from '../setup/constants';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
 import { RegionOutline } from '../systems/regions/RegionOutline';
 import { WorldModel } from '../systems/world_generation/WorldModel';
@@ -25,8 +25,8 @@ export default class GameScene extends Phaser.Scene {
   public constructor() {
     super({ key: 'GameScene' });
 
-    this.hexGrid = new HexagonGrid(this, defaultMapLayout);
-    this.worldModel = new WorldModel(defaultMapLayout);
+    this.hexGrid = new HexagonGrid(this, defaultGridSize);
+    this.worldModel = new WorldModel(defaultGridSize, defaultGenerationSettings);
     this.worldView = new WorldView(this, this.worldModel, this.hexGrid);
   }
 

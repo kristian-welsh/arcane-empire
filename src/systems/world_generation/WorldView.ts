@@ -1,6 +1,7 @@
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
+import { StructureDatas } from "./StructureRecords";
 import { TerrainDatas } from "./TerrainTileRecords";
-import { WorldModel } from "./WorldModel";
+import { Tile, WorldModel } from "./WorldModel";
 
 export class WorldView {
 
@@ -20,11 +21,15 @@ export class WorldView {
         Object.entries(TerrainDatas).forEach(([terrainType, terrainData]) => {
             this.scene.load.image(terrainType, terrainData.path);
         });
+
+        Object.entries(StructureDatas).forEach(([structureType, structureData]) => {
+            this.scene.load.image(structureType, structureData.path);
+        });
     }
 
     public drawWorld(): void {
 
-        // Create images for each terain tile and group them in the map container
+        // Draw all the base terrain tiles
 
         for (let y = 0; y < this.worldModel.tiles.length; y++) {
 
@@ -38,6 +43,28 @@ export class WorldView {
                 terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
 
                 this.hexGrid.draggableContainer?.add(terrainSprite);
+            }
+        }
+
+        // Draw the dotted structures on top
+
+        for (let y = 0; y < this.worldModel.tiles.length; y++) {
+
+            for (let x = 0; x < this.worldModel.tiles[y].length; x++) {
+
+                let tile: Tile = this.worldModel.tiles[x][y];
+
+                if (tile.structureData === undefined)
+                    continue;
+
+                let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
+
+                let structureSpriteKey: string = tile.structureData.name;
+
+                let structureSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, structureSpriteKey);
+                structureSprite.setScale(this.hexGrid.hexScale * tile.structureData.sprite_scale, this.hexGrid.hexScale * tile.structureData.sprite_scale);
+
+                this.hexGrid.draggableContainer?.add(structureSprite);
             }
         }
     }
