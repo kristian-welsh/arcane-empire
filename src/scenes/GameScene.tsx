@@ -31,7 +31,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public preload() {
-    this.hexGrid.preloadSettings();
+    this.hexGrid.preload();
     this.worldView.preloadWorldTiles();
   }
 

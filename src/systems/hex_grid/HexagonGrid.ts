@@ -18,18 +18,31 @@ export class HexagonGrid {
     scaledHexWidth: number = 1;
     scaledHexHeight: number = 1;
 
+    draggableContainer: Phaser.GameObjects.Container | undefined;
+
     constructor(scene: Phaser.Scene, gridSize: GridSize) {
 
         this.scene = scene;
         this.gridSize = gridSize;
     }
 
-    public preloadSettings(): void {
+    public preload(): void {
 
         this.hexScale = this.scene.sys.canvas.width / (hexagonScalingConstants.horizontallyDisplayedTileCount * hexagonScalingConstants.baseHexagonSpriteWidth);
 
         this.scaledHexWidth = hexagonScalingConstants.baseHexagonSpriteWidth * this.hexScale;
         this.scaledHexHeight = this.scaledHexWidth * 1.1547; // Magic number is the ration between hexagon width and height
+
+        // Make the map draggable
+
+        this.draggableContainer = this.scene.add.container();
+
+        this.draggableContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.getPixelWidth(), this.getPixelHeight()), Phaser.Geom.Rectangle.Contains);
+
+        this.scene.input.setDraggable([this.draggableContainer])
+
+        this.draggableContainer.on('drag', this.onDragMap, this);
+
     }
 
     public convertGridHexToPixelHex(hex: Phaser.Math.Vector2): Phaser.Math.Vector2 {
@@ -94,7 +107,6 @@ export class HexagonGrid {
         return adjacentHexes;
     }
 
-
     public getPixelWidth(): number {
         return (this.scaledHexWidth * (this.gridSize.width - 1)) + (this.scaledHexWidth / 2);
     }
@@ -103,5 +115,12 @@ export class HexagonGrid {
         return (this.scaledHexHeight * this.gridSize.height) * 0.75 - (this.scaledHexHeight / 2);
     }
 
+    public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 
+        if (this.draggableContainer === undefined)
+            return;
+
+        this.draggableContainer.x = Phaser.Math.Clamp(dragX, -this.getPixelWidth() + this.scene.sys.canvas.width, 0);
+        this.draggableContainer.y = Phaser.Math.Clamp(dragY, -this.getPixelHeight() + this.scene.sys.canvas.height, 0);
+    }
 }

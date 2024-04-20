@@ -26,14 +26,13 @@ export class RegionOutline {
                     let commonVerts: Phaser.Math.Vector2[] = primaryHexCorners.filter(hexVert => neighbourHexCorners.some(adjHexVert => Math.abs(adjHexVert.x - hexVert.x) < 1 && Math.abs(adjHexVert.y - hexVert.y) < 1));
 
                     let lineGraphic = scene.add.graphics();
+
                     lineGraphic.lineStyle(thickness, colour);
-                    lineGraphic.strokeLineShape(new Phaser.Geom.Line(commonVerts[0].x, commonVerts[0].y, commonVerts[1].x, commonVerts[1].y))
+                    lineGraphic.strokeLineShape(new Phaser.Geom.Line(commonVerts[0].x, commonVerts[0].y, commonVerts[1].x, commonVerts[1].y));
+
+                    this.hexGrid.draggableContainer?.add(lineGraphic);
                 }
             }
         }
-
     }
-
 }
-
-

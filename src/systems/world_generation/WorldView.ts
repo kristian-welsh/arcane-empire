@@ -8,8 +8,6 @@ export class WorldView {
     worldModel: WorldModel;
     hexGrid: HexagonGrid;
 
-    draggableContainer: Phaser.GameObjects.Container | undefined;
-
     public constructor(scene: Phaser.Scene, worldModel: WorldModel, hexGrid: HexagonGrid) {
 
         this.scene = scene;
@@ -24,9 +22,7 @@ export class WorldView {
         });
     }
 
-    public drawWorld(): Phaser.GameObjects.Container {
-
-        this.draggableContainer = this.scene.add.container();
+    public drawWorld(): void {
 
         // Create images for each terain tile and group them in the map container
 
@@ -41,27 +37,8 @@ export class WorldView {
                 let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
                 terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
 
-                this.draggableContainer.add(terrainSprite);
+                this.hexGrid.draggableContainer?.add(terrainSprite);
             }
         }
-
-        // Make the map draggable
-
-        this.draggableContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.hexGrid.getPixelWidth(), this.hexGrid.getPixelHeight()), Phaser.Geom.Rectangle.Contains);
-
-        this.scene.input.setDraggable([this.draggableContainer])
-
-        this.draggableContainer.on('drag', this.onDragMap, this);
-
-        return this.draggableContainer;
-    }
-
-    public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
-
-        if (this.draggableContainer === undefined)
-            return;
-
-        this.draggableContainer.x = Phaser.Math.Clamp(dragX, -this.hexGrid.getPixelWidth() + this.scene.sys.canvas.width, 0);
-        this.draggableContainer.y = Phaser.Math.Clamp(dragY, -this.hexGrid.getPixelHeight() + this.scene.sys.canvas.height, 0);
     }
 }
