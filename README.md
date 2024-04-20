@@ -27,3 +27,4 @@ All assets used have free-to-use licenses. Please check out the creators!
 
 Loading screen character sprite - https://lionheart963.itch.io/rogue-like-character
 Terrain tiles - https://opengameart.org/content/pixel-art-terrain-from-elite-command
+Structures - https://opengameart.org/content/basic-hex-tile-set-16x16 and https://opengameart.org/content/basic-hex-tile-set-plus-16x16
