@@ -15,7 +15,7 @@ export class RegionOutline {
 
             for (let neighbourHex of neighboringHexes) {
 
-                let adjacentHexAlsoInRegion = regionHexes.some(regionHex2 => regionHex2.x == neighbourHex.x && regionHex2.y == neighbourHex.y);
+                let adjacentHexAlsoInRegion = regionHexes.some(regHex => regHex.x == neighbourHex.x && regHex.y == neighbourHex.y);
 
                 if (adjacentHexAlsoInRegion == false) {
 
