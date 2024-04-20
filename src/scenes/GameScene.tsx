@@ -6,6 +6,8 @@
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
 import { defaultMapLayout } from '../setup/constants';
+import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
+import { RegionOutline } from '../systems/regions/RegionOutline';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 
@@ -16,17 +18,20 @@ export default class GameScene extends Phaser.Scene {
   private gameTimeText: Phaser.GameObjects.Text | undefined;
   private eventSubscription: (() => void) | undefined;
 
+  private hexGrid: HexagonGrid;
   private worldModel: WorldModel;
   private worldView: WorldView;
 
   public constructor() {
     super({ key: 'GameScene' });
 
+    this.hexGrid = new HexagonGrid(this, defaultMapLayout);
     this.worldModel = new WorldModel(defaultMapLayout);
-    this.worldView = new WorldView(this, this.worldModel);
+    this.worldView = new WorldView(this, this.worldModel, this.hexGrid);
   }
 
   public preload() {
+    this.hexGrid.preloadSettings();
     this.worldView.preloadWorldTiles();
   }
 
@@ -78,6 +83,25 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.worldView.drawWorld();
+
+    new RegionOutline(this, this.hexGrid, [
+      new Phaser.Math.Vector2(1, 1),
+      new Phaser.Math.Vector2(1, 2),
+      new Phaser.Math.Vector2(2, 2),
+      new Phaser.Math.Vector2(1, 3),
+      new Phaser.Math.Vector2(3, 3),
+      new Phaser.Math.Vector2(2, 3),
+    ], 0xFF0000, 4);
+
+
+    new RegionOutline(this, this.hexGrid, [
+      new Phaser.Math.Vector2(5, 1),
+      new Phaser.Math.Vector2(5, 2),
+      new Phaser.Math.Vector2(6, 2),
+      new Phaser.Math.Vector2(5, 3),
+      new Phaser.Math.Vector2(7, 3),
+      new Phaser.Math.Vector2(6, 3),
+    ], 0x00FF00, 4);
   }
 
   public update(time: number): void {
@@ -96,7 +120,7 @@ export default class GameScene extends Phaser.Scene {
     );
   }
 
-  public handleDataUpdate = (data: GameData) =>  {
+  public handleDataUpdate = (data: GameData) => {
     console.log('Data received in GameScene: ', data);
   }
 
