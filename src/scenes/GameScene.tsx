@@ -83,25 +83,6 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.worldView.drawWorld();
-
-    new RegionOutline(this, this.hexGrid, [
-      new Phaser.Math.Vector2(1, 1),
-      new Phaser.Math.Vector2(1, 2),
-      new Phaser.Math.Vector2(2, 2),
-      new Phaser.Math.Vector2(1, 3),
-      new Phaser.Math.Vector2(3, 3),
-      new Phaser.Math.Vector2(2, 3),
-    ], 0xFF0000, 4);
-
-
-    new RegionOutline(this, this.hexGrid, [
-      new Phaser.Math.Vector2(5, 1),
-      new Phaser.Math.Vector2(5, 2),
-      new Phaser.Math.Vector2(6, 2),
-      new Phaser.Math.Vector2(5, 3),
-      new Phaser.Math.Vector2(7, 3),
-      new Phaser.Math.Vector2(6, 3),
-    ], 0x00FF00, 4);
   }
 
   public update(time: number): void {
