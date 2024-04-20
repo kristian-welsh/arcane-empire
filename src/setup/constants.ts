@@ -8,9 +8,9 @@ export const defaultGridSize: GridSize = {
 }
 
 export const defaultGenerationSettings: GenerationSettings = {
-    seed: "arcane_empire",
-    castlesCount: 4,
+    seed: "default",
+    castlesCount: 8,
     cavesCount: 4,
-    farmsCount: 8,
-    villagesCount: 8
+    farmsCount: 14,
+    villagesCount: 14
 }

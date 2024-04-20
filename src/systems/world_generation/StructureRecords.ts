@@ -5,6 +5,7 @@ import farm_hut_1_path from "../../assets/environment/structures/farm_hut_1.png"
 import farm_hut_2_path from "../../assets/environment/structures/farm_hut_2.png";
 import village_small_path from "../../assets/environment/structures/village_small.png";
 import wheat_farm_path from "../../assets/environment/structures/wheat_farm.png";
+import { TerrainType } from "./TerrainTileRecords";
 
 export enum StructureType {
     Castle = "Castle",
@@ -17,13 +18,13 @@ export enum StructureType {
 export type StructureData = {
     name: StructureType;
     path: string;
+    alt_path?: string;
     sprite_scale: number;
     is_walkable: boolean;
     walkable_difficulty_modifier: number; // Higher equals harder
+    terrain_filter?: TerrainType[];
+    flatten_terrain: boolean;
 
-    //TODO: Terrain generation restriction filter
-    //TODO: Varying graphic handling, have path as base and an number field for number of alterates. Then construct the path dynamcially.
-    //TODO: Terrain squashing toggle 
 };
 
 export const StructureTypes: (keyof typeof StructureType)[] = <(keyof typeof StructureType)[]>Object.keys(StructureType);
@@ -32,9 +33,12 @@ export const StructureDatas: Record<StructureType, StructureData> = {
     Castle: {
         name: StructureType.Castle,
         path: castle_1_path,
+        alt_path: castle_2_path,
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
+        terrain_filter: [TerrainType.Grass, TerrainType.Forest],
+        flatten_terrain: true,
     },
     Cave_Entrance: {
         name: StructureType.Cave_Entrance,
@@ -42,6 +46,8 @@ export const StructureDatas: Record<StructureType, StructureData> = {
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
+        terrain_filter: [TerrainType.Mountain],
+        flatten_terrain: true,
     },
     Village_Small: {
         name: StructureType.Village_Small,
@@ -49,6 +55,8 @@ export const StructureDatas: Record<StructureType, StructureData> = {
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
+        terrain_filter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain],
+        flatten_terrain: true,
     },
     Farm_Hut: {
         name: StructureType.Farm_Hut,
@@ -56,6 +64,8 @@ export const StructureDatas: Record<StructureType, StructureData> = {
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
+        terrain_filter: [TerrainType.Grass, TerrainType.Forest],
+        flatten_terrain: true,
     },
     Wheat_Farm: {
         name: StructureType.Wheat_Farm,
@@ -63,5 +73,7 @@ export const StructureDatas: Record<StructureType, StructureData> = {
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
+        terrain_filter: undefined,
+        flatten_terrain: true,
     }
 };

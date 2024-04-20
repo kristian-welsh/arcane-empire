@@ -27,7 +27,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.hexGrid = new HexagonGrid(this, defaultGridSize);
     this.worldModel = new WorldModel(defaultGridSize, defaultGenerationSettings);
-    this.worldView = new WorldView(this, this.worldModel, this.hexGrid);
+    this.worldView = new WorldView(this, this.worldModel, this.hexGrid, defaultGenerationSettings);
   }
 
   public preload() {
