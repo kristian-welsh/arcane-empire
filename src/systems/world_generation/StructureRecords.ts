@@ -61,6 +61,7 @@ export const StructureDatas: Record<StructureType, StructureData> = {
     Farm_Hut: {
         name: StructureType.Farm_Hut,
         path: farm_hut_1_path,
+        alt_path: farm_hut_2_path,
         sprite_scale: 1.5,
         is_walkable: true,
         walkable_difficulty_modifier: 0,

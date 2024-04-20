@@ -3,7 +3,7 @@ import { GenerationSettings } from "../systems/world_generation/WorldModel";
 
 // Temp till we get a game setup menu
 export const defaultGridSize: GridSize = {
-    width: 30,
+    width: 40,
     height: 30
 }
 

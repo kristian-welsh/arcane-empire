@@ -37,8 +37,20 @@ export class WorldModel {
         this.gridSize = gridSize;
         this.generationSettings = generationSettings;
 
-        this.tiles = [];
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([generationSettings.seed]);
+
+        // Pre fill with ocean
+
+        this.tiles = [];
+
+        for (let x = 0; x < this.gridSize.width; x++) {
+
+            this.tiles[x] = [];
+
+            for (let y = 0; y < this.gridSize.height; y++) {
+                this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+            }
+        }
 
         this.generateTerrain()
 
@@ -47,17 +59,15 @@ export class WorldModel {
 
     private generateTerrain(): void {
 
-        for (let y = 0; y < this.gridSize.height; y++) {
+        for (let x = 0; x < this.gridSize.width; x++) {
 
-            this.tiles[y] = [];
-
-            for (let x = 0; x < this.gridSize.width; x++) {
+            for (let y = 0; y < this.gridSize.height; y++) {
 
                 if (y <= 1 || x <= 1 || y >= this.gridSize.height - 2 || x >= this.gridSize.width - 2) {
-                    this.tiles[y][x] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
                 } else {
                     let randomTerrainData: TerrainData = TerrainDatas[TerrainTypes[this.randomGenerator.between(0, 3)]];
-                    this.tiles[y][x] = new Tile(new Phaser.Math.Vector2(x, y), randomTerrainData);
+                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), randomTerrainData);
                 }
             }
         }
@@ -68,20 +78,20 @@ export class WorldModel {
         for (let c = 0; c < this.generationSettings.castlesCount; c++) {
 
             let chosenTile: Tile = this.getRandomTile(StructureDatas.Castle.terrain_filter);
-            this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].structureData = StructureDatas.Castle;
+            chosenTile.structureData = StructureDatas.Castle;
 
             if (StructureDatas.Castle.flatten_terrain) {
-                this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].terrainData = TerrainDatas.Grass;
+                chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
 
         for (let c = 0; c < this.generationSettings.cavesCount; c++) {
 
             let chosenTile: Tile = this.getRandomTile(StructureDatas.Cave_Entrance.terrain_filter);
-            this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].structureData = StructureDatas.Cave_Entrance;
+            chosenTile.structureData = StructureDatas.Cave_Entrance;
 
             if (StructureDatas.Castle.flatten_terrain) {
-                this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].terrainData = TerrainDatas.Grass;
+                chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
 
@@ -90,31 +100,39 @@ export class WorldModel {
             //TODO Farms should generate with a wheath field or paddle next to it
 
             let chosenTile: Tile = this.getRandomTile(StructureDatas.Farm_Hut.terrain_filter);
-            this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].structureData = StructureDatas.Farm_Hut;
+            chosenTile.structureData = StructureDatas.Farm_Hut;
 
             if (StructureDatas.Castle.flatten_terrain) {
-                this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].terrainData = TerrainDatas.Grass;
+                chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
 
         for (let v = 0; v < this.generationSettings.villagesCount; v++) {
 
             let chosenTile: Tile = this.getRandomTile(StructureDatas.Village_Small.terrain_filter);
-            this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].structureData = StructureDatas.Village_Small;
+            chosenTile.structureData = StructureDatas.Village_Small;
 
             if (StructureDatas.Castle.flatten_terrain) {
-                this.tiles[chosenTile.coordinates.y][chosenTile.coordinates.x].terrainData = TerrainDatas.Grass;
+                chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
     }
 
-    public getTile(x: number, y: number): Tile | undefined {
+    public getTile(coord: Phaser.Math.Vector2): Tile | undefined {
 
-        if (x >= 0 && x < this.gridSize.width && y >= 0 && y < this.gridSize.height) {
-            return this.tiles[y][x];
+        if (coord.x >= 0 && coord.x < this.gridSize.width && coord.y >= 0 && coord.y < this.gridSize.height) {
+            return this.tiles[coord.x][coord.y];
         }
 
         return undefined;
+    }
+
+    public forEachTile(func: (x: number, y: number, tile: Tile) => void) {
+        for (let x = 0; x < this.gridSize.width; x++) {
+            for (let y = 0; y < this.gridSize.height; y++) {
+                func(x, y, this.tiles[x][y]);
+            }
+        }
     }
 
     public getRandomTile(terrainFilters: TerrainType[] | undefined): Tile {

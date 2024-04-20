@@ -39,45 +39,37 @@ export class WorldView {
 
         // Draw all the base terrain tiles
 
-        for (let y = 0; y < this.worldModel.tiles.length; y++) {
+        this.worldModel.forEachTile((x, y, tile) => {
 
-            for (let x = 0; x < this.worldModel.tiles[y].length; x++) {
+            let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
 
-                let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
+            let tileSpriteKey: string = tile.terrainData.name;
 
-                let tileSpriteKey: string = this.worldModel.tiles[x][y].terrainData.name;
+            let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
+            terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
 
-                let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
-                terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
-
-                this.hexGrid.draggableContainer?.add(terrainSprite);
-            }
-        }
+            this.hexGrid.draggableContainer?.add(terrainSprite);
+        })
 
         // Draw the dotted structures on top
 
-        for (let y = 0; y < this.worldModel.tiles.length; y++) {
+        this.worldModel.forEachTile((x, y, tile) => {
 
-            for (let x = 0; x < this.worldModel.tiles[y].length; x++) {
+            if (tile.structureData === undefined)
+                return;
 
-                let tile: Tile = this.worldModel.tiles[x][y];
+            let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
 
-                if (tile.structureData === undefined)
-                    continue;
+            let structureSpriteKey: string = tile.structureData.name;
 
-                let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
-
-                let structureSpriteKey: string = tile.structureData.name;
-
-                if (tile.structureData.alt_path !== undefined && this.randomGenerator.between(0, 1) == 1) {
-                    structureSpriteKey += "_alt";
-                }
-
-                let structureSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, structureSpriteKey);
-                structureSprite.setScale(this.hexGrid.hexScale * tile.structureData.sprite_scale, this.hexGrid.hexScale * tile.structureData.sprite_scale);
-
-                this.hexGrid.draggableContainer?.add(structureSprite);
+            if (tile.structureData.alt_path !== undefined && this.randomGenerator.between(0, 1) == 1) {
+                structureSpriteKey += "_alt";
             }
-        }
+
+            let structureSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, structureSpriteKey);
+            structureSprite.setScale(this.hexGrid.hexScale * tile.structureData.sprite_scale, this.hexGrid.hexScale * tile.structureData.sprite_scale);
+
+            this.hexGrid.draggableContainer?.add(structureSprite);
+        });
     }
 }
