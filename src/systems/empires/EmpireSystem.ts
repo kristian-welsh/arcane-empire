@@ -1,4 +1,5 @@
-import { castleNames, empireColours, empireNames, rulerNames } from "../../setup/constants";
+import { empireColours } from "../../setup/constants";
+import { empireNames, castleNames, rulerNames } from "../../setup/empireNames";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
