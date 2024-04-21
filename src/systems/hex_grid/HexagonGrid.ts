@@ -77,7 +77,7 @@ export class HexagonGrid {
     }
 
 
-    public getGridHexNeighbours(hex: Phaser.Math.Vector2, removeOutOfBounds: boolean = true): Phaser.Math.Vector2[] {
+    public getNeighbouringHexes(hex: Phaser.Math.Vector2, removeOutOfBounds: boolean = true): Phaser.Math.Vector2[] {
 
         let adjacentHexes: Phaser.Math.Vector2[] = [];
 
