@@ -1,53 +1,157 @@
-import { MapLayout } from "../../types";
+import { GridSize, HexagonGrid } from "../hex_grid/HexagonGrid";
+import { StructureData, StructureDatas } from "./StructureRecords";
 import { TerrainType, TerrainData, TerrainTypes, TerrainDatas } from "./TerrainTileRecords";
+
+export interface GenerationSettings {
+    seed: string;
+    fortsCount: number;
+    cavesCount: number;
+    farmsCount: number;
+    villagesCount: number;
+}
 
 export class Tile {
 
+    coordinates: Phaser.Math.Vector2;
     terrainData: TerrainData
+    structureData: StructureData | undefined;
 
-    constructor(terrainType: TerrainData) {
+    constructor(coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {
+
+        this.coordinates = coordinates;
         this.terrainData = terrainType;
     }
 }
 
 export class WorldModel {
 
-    mapLayout: MapLayout;
+    gridSize: GridSize;
+    generationSettings: GenerationSettings;
 
+    hexGrid: HexagonGrid;
     tiles: Tile[][];
 
-    public constructor(mapLayoutConfig: MapLayout) {
+    randomGenerator: Phaser.Math.RandomDataGenerator;
 
-        this.mapLayout = mapLayoutConfig;
+    public constructor(hexGrid: HexagonGrid, gridSize: GridSize, generationSettings: GenerationSettings) {
+
+        this.hexGrid = hexGrid;
+        this.gridSize = gridSize;
+        this.generationSettings = generationSettings;
+
+        this.randomGenerator = new Phaser.Math.RandomDataGenerator([generationSettings.seed]);
+
+        // Pre fill with ocean
+
         this.tiles = [];
 
-        // Find a way to use the seed field
+        for (let x = 0; x < this.gridSize.width; x++) {
 
-        for (let y = 0; y < this.mapLayout.height; y++) {
+            this.tiles[x] = [];
 
-            this.tiles[y] = [];
+            for (let y = 0; y < this.gridSize.height; y++) {
+                this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+            }
+        }
 
+        this.generateTerrain()
 
-            for (let x = 0; x < this.mapLayout.width; x++) {
-                this.tiles[y][x] = new Tile(TerrainDatas[TerrainTypes[Phaser.Math.Between(0, 3)]]);
+        this.generateStructures();
+    }
+
+    private generateTerrain(): void {
+
+        for (let x = 0; x < this.gridSize.width; x++) {
+
+            for (let y = 0; y < this.gridSize.height; y++) {
+
+                if (y <= 1 || x <= 1 || y >= this.gridSize.height - 2 || x >= this.gridSize.width - 2) {
+                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+                } else {
+                    let randomTerrainData: TerrainData = TerrainDatas[TerrainTypes[this.randomGenerator.between(0, 3)]];
+                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), randomTerrainData);
+                }
             }
         }
     }
 
-    public getTile(x: number, y: number): Tile | undefined {
+    private generateStructures(): void {
 
-        if (x >= 0 && x < this.mapLayout.width && y >= 0 && y < this.mapLayout.height) {
-            return this.tiles[y][x];
+        for (let c = 0; c < this.generationSettings.fortsCount; c++) {
+
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Fort.terrain_filter);
+            chosenTile.structureData = StructureDatas.Fort;
+
+            if (StructureDatas.Fort.flatten_terrain) {
+                chosenTile.terrainData = TerrainDatas.Grass;
+            }
+        }
+
+        for (let c = 0; c < this.generationSettings.cavesCount; c++) {
+
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Cave_Entrance.terrain_filter);
+            chosenTile.structureData = StructureDatas.Cave_Entrance;
+
+            if (StructureDatas.Castle.flatten_terrain) {
+                chosenTile.terrainData = TerrainDatas.Grass;
+            }
+        }
+
+        for (let f = 0; f < this.generationSettings.farmsCount; f++) {
+
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Farm_Hut.terrain_filter);
+            chosenTile.structureData = StructureDatas.Farm_Hut;
+
+            if (StructureDatas.Castle.flatten_terrain) {
+                chosenTile.terrainData = TerrainDatas.Grass;
+            }
+
+            let neighbourHexes: Phaser.Math.Vector2[] = this.hexGrid.getGridHexNeighbours(chosenTile.coordinates);
+            let chosenFieldTile: Tile | undefined = this.getTile(neighbourHexes[this.randomGenerator.between(0, neighbourHexes.length - 1)]);
+
+            if (chosenFieldTile !== undefined) {
+                chosenFieldTile.terrainData = TerrainDatas.Grass
+                chosenFieldTile.structureData = StructureDatas.Wheat_Farm;
+            }
+        }
+
+        for (let v = 0; v < this.generationSettings.villagesCount; v++) {
+
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Village_Small.terrain_filter);
+            chosenTile.structureData = StructureDatas.Village_Small;
+
+            if (StructureDatas.Castle.flatten_terrain) {
+                chosenTile.terrainData = TerrainDatas.Grass;
+            }
+        }
+    }
+
+    public getTile(coord: Phaser.Math.Vector2): Tile | undefined {
+
+        if (coord.x >= 0 && coord.x < this.gridSize.width && coord.y >= 0 && coord.y < this.gridSize.height) {
+            return this.tiles[coord.x][coord.y];
         }
 
         return undefined;
     }
 
-    public setTile(x: number, y: number, type: TerrainType): void {
-
-        if (x >= 0 && x < this.mapLayout.width && y >= 0 && y < this.mapLayout.height) {
-            this.tiles[y][x] = new Tile(TerrainDatas[type]);
+    public forEachTile(func: (x: number, y: number, tile: Tile) => void) {
+        for (let x = 0; x < this.gridSize.width; x++) {
+            for (let y = 0; y < this.gridSize.height; y++) {
+                func(x, y, this.tiles[x][y]);
+            }
         }
+    }
+
+    public getRandomTile(terrainFilters: TerrainType[] | undefined): Tile {
+
+        let flatTiles: Tile[] = this.tiles.flat();
+
+        if (terrainFilters !== undefined) {
+            flatTiles = flatTiles.filter(tile => terrainFilters.some(terrainFilter => tile.terrainData.name == terrainFilter));
+        }
+
+        return flatTiles[this.randomGenerator.between(0, flatTiles.length - 1)];
     }
 }
 

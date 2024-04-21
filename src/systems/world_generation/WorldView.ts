@@ -1,89 +1,75 @@
-import { tileScalingConfig } from "../../setup/constants";
+import { HexagonGrid } from "../hex_grid/HexagonGrid";
+import { StructureDatas } from "./StructureRecords";
 import { TerrainDatas } from "./TerrainTileRecords";
-import { WorldModel } from "./WorldModel";
+import { GenerationSettings, Tile, WorldModel } from "./WorldModel";
 
 export class WorldView {
 
     scene: Phaser.Scene;
     worldModel: WorldModel;
-    draggableContainer: Phaser.GameObjects.Container | undefined;
+    hexGrid: HexagonGrid;
 
-    tileScale: number = 1;
+    randomGenerator: Phaser.Math.RandomDataGenerator;
 
-    public constructor(scene: Phaser.Scene, worldModel: WorldModel) {
+    public constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, generationSettings: GenerationSettings) {
 
         this.scene = scene;
         this.worldModel = worldModel;
+        this.hexGrid = hexGrid;
+
+        this.randomGenerator = new Phaser.Math.RandomDataGenerator([generationSettings.seed]);
     }
 
     public preloadWorldTiles(): void {
 
         Object.entries(TerrainDatas).forEach(([terrainType, terrainData]) => {
-            console.log(terrainType);
-            console.log(terrainData.path);
-
             this.scene.load.image(terrainType, terrainData.path);
+        });
+
+        Object.entries(StructureDatas).forEach(([structureType, structureData]) => {
+            this.scene.load.image(structureType, structureData.path);
+
+            if (structureData.alt_path !== undefined) {
+                this.scene.load.image(structureType + "_alt", structureData.alt_path);
+            }
         });
     }
 
-    public drawWorld(): Phaser.GameObjects.Container {
+    public drawWorld(): void {
 
-        this.tileScale = this.scene.sys.canvas.width / (tileScalingConfig.horizontallyDisplayedTileCount * tileScalingConfig.tileSpriteWidth);
+        // Draw all the base terrain tiles
 
-        this.draggableContainer = this.scene.add.container();
+        this.worldModel.forEachTile((x, y, tile) => {
 
-        // Create images for each terain tile and group them in the map container
+            let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
 
-        for (let y = 0; y < this.worldModel.tiles.length; y++) {
+            let tileSpriteKey: string = tile.terrainData.name;
 
-            for (let x = 0; x < this.worldModel.tiles[y].length; x++) {
+            let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
+            terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
 
-                let pixelPosition: Phaser.Math.Vector2 = this.convertGridToPixelCoords(x, y);
+            this.hexGrid.draggableContainer?.add(terrainSprite);
+        })
 
-                let tileSpriteKey: string = this.worldModel.tiles[x][y].terrainData.name;
+        // Draw the dotted structures on top
 
-                let terrainSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, tileSpriteKey);
-                terrainSprite.setScale(this.tileScale);
+        this.worldModel.forEachTile((x, y, tile) => {
 
-                this.draggableContainer.add(terrainSprite);
+            if (tile.structureData === undefined)
+                return;
+
+            let pixelPosition: Phaser.Math.Vector2 = this.hexGrid.convertGridHexToPixelHex(new Phaser.Math.Vector2(x, y));
+
+            let structureSpriteKey: string = tile.structureData.name;
+
+            if (tile.structureData.alt_path !== undefined && this.randomGenerator.between(0, 1) == 1) {
+                structureSpriteKey += "_alt";
             }
-        }
 
-        // Make the map draggable
+            let structureSprite: Phaser.GameObjects.Image = this.scene.add.image(pixelPosition.x, pixelPosition.y, structureSpriteKey);
+            structureSprite.setScale(this.hexGrid.hexScale * tile.structureData.sprite_scale, this.hexGrid.hexScale * tile.structureData.sprite_scale);
 
-        this.draggableContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.getTotalMapWidth(), this.getTotalMapWidth()), Phaser.Geom.Rectangle.Contains);
-
-        this.scene.input.setDraggable([this.draggableContainer])
-
-        this.draggableContainer.on('drag', this.onDragMap, this);
-
-        return this.draggableContainer;
-    }
-
-    public convertGridToPixelCoords(x: number, y: number): Phaser.Math.Vector2 {
-
-        let offsetX = y % 2 == 1 ? (this.tileScale * tileScalingConfig.tileSpriteWidth) / 2 : 0;
-
-        let tilePositionX: number = ((this.tileScale * tileScalingConfig.tileSpriteWidth) * x) + offsetX;
-        let tilePositionY: number = (this.tileScale * tileScalingConfig.tileSpriteHeight) * y * 0.75;
-
-        return new Phaser.Math.Vector2(tilePositionX, tilePositionY);
-    }
-
-    public getTotalMapWidth(): number {
-        return ((this.tileScale * tileScalingConfig.tileSpriteWidth) * (this.worldModel.tiles[0].length - 1)) + (this.tileScale * tileScalingConfig.tileSpriteWidth) / 2;
-    }
-
-    public getTotalMapHeight(): number {
-        return ((this.tileScale * tileScalingConfig.tileSpriteHeight) * this.worldModel.tiles.length) * 0.75 - (this.tileScale * tileScalingConfig.tileSpriteHeight) / 2;
-    }
-
-    public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
-
-        if (this.draggableContainer === undefined)
-            return;
-
-        this.draggableContainer.x = Phaser.Math.Clamp(dragX, -this.getTotalMapWidth() + this.scene.sys.canvas.width, 0);
-        this.draggableContainer.y = Phaser.Math.Clamp(dragY, -this.getTotalMapHeight() + this.scene.sys.canvas.height, 0);
+            this.hexGrid.draggableContainer?.add(structureSprite);
+        });
     }
 }

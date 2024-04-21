@@ -5,7 +5,9 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { defaultMapLayout } from '../setup/constants';
+import { defaultGenerationSettings, defaultGridSize } from '../setup/constants';
+import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
+import { RegionOutline } from '../systems/regions/RegionOutline';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 
@@ -16,17 +18,20 @@ export default class GameScene extends Phaser.Scene {
   private gameTimeText: Phaser.GameObjects.Text | undefined;
   private eventSubscription: (() => void) | undefined;
 
+  private hexGrid: HexagonGrid;
   private worldModel: WorldModel;
   private worldView: WorldView;
 
   public constructor() {
     super({ key: 'GameScene' });
 
-    this.worldModel = new WorldModel(defaultMapLayout);
-    this.worldView = new WorldView(this, this.worldModel);
+    this.hexGrid = new HexagonGrid(this, defaultGridSize);
+    this.worldModel = new WorldModel(this.hexGrid, defaultGridSize, defaultGenerationSettings);
+    this.worldView = new WorldView(this, this.hexGrid, this.worldModel, defaultGenerationSettings);
   }
 
   public preload() {
+    this.hexGrid.preload();
     this.worldView.preloadWorldTiles();
   }
 
@@ -96,7 +101,7 @@ export default class GameScene extends Phaser.Scene {
     );
   }
 
-  public handleDataUpdate = (data: GameData) =>  {
+  public handleDataUpdate = (data: GameData) => {
     console.log('Data received in GameScene: ', data);
   }
 
