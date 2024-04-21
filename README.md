@@ -6,7 +6,7 @@ Arcane Empire is a resource and time management game with political intrique and
 
 It has been developed for the Gamedev.js 2024 game jam: https://itch.io/jam/gamedevjs-2024
 
-The game is built with Phaser.js in a Preact wrapper.
+The game is built with Phaser.js in a Preact wrapper. There is a node backend to connect with the OpenAI apis here: https://github.com/GeorgeHarland/arcane-empire-backend
 
 ## Getting Started
 
@@ -26,4 +26,5 @@ We welcome contributions to Arcane Empire. If you would like to contribute, plea
 All assets used have free-to-use licenses. Please check out the creators!
 
 Loading screen character sprite - https://lionheart963.itch.io/rogue-like-character
+
 Terrain tiles - https://opengameart.org/content/pixel-art-terrain-from-elite-command
