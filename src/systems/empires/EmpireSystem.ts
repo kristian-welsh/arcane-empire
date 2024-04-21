@@ -9,6 +9,7 @@ export interface EmpireSettings {
     numberOfEmpires: number;
     minStartSize: number;
     maxStartSize: number;
+    minSeparationDistance: number;
 }
 
 export class EmpiresSystem {
@@ -34,6 +35,10 @@ export class EmpiresSystem {
         for (let i = 0; i < empireSettings.numberOfEmpires; i++) {
 
             let captialTile: Tile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
+
+            while (this.empires.some(empire => empire.capitalTile.coordinates.distance(captialTile.coordinates) <= empireSettings.minSeparationDistance)) {
+                captialTile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
+            }
 
             this.empires[i] = new Empire(this,
                 empireNames[this.randomGenerator.between(0, empireNames.length)],

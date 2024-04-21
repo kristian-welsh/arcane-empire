@@ -19,9 +19,10 @@ export const defaultGenerationSettings: GenerationSettings = {
 
 export const defaultEmpireSettings: EmpireSettings = {
     seed: "default",
-    numberOfEmpires: 6,
+    numberOfEmpires: 4,
     minStartSize: 10,
-    maxStartSize: 22
+    maxStartSize: 22,
+    minSeparationDistance: 12
 }
 
 export const empireNames: string[] = [
@@ -181,11 +182,11 @@ export const castleNames: string[] = [
 ];
 
 export const empireColours = [
-    0xe305f7, // Magenta
+    0x43fa00, // Green
     0xfae102, // Yellow
     0x00e5fa, // Cyan
-    0xfa6d02, // Orange
-    0x43fa00, // Green
     0xfa0f02, // Red
+    0xfa6d02, // Orange
+    0xfa02b8, // Magenta
 ]
 
