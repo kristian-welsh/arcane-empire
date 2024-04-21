@@ -12,5 +12,6 @@ export const defaultGenerationSettings: GenerationSettings = {
     fortsCount: 8,
     cavesCount: 4,
     farmsCount: 14,
-    villagesCount: 14
+    villagesCount: 14,
+    wizardTowersCount: 1
 }
