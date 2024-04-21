@@ -1,10 +1,10 @@
-import { GridSize } from "../hex_grid/HexagonGrid";
+import { GridSize, HexagonGrid } from "../hex_grid/HexagonGrid";
 import { StructureData, StructureDatas } from "./StructureRecords";
 import { TerrainType, TerrainData, TerrainTypes, TerrainDatas } from "./TerrainTileRecords";
 
 export interface GenerationSettings {
     seed: string;
-    castlesCount: number;
+    fortsCount: number;
     cavesCount: number;
     farmsCount: number;
     villagesCount: number;
@@ -28,12 +28,14 @@ export class WorldModel {
     gridSize: GridSize;
     generationSettings: GenerationSettings;
 
+    hexGrid: HexagonGrid;
     tiles: Tile[][];
 
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
-    public constructor(gridSize: GridSize, generationSettings: GenerationSettings) {
+    public constructor(hexGrid: HexagonGrid, gridSize: GridSize, generationSettings: GenerationSettings) {
 
+        this.hexGrid = hexGrid;
         this.gridSize = gridSize;
         this.generationSettings = generationSettings;
 
@@ -75,12 +77,12 @@ export class WorldModel {
 
     private generateStructures(): void {
 
-        for (let c = 0; c < this.generationSettings.castlesCount; c++) {
+        for (let c = 0; c < this.generationSettings.fortsCount; c++) {
 
-            let chosenTile: Tile = this.getRandomTile(StructureDatas.Castle.terrain_filter);
-            chosenTile.structureData = StructureDatas.Castle;
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Fort.terrain_filter);
+            chosenTile.structureData = StructureDatas.Fort;
 
-            if (StructureDatas.Castle.flatten_terrain) {
+            if (StructureDatas.Fort.flatten_terrain) {
                 chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
@@ -97,13 +99,19 @@ export class WorldModel {
 
         for (let f = 0; f < this.generationSettings.farmsCount; f++) {
 
-            //TODO Farms should generate with a wheath field or paddle next to it
-
             let chosenTile: Tile = this.getRandomTile(StructureDatas.Farm_Hut.terrain_filter);
             chosenTile.structureData = StructureDatas.Farm_Hut;
 
             if (StructureDatas.Castle.flatten_terrain) {
                 chosenTile.terrainData = TerrainDatas.Grass;
+            }
+
+            let neighbourHexes: Phaser.Math.Vector2[] = this.hexGrid.getGridHexNeighbours(chosenTile.coordinates);
+            let chosenFieldTile: Tile | undefined = this.getTile(neighbourHexes[this.randomGenerator.between(0, neighbourHexes.length - 1)]);
+
+            if (chosenFieldTile !== undefined) {
+                chosenFieldTile.terrainData = TerrainDatas.Grass
+                chosenFieldTile.structureData = StructureDatas.Wheat_Farm;
             }
         }
 

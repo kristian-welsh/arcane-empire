@@ -9,7 +9,7 @@ export const defaultGridSize: GridSize = {
 
 export const defaultGenerationSettings: GenerationSettings = {
     seed: "default",
-    castlesCount: 8,
+    fortsCount: 8,
     cavesCount: 4,
     farmsCount: 14,
     villagesCount: 14

@@ -9,6 +9,7 @@ import { TerrainType } from "./TerrainTileRecords";
 
 export enum StructureType {
     Castle = "Castle",
+    Fort = "Fort",
     Cave_Entrance = "Cave_Entrance",
     Village_Small = "Village_Small",
     Farm_Hut = "Farm_Hut",
@@ -24,7 +25,6 @@ export type StructureData = {
     walkable_difficulty_modifier: number; // Higher equals harder
     terrain_filter?: TerrainType[];
     flatten_terrain: boolean;
-
 };
 
 export const StructureTypes: (keyof typeof StructureType)[] = <(keyof typeof StructureType)[]>Object.keys(StructureType);
@@ -33,8 +33,15 @@ export const StructureDatas: Record<StructureType, StructureData> = {
     Castle: {
         name: StructureType.Castle,
         path: castle_1_path,
-        alt_path: castle_2_path,
-        sprite_scale: 1.5,
+        sprite_scale: 1.75,
+        is_walkable: true,
+        walkable_difficulty_modifier: 0,
+        flatten_terrain: true,
+    },
+    Fort: {
+        name: StructureType.Fort,
+        path: castle_2_path,
+        sprite_scale: 1.25,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
         terrain_filter: [TerrainType.Grass, TerrainType.Forest],

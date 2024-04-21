@@ -11,7 +11,7 @@ export class WorldView {
 
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
-    public constructor(scene: Phaser.Scene, worldModel: WorldModel, hexGrid: HexagonGrid, generationSettings: GenerationSettings) {
+    public constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, generationSettings: GenerationSettings) {
 
         this.scene = scene;
         this.worldModel = worldModel;
