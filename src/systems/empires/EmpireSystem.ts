@@ -74,7 +74,7 @@ export class EmpiresSystem {
 
     }
 
-    public drawEmpires(): void {
+    public create(): void {
 
         this.empires.forEach((empire: Empire) => {
 

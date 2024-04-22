@@ -67,30 +67,30 @@ export default class GameScene extends Phaser.Scene {
       }
     );
 
-    const startButton = this.add.text(
-      this.cameras.main.centerX,
-      this.cameras.main.centerY,
-      'End game',
-      {
-        fontSize: '24px',
-        color: '#FFFFFF',
-      })
-      .setOrigin(0.5);
+    // const startButton = this.add.text(
+    //   this.cameras.main.centerX,
+    //   this.cameras.main.centerY,
+    //   'End game',
+    //   {
+    //     fontSize: '24px',
+    //     color: '#FFFFFF',
+    //   })
+    //   .setOrigin(0.5);
 
-    startButton.setInteractive({ useHandCursor: true });
+    // startButton.setInteractive({ useHandCursor: true });
 
-    startButton.on(
-      'pointerup',
-      () => {
-        this.data.set('gametime', this.elapsedSeconds);
-        startScene(this, 'PostGameScene');
-      },
-      this
-    );
+    // startButton.on(
+    //   'pointerup',
+    //   () => {
+    //     this.data.set('gametime', this.elapsedSeconds);
+    //     startScene(this, 'PostGameScene');
+    //   },
+    //   this
+    // );
 
-    this.worldView.drawWorld();
-    this.empireSystem.drawEmpires();
-    this.wizardManager.drawWizards();
+    this.worldView.create();
+    this.empireSystem.create();
+    this.wizardManager.create();
   }
 
   public update(time: number): void {

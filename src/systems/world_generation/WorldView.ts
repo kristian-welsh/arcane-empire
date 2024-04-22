@@ -35,7 +35,7 @@ export class WorldView {
         });
     }
 
-    public drawWorld(): void {
+    public create(): void {
 
         // Draw all the base terrain tiles
 

@@ -29,6 +29,14 @@ export class Wizard {
         return this.image;
     }
 
+    public getImage(): Phaser.GameObjects.Image {
+
+        if (this.image === undefined)
+            throw "Attempting to access wizard image before it's been created";
+
+        return this.image;
+    }
+
     public setIdle(): void {
         this.wizardManager.scene.time.addEvent({
             callback: this.flipSpriteTimerEvent,
