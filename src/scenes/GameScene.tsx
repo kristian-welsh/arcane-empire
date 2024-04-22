@@ -5,9 +5,9 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { defaultGenerationSettings, defaultGridSize } from '../setup/constants';
+import { defaultEmpireSettings, defaultGenerationSettings, defaultGridSize } from '../setup/constants';
+import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
-import { RegionOutline } from '../systems/regions/RegionOutline';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 
@@ -21,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
   private hexGrid: HexagonGrid;
   private worldModel: WorldModel;
   private worldView: WorldView;
+  private empireSystem: EmpiresSystem;
 
   public constructor() {
     super({ key: 'GameScene' });
@@ -28,11 +29,12 @@ export default class GameScene extends Phaser.Scene {
     this.hexGrid = new HexagonGrid(this, defaultGridSize);
     this.worldModel = new WorldModel(this.hexGrid, defaultGridSize, defaultGenerationSettings);
     this.worldView = new WorldView(this, this.hexGrid, this.worldModel, defaultGenerationSettings);
+    this.empireSystem = new EmpiresSystem(this, this.hexGrid, this.worldModel, defaultEmpireSettings);
   }
 
   public preload() {
     this.hexGrid.preload();
-    this.worldView.preloadWorldTiles();
+    this.worldView.preload();
   }
 
   public create() {
@@ -83,6 +85,7 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.worldView.drawWorld();
+    this.empireSystem.drawEmpires();
   }
 
   public update(time: number): void {

@@ -1,3 +1,4 @@
+import { EmpireSettings } from "../systems/empires/EmpireSystem";
 import { GridSize } from "../systems/hex_grid/HexagonGrid";
 import { GenerationSettings } from "../systems/world_generation/WorldModel";
 
@@ -12,5 +13,23 @@ export const defaultGenerationSettings: GenerationSettings = {
     fortsCount: 8,
     cavesCount: 4,
     farmsCount: 14,
-    villagesCount: 14
+    villagesCount: 14,
+    wizardTowersCount: 1
 }
+
+export const defaultEmpireSettings: EmpireSettings = {
+    seed: "default",
+    numberOfEmpires: 4,
+    minStartSize: 10,
+    maxStartSize: 22,
+    minSeparationDistance: 12
+}
+
+export const empireColours = [
+    0x43fa00, // Green
+    0xfae102, // Yellow
+    0x00e5fa, // Cyan
+    0xfa0f02, // Red
+    0xfa6d02, // Orange
+    0xfa02b8, // Magenta
+];

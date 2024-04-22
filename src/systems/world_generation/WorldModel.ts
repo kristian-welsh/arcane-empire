@@ -8,6 +8,7 @@ export interface GenerationSettings {
     cavesCount: number;
     farmsCount: number;
     villagesCount: number;
+    wizardTowersCount: number;
 }
 
 export class Tile {
@@ -106,7 +107,7 @@ export class WorldModel {
                 chosenTile.terrainData = TerrainDatas.Grass;
             }
 
-            let neighbourHexes: Phaser.Math.Vector2[] = this.hexGrid.getGridHexNeighbours(chosenTile.coordinates);
+            let neighbourHexes: Phaser.Math.Vector2[] = this.hexGrid.getNeighbouringHexes(chosenTile.coordinates);
             let chosenFieldTile: Tile | undefined = this.getTile(neighbourHexes[this.randomGenerator.between(0, neighbourHexes.length - 1)]);
 
             if (chosenFieldTile !== undefined) {
@@ -124,6 +125,17 @@ export class WorldModel {
                 chosenTile.terrainData = TerrainDatas.Grass;
             }
         }
+
+        for (let c = 0; c < this.generationSettings.wizardTowersCount; c++) {
+
+            let chosenTile: Tile = this.getRandomTile(StructureDatas.Wizard_Tower.terrain_filter);
+            chosenTile.structureData = StructureDatas.Wizard_Tower;
+
+            if (StructureDatas.Wizard_Tower.flatten_terrain) {
+                chosenTile.terrainData = TerrainDatas.Grass;
+            }
+        }
+
     }
 
     public getTile(coord: Phaser.Math.Vector2): Tile | undefined {
@@ -133,6 +145,19 @@ export class WorldModel {
         }
 
         return undefined;
+    }
+
+    public getNeighbouringTiles(centreTile: Tile): Tile[] {
+
+        let neighbourHexes: Phaser.Math.Vector2[] = this.hexGrid.getNeighbouringHexes(centreTile.coordinates);
+
+        let neighbourTiles: Tile[] = [];
+
+        for (let i = 0; i < neighbourHexes.length; i++) {
+            neighbourTiles[i] = this.tiles[neighbourHexes[i].x][neighbourHexes[i].y];
+        }
+
+        return neighbourTiles;
     }
 
     public forEachTile(func: (x: number, y: number, tile: Tile) => void) {

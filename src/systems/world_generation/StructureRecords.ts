@@ -5,6 +5,8 @@ import farm_hut_1_path from "../../assets/environment/structures/farm_hut_1.png"
 import farm_hut_2_path from "../../assets/environment/structures/farm_hut_2.png";
 import village_small_path from "../../assets/environment/structures/village_small.png";
 import wheat_farm_path from "../../assets/environment/structures/wheat_farm.png";
+import wizard_tower_path from "../../assets/environment/structures/mage_tower.png";
+
 import { TerrainType } from "./TerrainTileRecords";
 
 export enum StructureType {
@@ -13,7 +15,8 @@ export enum StructureType {
     Cave_Entrance = "Cave_Entrance",
     Village_Small = "Village_Small",
     Farm_Hut = "Farm_Hut",
-    Wheat_Farm = "Wheat_Farm"
+    Wheat_Farm = "Wheat_Farm",
+    Wizard_Tower = "Wizard_Tower"
 }
 
 export type StructureData = {
@@ -33,7 +36,7 @@ export const StructureDatas: Record<StructureType, StructureData> = {
     Castle: {
         name: StructureType.Castle,
         path: castle_1_path,
-        sprite_scale: 1.75,
+        sprite_scale: 1.7,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
         flatten_terrain: true,
@@ -41,7 +44,7 @@ export const StructureDatas: Record<StructureType, StructureData> = {
     Fort: {
         name: StructureType.Fort,
         path: castle_2_path,
-        sprite_scale: 1.25,
+        sprite_scale: 1.3,
         is_walkable: true,
         walkable_difficulty_modifier: 0,
         terrain_filter: [TerrainType.Grass, TerrainType.Forest],
@@ -83,5 +86,13 @@ export const StructureDatas: Record<StructureType, StructureData> = {
         walkable_difficulty_modifier: 0,
         terrain_filter: undefined,
         flatten_terrain: true,
-    }
+    },
+    Wizard_Tower: {
+        name: StructureType.Wizard_Tower,
+        path: wizard_tower_path,
+        sprite_scale: 0.35,
+        is_walkable: true,
+        walkable_difficulty_modifier: 0,
+        flatten_terrain: true,
+    },
 };

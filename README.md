@@ -29,3 +29,4 @@ Loading screen character sprite - https://lionheart963.itch.io/rogue-like-charac
 
 Terrain tiles - https://opengameart.org/content/pixel-art-terrain-from-elite-command
 Structures - https://opengameart.org/content/basic-hex-tile-set-16x16 and https://opengameart.org/content/basic-hex-tile-set-plus-16x16
+Wizards - https://free-game-assets.itch.io/mage-towers-pixel-art-for-tower-defense

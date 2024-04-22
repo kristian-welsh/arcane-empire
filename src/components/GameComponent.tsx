@@ -35,6 +35,7 @@ export const GameComponent = ({ className }: { className?: string }) => {
             gravity: { x: 0, y: 0 },
           },
         },
+        pixelArt: true,
         scale: {
           mode: Phaser.Scale.NONE,
           autoCenter: Phaser.Scale.NO_CENTER,

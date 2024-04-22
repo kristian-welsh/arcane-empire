@@ -20,7 +20,7 @@ export class WorldView {
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([generationSettings.seed]);
     }
 
-    public preloadWorldTiles(): void {
+    public preload(): void {
 
         Object.entries(TerrainDatas).forEach(([terrainType, terrainData]) => {
             this.scene.load.image(terrainType, terrainData.path);
