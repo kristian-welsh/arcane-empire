@@ -5,9 +5,10 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { defaultEmpireSettings, defaultGenerationSettings, defaultGridSize } from '../setup/constants';
+import { defaultEmpireSettings, defaultGenerationSettings, defaultGridSize, defaultWizardSettings } from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
+import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 
@@ -22,6 +23,7 @@ export default class GameScene extends Phaser.Scene {
   private worldModel: WorldModel;
   private worldView: WorldView;
   private empireSystem: EmpiresSystem;
+  private wizardManager: WizardManager;
 
   public constructor() {
     super({ key: 'GameScene' });
@@ -30,11 +32,13 @@ export default class GameScene extends Phaser.Scene {
     this.worldModel = new WorldModel(this.hexGrid, defaultGridSize, defaultGenerationSettings);
     this.worldView = new WorldView(this, this.hexGrid, this.worldModel, defaultGenerationSettings);
     this.empireSystem = new EmpiresSystem(this, this.hexGrid, this.worldModel, defaultEmpireSettings);
+    this.wizardManager = new WizardManager(this, this.hexGrid, this.worldModel, defaultWizardSettings);
   }
 
   public preload() {
     this.hexGrid.preload();
     this.worldView.preload();
+    this.wizardManager.preload();
   }
 
   public create() {
@@ -86,6 +90,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.worldView.drawWorld();
     this.empireSystem.drawEmpires();
+    this.wizardManager.drawWizards();
   }
 
   public update(time: number): void {
@@ -102,6 +107,8 @@ export default class GameScene extends Phaser.Scene {
       this.scale.width / 1.05 - this.gameTimeText.width,
       this.scale.height / 40
     );
+
+    this.wizardManager.update();
   }
 
   public handleDataUpdate = (data: GameData) => {

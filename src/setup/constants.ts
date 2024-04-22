@@ -1,5 +1,6 @@
 import { EmpireSettings } from "../systems/empires/EmpireSystem";
 import { GridSize } from "../systems/hex_grid/HexagonGrid";
+import { WizardSetings } from "../systems/wizards/WizardManager";
 import { GenerationSettings } from "../systems/world_generation/WorldModel";
 
 // Temp till we get a game setup menu
@@ -23,6 +24,16 @@ export const defaultEmpireSettings: EmpireSettings = {
     minStartSize: 10,
     maxStartSize: 22,
     minSeparationDistance: 12
+}
+
+export const defaultWizardSettings: WizardSetings = {
+    seed: "default",
+    numberOfWizaards: {
+        fire: 1,
+        water: 2,
+        earth: 1,
+        air: 1
+    }
 }
 
 export const empireColours = [

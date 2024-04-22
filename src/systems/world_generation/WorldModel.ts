@@ -1,5 +1,6 @@
 import { GridSize, HexagonGrid } from "../hex_grid/HexagonGrid";
-import { StructureData, StructureDatas } from "./StructureRecords";
+import { Wizard } from "../wizards/Wizard";
+import { StructureData, StructureDatas, StructureType } from "./StructureRecords";
 import { TerrainType, TerrainData, TerrainTypes, TerrainDatas } from "./TerrainTileRecords";
 
 export interface GenerationSettings {
@@ -13,14 +14,25 @@ export interface GenerationSettings {
 
 export class Tile {
 
+    parentWorldModel: WorldModel;
+
     coordinates: Phaser.Math.Vector2;
     terrainData: TerrainData
     structureData: StructureData | undefined;
 
-    constructor(coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {
+    wizardSlots: Wizard[];
 
+    constructor(parentWorldModel: WorldModel, coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {
+
+        this.parentWorldModel = parentWorldModel;
         this.coordinates = coordinates;
         this.terrainData = terrainType;
+
+        this.wizardSlots = [];
+    }
+
+    public getWizardCapacity(): number {
+        return 5 - this.wizardSlots.length; // Hard coded 5 slots for now but should probably be in a setting somewhere
     }
 }
 
@@ -51,7 +63,7 @@ export class WorldModel {
             this.tiles[x] = [];
 
             for (let y = 0; y < this.gridSize.height; y++) {
-                this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+                this.tiles[x][y] = new Tile(this, new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
             }
         }
 
@@ -67,10 +79,10 @@ export class WorldModel {
             for (let y = 0; y < this.gridSize.height; y++) {
 
                 if (y <= 1 || x <= 1 || y >= this.gridSize.height - 2 || x >= this.gridSize.width - 2) {
-                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
+                    this.tiles[x][y] = new Tile(this, new Phaser.Math.Vector2(x, y), TerrainDatas.Ocean);
                 } else {
                     let randomTerrainData: TerrainData = TerrainDatas[TerrainTypes[this.randomGenerator.between(0, 3)]];
-                    this.tiles[x][y] = new Tile(new Phaser.Math.Vector2(x, y), randomTerrainData);
+                    this.tiles[x][y] = new Tile(this, new Phaser.Math.Vector2(x, y), randomTerrainData);
                 }
             }
         }
@@ -168,7 +180,7 @@ export class WorldModel {
         }
     }
 
-    public getRandomTile(terrainFilters: TerrainType[] | undefined): Tile {
+    public getRandomTile(terrainFilters: TerrainType[] | undefined = undefined, sturctureFilters: StructureType[] | undefined = undefined): Tile {
 
         let flatTiles: Tile[] = this.tiles.flat();
 
@@ -176,7 +188,12 @@ export class WorldModel {
             flatTiles = flatTiles.filter(tile => terrainFilters.some(terrainFilter => tile.terrainData.name == terrainFilter));
         }
 
+        if (sturctureFilters !== undefined) {
+            flatTiles = flatTiles.filter(tile => sturctureFilters.some(sturctureFilter => tile.structureData !== undefined && tile.structureData.name == sturctureFilter));
+        }
+
         return flatTiles[this.randomGenerator.between(0, flatTiles.length - 1)];
     }
+
 }
 

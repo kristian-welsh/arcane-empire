@@ -76,6 +76,14 @@ export class HexagonGrid {
         return corners;
     }
 
+    public getUnitSlotPixelPosition(gridHex: Phaser.Math.Vector2, slotIndex: number): Phaser.Math.Vector2 {
+
+        let hexPixelPosition: Phaser.Math.Vector2 = this.convertGridHexToPixelHex(gridHex);
+        let hexPixelConerPosition: Phaser.Math.Vector2 = this.getPixelHexCorner(gridHex, slotIndex);
+
+        let cornerDirection = hexPixelConerPosition.subtract(hexPixelPosition).scale(0.5);
+        return hexPixelPosition.add(cornerDirection);
+    }
 
     public getNeighbouringHexes(hex: Phaser.Math.Vector2, removeOutOfBounds: boolean = true): Phaser.Math.Vector2[] {
 
@@ -113,6 +121,14 @@ export class HexagonGrid {
 
     public getPixelHeight(): number {
         return (this.scaledHexHeight * this.gridSize.height) * 0.75 - (this.scaledHexHeight / 2);
+    }
+
+    public getContainer(): Phaser.GameObjects.Container {
+
+        if (this.draggableContainer === undefined)
+            throw "draggableContainer is undefined";
+
+        return this.draggableContainer;
     }
 
     public onDragMap(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
