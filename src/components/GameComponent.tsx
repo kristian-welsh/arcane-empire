@@ -6,7 +6,7 @@ import InitialScene from '../scenes/InitialScene';
 import MenuScene from '../scenes/MenuScene';
 import PostGameScene from '../scenes/PostGameScene';
 
-export const GameComponent = ({ className }: { className: string }) => {
+export const GameComponent = ({ className }: { className?: string }) => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
 
   const [game, setGame] = useState<Phaser.Game | null>(null);
@@ -59,5 +59,5 @@ export const GameComponent = ({ className }: { className: string }) => {
     }
   }, []);
 
-  return <div className={className} ref={gameContainerRef} />;
+  return <div className={className || ''} ref={gameContainerRef} />;
 };
