@@ -93,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
     this.wizardManager.create();
   }
 
-  public update(time: number): void {
+  public update(time: number, deltaTimeMs: number): void {
     if (!this.gameStarted) {
       this.elapsedSeconds = 0;
       this.startTime = this.time.now;
@@ -108,7 +108,7 @@ export default class GameScene extends Phaser.Scene {
       this.scale.height / 40
     );
 
-    this.wizardManager.update();
+    this.wizardManager.update(deltaTimeMs);
   }
 
   public handleDataUpdate = (data: GameData) => {

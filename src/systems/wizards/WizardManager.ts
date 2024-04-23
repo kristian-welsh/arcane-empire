@@ -26,8 +26,8 @@ export class WizardManager {
 
     wizards: Wizard[];
 
-    stationaryWizards: [Wizard, Tile][];
-    movingWizards: [Wizard, MovementAction][];
+    staticWizards: Map<Wizard, Tile>;
+    movingWizards: Map<Wizard, MovementAction>;
 
     constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, wizardSettings: WizardSetings) {
 
@@ -42,8 +42,8 @@ export class WizardManager {
 
         this.wizards = [];
 
-        this.stationaryWizards = [];
-        this.movingWizards = [];
+        this.staticWizards = new Map<Wizard, Tile>();
+        this.movingWizards = new Map<Wizard, MovementAction>();
 
         for (let i = 0; i < wizardSettings.numberOfWizaards.fire; i++) {
             this.wizards.push(new Wizard(this, this.getRandomWizardName(ElementalPower.Fire), WizardDatas.fire));
@@ -77,13 +77,17 @@ export class WizardManager {
 
             this.wizards[i].spawnWizard();
 
-            this.stationaryWizards.push([this.wizards[i], this.guildTowerTile]);
+            this.staticWizards.set(this.wizards[i], this.guildTowerTile);
 
             //this.wizards[i].setIdle();
         }
+
+        this.sendWizardToTile(this.wizards[0], this.worldModel.getRandomTile());
     }
 
-    public update(): void {
+    public update(deltaTimeMs: number): void {
+
+        // Lock the idle wizards to their respective slot on their tile
 
         this.getOccupiedTiles().forEach(tile => {
 
@@ -100,7 +104,11 @@ export class WizardManager {
             })
         });
 
+        // Update the motions of any wizards moving between tiles
 
+        for (const [_, movementAction] of this.movingWizards.entries()) {
+            movementAction.update(deltaTimeMs);
+        };
     }
 
     public getRandomWizardName(powerType: ElementalPower): string {
@@ -124,24 +132,43 @@ export class WizardManager {
 
     public getOccupiedTiles(): Tile[] {
 
-        return this.stationaryWizards.map(([_, tile]) => tile);
+        return Array.from(this.staticWizards.values());
     }
 
     public getWizardsOnTile(tileToCheck: Tile): Wizard[] {
 
-        if (this.stationaryWizards.some(([_, tile]) => tile == tileToCheck) == false)
-            return [];
+        let wizards: Wizard[] = [];
 
-        let wizardPairsForTile: [Wizard, Tile][] = this.stationaryWizards.filter(([_, tile]) => tile == tileToCheck);
+        for (const [wizard, tile] of this.staticWizards.entries()) {
+            if (tile === tileToCheck) {
+                wizards.push(wizard);
+            }
+        }
 
-        return wizardPairsForTile.map(([wizard, _]) => wizard);
+        return wizards;
     }
 
-    public sendWizardToTile(wizard: Wizard, tile: Tile): void {
+    public sendWizardToTile(targetWizard: Wizard, targetTile: Tile): void {
 
+        if (this.staticWizards.has(targetWizard) == false)
+            return;
 
+        let currentTile = this.staticWizards.get(targetWizard);
 
+        if (currentTile === undefined)
+            return;
 
+        this.movingWizards.set(targetWizard, new MovementAction(this.hexGrid, targetWizard, currentTile, targetTile, 30, () => {
+            this.setWizardToStatic(targetWizard, targetTile);
+        }));
+
+        this.staticWizards.delete(targetWizard);
+    }
+
+    private setWizardToStatic(targetWizard: Wizard, targetTile: Tile): void {
+
+        this.movingWizards.delete(targetWizard);
+        this.staticWizards.set(targetWizard, targetTile);
     }
 
 }
