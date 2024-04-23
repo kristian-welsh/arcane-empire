@@ -17,6 +17,7 @@
     "luxon": "^3.4.4",
     "phaser": "^3.80.1",
     "preact": "^10.19.6",
+    "tailwind-merge": "^2.3.0",
     "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
