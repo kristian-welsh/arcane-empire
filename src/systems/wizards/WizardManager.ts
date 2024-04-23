@@ -79,7 +79,7 @@ export class WizardManager {
 
             this.staticWizards.set(this.wizards[i], this.guildTowerTile);
 
-            //this.wizards[i].setIdle();
+            this.wizards[i].setIdle();
         }
 
         this.sendWizardToTile(this.wizards[0], this.worldModel.getRandomTile());
