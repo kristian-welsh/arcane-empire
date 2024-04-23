@@ -195,7 +195,7 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
     <div
       className={`h-12 w-12 rounded-full ${statusColor} flex items-center justify-center m-1`}
     >
-      <span className="text-white text-sm">{props.wizard.name}</span>
+      <span className="text-white text-sm">{props.wizard.initials}</span>
     </div>
   );
 };
