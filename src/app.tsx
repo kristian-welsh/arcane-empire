@@ -3,10 +3,27 @@ import './styles/global.css';
 import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
-import React from 'preact/compat';
-import { Wizard, WizardCollection } from './types';
+import React, { useEffect, useState } from 'preact/compat';
+import { GameData, Wizard, WizardCollection } from './types';
+import { eventEmitter } from './events/EventEmitter';
 
 export function App() {
+  const [gameState, setGameState] = useState<GameData>(null);
+
+  useEffect(() => {
+    const unsubscribe = eventEmitter.subscribe(
+      'update-app-data',
+      (data: GameData) => {
+        setGameState(data);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  const sendGameStateToPhaser = (gameState: GameData) => {
+    eventEmitter.emit('update-phaser-data', gameState);
+  };
+
   const messages = [
     'Hello World!',
     'Another one 🤙',
@@ -15,31 +32,34 @@ export function App() {
 
   const mockWizardsData: WizardCollection = {
     air: [
-      { name: 'Aero', status: 'idle' },
-      { name: 'Sky', status: 'away' },
-      { name: 'Winno', status: 'away' },
+      { name: 'Aero Hu', initials: 'AH', level: 1, status: 'idle' },
+      { name: 'Sky Alo', initials: 'SA', level: 2, status: 'away' },
+      { name: 'Winno Wina', initials: 'WW', level: 1, status: 'away' },
     ],
-    earth: [{ name: 'Terrat', status: 'idle' }],
+    earth: [{ name: 'Terrat T', initials: 'TT', level: 1, status: 'idle' }],
     fire: [
-      { name: 'Pyro', status: 'idle' },
-      { name: 'Flama', status: 'away' },
-      { name: 'Infar', status: 'idle' },
+      { name: 'Pyro A', initials: 'PA', level: 2, status: 'idle' },
+      { name: 'Flama R', initials: 'FR', level: 3, status: 'away' },
+      { name: 'Infar O', initials: 'IO', level: 1, status: 'idle' },
     ],
     water: [
-      { name: 'Aqua', status: 'idle' },
-      { name: 'Tidal', status: 'idle' },
+      { name: 'Aqua L', initials: 'AL', level: 1, status: 'idle' },
+      { name: 'Tidal W', initials: 'TW', level: 2, status: 'idle' },
     ],
   };
-
-  const mockGold = 300;
-  const mockScore = 32300;
 
   return (
     <div className="h-screen max-h-screen bg-gray-800">
       <div className="flex h-[5%] w-4/5 ml-auto bg-gray-600 py-2 px-6 justify-between text-white items-center rounded-lg">
         <div className="flex gap-4">
-          <Badge className="text-yellow-300" text={`Gold: ${mockGold}`} />
-          <Badge className="text-cyan-200" text={`Score: ${mockScore}`} />
+          <Badge
+            className="text-yellow-300"
+            text={`Gold: ${gameState?.playerGold ?? 0}`}
+          />
+          <Badge
+            className="text-cyan-200"
+            text={`Score: ${gameState?.reputation ?? 0}`}
+          />
         </div>
         <div className="flex gap-4">
           <Badge color="blue" text="Full Screen" onClick={console.log} />
@@ -175,7 +195,7 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
     <div
       className={`h-12 w-12 rounded-full ${statusColor} flex items-center justify-center m-1`}
     >
-      <span className="text-white text-sm">{props.wizard.name}</span>
+      <span className="text-white text-sm">{props.wizard.initials}</span>
     </div>
   );
 };

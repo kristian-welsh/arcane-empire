@@ -5,14 +5,22 @@
 
 import { eventEmitter } from '../events/EventEmitter';
 import { secondsToMMSS, startScene } from '../helpers';
-import { defaultEmpireSettings, defaultGenerationSettings, defaultGridSize, defaultWizardSettings } from '../setup/constants';
+import {
+  defaultEmpireSettings,
+  defaultGenerationSettings,
+  defaultGridSize,
+  defaultWizardSettings,
+} from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
 import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
+import { GameData } from '../types';
 
 export default class GameScene extends Phaser.Scene {
+  public gameState: GameData = null;
+
   private startTime: number = 0;
   private gameStarted: boolean = false;
   private elapsedSeconds: number = 0;
@@ -29,10 +37,29 @@ export default class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
 
     this.hexGrid = new HexagonGrid(this, defaultGridSize);
-    this.worldModel = new WorldModel(this.hexGrid, defaultGridSize, defaultGenerationSettings);
-    this.worldView = new WorldView(this, this.hexGrid, this.worldModel, defaultGenerationSettings);
-    this.empireSystem = new EmpiresSystem(this, this.hexGrid, this.worldModel, defaultEmpireSettings);
-    this.wizardManager = new WizardManager(this, this.hexGrid, this.worldModel, defaultWizardSettings);
+    this.worldModel = new WorldModel(
+      this.hexGrid,
+      defaultGridSize,
+      defaultGenerationSettings
+    );
+    this.worldView = new WorldView(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultGenerationSettings
+    );
+    this.empireSystem = new EmpiresSystem(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultEmpireSettings
+    );
+    this.wizardManager = new WizardManager(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultWizardSettings
+    );
   }
 
   public preload() {
@@ -42,7 +69,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public create() {
-    this.eventSubscription = eventEmitter.subscribe('update-data', this.handleDataUpdate.bind(this));
+    this.eventSubscription = eventEmitter.subscribe(
+      'update-phaser-data',
+      this.handleDataUpdate.bind(this)
+    );
 
     const background = this.add.rectangle(
       0,
@@ -112,8 +142,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public handleDataUpdate = (data: GameData) => {
-    console.log('Data received in GameScene: ', data);
-  }
+    this.gameState = data;
+  };
+
+  public sendDataToPreact = () => {
+    eventEmitter.emit('update-app-data', this.gameState);
+  };
 
   public shutdown() {
     if (this.eventSubscription) {
