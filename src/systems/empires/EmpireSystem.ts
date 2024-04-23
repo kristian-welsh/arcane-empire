@@ -74,13 +74,9 @@ export class EmpiresSystem {
 
     }
 
-    public drawEmpires(): void {
-
-        console.log("preload");
+    public create(): void {
 
         this.empires.forEach((empire: Empire) => {
-
-            console.log(empire);
 
             empire.redrawTerritoryOutline();
         });
