@@ -70,6 +70,20 @@ export default class GameScene extends Phaser.Scene {
       this.worldModel,
       defaultWorldEventSettings
     );
+
+    this.gameState = {
+      wizards: {
+        fire: [],
+        water: [],
+        earth: [],
+        air: []
+      },
+      empires: [],
+      playerGold: 0,
+      reputation: 10,
+      upgrades: {},
+      events: [],
+    }
   }
 
   public preload() {

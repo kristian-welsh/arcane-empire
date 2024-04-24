@@ -39,7 +39,8 @@ export const defaultWizardSettings: WizardSetings = {
 
 export const defaultWorldEventSettings: WorldEventSettings = {
     seed: "default",
-    eventIntervalSec: 10
+    eventIntervalSec: 10,
+    scoreDecreasePerEvent: 1
 }
 
 export const empireColours = [

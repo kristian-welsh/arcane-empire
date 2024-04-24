@@ -49,4 +49,9 @@ export class WorldEvent {
 
         this.chaosProgressBar.setDepth(this.sprite.depth + 10000);
     }
+
+    public atMaxPower(): boolean {
+
+        return this.chaos >= this.eventData.chaosCapacity;
+    }
 }

@@ -1,17 +1,19 @@
+import GameScene from "../../scenes/GameScene";
+import { GameData } from "../../types";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
-import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { WorldEvent } from "./WorldEvent";
-import { WorldEventData, WorldEventDatas, WorldEventType, WorldEventTypes } from "./WorldEventRecords";
+import { WorldEventData, WorldEventDatas, WorldEventTypes } from "./WorldEventRecords";
 
 export interface WorldEventSettings {
     seed: string;
     eventIntervalSec: number;
+    scoreDecreasePerEvent: number;
 }
 
 export class WorldEventsManager {
 
-    scene: Phaser.Scene;
+    scene: GameScene;
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
     hexGrid: HexagonGrid;
@@ -21,7 +23,7 @@ export class WorldEventsManager {
 
     activeEvents: WorldEvent[];
 
-    constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, worldEventSettings: WorldEventSettings) {
+    constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, worldEventSettings: WorldEventSettings) {
 
         this.scene = scene;
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([worldEventSettings.seed]);
@@ -65,6 +67,13 @@ export class WorldEventsManager {
             delay: this.worldEventSettings.eventIntervalSec * 1000,
             loop: true
         });
+
+        this.scene.time.addEvent({
+            callback: this.applyEventEffects,
+            callbackScope: this,
+            delay: 1000,
+            loop: true
+        });
     }
 
     public update(deltaTimeMs: number): void {
@@ -88,6 +97,23 @@ export class WorldEventsManager {
         let worldEvent: WorldEvent = new WorldEvent(this, randomEventData, targetTile);
 
         this.activeEvents.push(worldEvent);
+    }
+
+    private applyEventEffects(): void {
+
+        let eventsAtMaxPowerCount = this.activeEvents.filter(event => event.atMaxPower()).length;
+
+        if (eventsAtMaxPowerCount <= 0)
+            return;
+
+        let totalReputationImpact = eventsAtMaxPowerCount * this.worldEventSettings.scoreDecreasePerEvent;
+
+        this.scene.handleDataUpdate({
+            ...this.scene.gameState!,
+            reputation: this.scene.gameState!.reputation - totalReputationImpact
+        });
+
+        this.scene.sendDataToPreact();
     }
 
 }
