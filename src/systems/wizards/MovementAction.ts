@@ -1,14 +1,14 @@
 import { lerp } from "../../helpers";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { Tile } from "../world_generation/WorldModel";
-import { Wizard } from "./Wizard";
+import { WizardEntity } from "./Wizard";
 
 
 export class MovementAction {
 
     hexGrid: HexagonGrid;
 
-    wizard: Wizard;
+    wizard: WizardEntity;
 
     startTile: Tile;
     endTile: Tile;
@@ -26,7 +26,7 @@ export class MovementAction {
     complete: boolean;
     completeCallback: () => void;
 
-    constructor(hexGrid: HexagonGrid, wizard: Wizard, startTile: Tile, endTile: Tile, speed: number, completeCallback: () => void) {
+    constructor(hexGrid: HexagonGrid, wizard: WizardEntity, startTile: Tile, endTile: Tile, speed: number, completeCallback: () => void) {
 
         this.hexGrid = hexGrid;
 

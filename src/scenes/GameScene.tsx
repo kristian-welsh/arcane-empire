@@ -41,36 +41,6 @@ export default class GameScene extends Phaser.Scene {
   public constructor() {
     super({ key: 'GameScene' });
 
-    this.hexGrid = new HexagonGrid(this, defaultGridSize);
-    this.worldModel = new WorldModel(
-      this.hexGrid,
-      defaultGridSize,
-      defaultGenerationSettings
-    );
-    this.worldView = new WorldView(
-      this,
-      this.hexGrid,
-      this.worldModel,
-      defaultGenerationSettings
-    );
-    this.empireSystem = new EmpiresSystem(
-      this,
-      this.hexGrid,
-      this.worldModel,
-      defaultEmpireSettings
-    );
-    this.wizardManager = new WizardManager(
-      this,
-      this.hexGrid,
-      this.worldModel,
-      defaultWizardSettings
-    );
-    this.worldEventsManager = new WorldEventsManager(
-      this, this.hexGrid,
-      this.worldModel,
-      defaultWorldEventSettings
-    );
-
     this.gameState = {
       wizards: {
         fire: [],
@@ -80,10 +50,47 @@ export default class GameScene extends Phaser.Scene {
       },
       empires: [],
       playerGold: 0,
-      reputation: 10,
+      reputation: 100,
       upgrades: {},
       events: [],
     }
+
+    this.hexGrid = new HexagonGrid(
+      this, defaultGridSize
+    );
+
+    this.worldModel = new WorldModel(
+      this.hexGrid,
+      defaultGridSize,
+      defaultGenerationSettings
+    );
+
+    this.worldView = new WorldView(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultGenerationSettings
+    );
+
+    this.empireSystem = new EmpiresSystem(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultEmpireSettings
+    );
+
+    this.wizardManager = new WizardManager(
+      this,
+      this.hexGrid,
+      this.worldModel,
+      defaultWizardSettings
+    );
+
+    this.worldEventsManager = new WorldEventsManager(
+      this, this.hexGrid,
+      this.worldModel,
+      defaultWorldEventSettings
+    );
   }
 
   public preload() {

@@ -1,5 +1,5 @@
 import { GridSize, HexagonGrid } from "../hex_grid/HexagonGrid";
-import { Wizard } from "../wizards/Wizard";
+import { WizardEntity } from "../wizards/Wizard";
 import { StructureData, StructureDatas, StructureType } from "./StructureRecords";
 import { TerrainType, TerrainData, TerrainTypes, TerrainDatas } from "./TerrainTileRecords";
 
@@ -20,7 +20,7 @@ export class Tile {
     terrainData: TerrainData
     structureData: StructureData | undefined;
 
-    wizardSlots: Wizard[];
+    wizardSlots: WizardEntity[];
 
     constructor(parentWorldModel: WorldModel, coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {
 

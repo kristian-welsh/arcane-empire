@@ -3,7 +3,7 @@ import water_wizard_path from "../../assets/wizards/wizard_blue.png";
 import earth_wizard_path from "../../assets/wizards/wizard_brown.png";
 import air_wizard_path from "../../assets/wizards/wizard_white.png";
 
-export enum ElementalPower {
+export enum WizardType {
     Fire = "fire",
     Water = "water",
     Earth = "earth",
@@ -21,32 +21,32 @@ export interface WizardCounts {
     //metal: number;
 }
 
-export type WizardData = {
-    power: ElementalPower;
+export type WizardGraphicData = {
+    power: WizardType;
     path: string;
     scale: number;
 };
 
-export const ElementalPowers: (keyof typeof ElementalPower)[] = <(keyof typeof ElementalPower)[]>Object.keys(ElementalPower);
+export const WizardTypes: (keyof typeof WizardType)[] = <(keyof typeof WizardType)[]>Object.keys(WizardType);
 
-export const WizardDatas: Record<ElementalPower, WizardData> = {
-    fire: {
-        power: ElementalPower.Fire,
+export const WizardGraphicDatas: Record<WizardType, WizardGraphicData> = {
+    [WizardType.Fire]: {
+        power: WizardType.Fire,
         path: fire_wizard_path,
         scale: 0.75,
     },
-    water: {
-        power: ElementalPower.Water,
+    [WizardType.Water]: {
+        power: WizardType.Water,
         path: water_wizard_path,
         scale: 0.75,
     },
-    earth: {
-        power: ElementalPower.Earth,
+    [WizardType.Earth]: {
+        power: WizardType.Earth,
         path: earth_wizard_path,
         scale: 0.75,
     },
-    air: {
-        power: ElementalPower.Air,
+    [WizardType.Air]: {
+        power: WizardType.Air,
         path: air_wizard_path,
         scale: 0.75,
     },

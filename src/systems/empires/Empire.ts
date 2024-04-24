@@ -85,7 +85,7 @@ export class Empire {
         });
 
         let expandableTilesShuffled = Phaser.Math.RND.shuffle([...expandableTiles]);
-        let expandableTilesSorted = expandableTilesShuffled.sort((a, b) => this.capitalTile.coordinates.distanceSq(a.coordinates) - this.capitalTile.coordinates.distanceSq(b.coordinates));
+        let expandableTilesSorted = expandableTilesShuffled.sort((a, b) => this.capitalTile.coordinates.distance(a.coordinates) - this.capitalTile.coordinates.distance(b.coordinates));
 
         return [...expandableTilesSorted];
     }
