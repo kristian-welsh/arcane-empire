@@ -22,6 +22,8 @@ export type WorldEventData = {
     originY: number,
     terrainFilter?: TerrainType[],
     structureFilter?: StructureType[],
+    chaosRate: number;
+    chaosCapacity: number;
 }
 
 export const WorldEventTypes: (keyof typeof WorldEventType)[] = <(keyof typeof WorldEventType)[]>Object.keys(WorldEventType);
@@ -36,7 +38,9 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         frameCount: 6,
         originX: 0.5,
         originY: 0.8,
-        terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]
+        terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain],
+        chaosRate: 1,
+        chaosCapacity: 100
     },
     [WorldEventType.Fire]: {
         type: WorldEventType.Fire,
@@ -47,7 +51,9 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         frameCount: 4,
         originX: 0.45,
         originY: 0.6,
-        terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]
+        terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain],
+        chaosRate: 1,
+        chaosCapacity: 100
     },
     [WorldEventType.Earthquake]: {
         type: WorldEventType.Earthquake,
@@ -58,6 +64,8 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         frameCount: 4,
         originX: 0.5,
         originY: 0.5,
-        terrainFilter: [TerrainType.Grass, TerrainType.Mountain]
+        terrainFilter: [TerrainType.Grass, TerrainType.Mountain],
+        chaosRate: 1,
+        chaosCapacity: 100
     }
 }

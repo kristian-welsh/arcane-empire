@@ -14,6 +14,8 @@ import {
 } from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
+import { ProgressBar } from '../systems/progress_bars/ProgressBar';
+import { CreateProgressBar, PreloadProgressBarsForScene, BarFillColour } from '../systems/progress_bars/ProgressBarFactory';
 import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
@@ -71,6 +73,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public preload() {
+    PreloadProgressBarsForScene(this);
+
     this.hexGrid.preload();
     this.worldView.preload();
     this.wizardManager.preload();
@@ -133,6 +137,8 @@ export default class GameScene extends Phaser.Scene {
     this.worldEventsManager.create();
   }
 
+  prog: ProgressBar | undefined;
+
   public update(time: number, deltaTimeMs: number): void {
     if (!this.gameStarted) {
       this.elapsedSeconds = 0;
@@ -149,7 +155,7 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.wizardManager.update(deltaTimeMs);
-    this.worldEventsManager.update();
+    this.worldEventsManager.update(deltaTimeMs);
   }
 
   public handleDataUpdate = (data: GameData) => {

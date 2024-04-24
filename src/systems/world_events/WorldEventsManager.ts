@@ -67,10 +67,10 @@ export class WorldEventsManager {
         });
     }
 
-    public update(): void {
+    public update(deltaTimeMs: number): void {
 
         this.activeEvents.forEach((activeEvent) => {
-            activeEvent.updatePosition(new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
+            activeEvent.update(deltaTimeMs, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
         });
     }
 

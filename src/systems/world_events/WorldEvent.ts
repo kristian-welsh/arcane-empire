@@ -1,3 +1,5 @@
+import { ProgressBar } from "../progress_bars/ProgressBar";
+import { BarFillColour, CreateProgressBar } from "../progress_bars/ProgressBarFactory";
 import { Tile } from "../world_generation/WorldModel";
 import { WorldEventData } from "./WorldEventRecords";
 import { WorldEventsManager } from "./WorldEventsManager";
@@ -11,6 +13,9 @@ export class WorldEvent {
 
     sprite: Phaser.GameObjects.Sprite;
 
+    chaos: number;
+    chaosProgressBar: ProgressBar;
+
     constructor(worldEventManager: WorldEventsManager, eventData: WorldEventData, targetTile: Tile) {
 
         this.worldEventManager = worldEventManager;
@@ -23,9 +28,14 @@ export class WorldEvent {
         this.sprite.setOrigin(eventData.originX, eventData.originY);
         this.sprite.setScale(this.worldEventManager.hexGrid.hexScale * eventData.scale);
         this.sprite.play(eventData.type + "_animation");
+
+        this.chaos = 0;
+        this.chaosProgressBar = CreateProgressBar(worldEventManager.scene, 0, 0, 0, BarFillColour.Red, 0.5);
     }
 
-    public updatePosition(mapOffset: Phaser.Math.Vector2): void {
+    public update(deltaTimeMs: number, mapOffset: Phaser.Math.Vector2): void {
+
+        this.chaos = Phaser.Math.Clamp(this.chaos + (deltaTimeMs / 1000), 0, this.eventData.chaosCapacity);
 
         let tilePixelPosition = this.worldEventManager.hexGrid.convertGridHexToPixelHex(this.targetTile.coordinates);
 
@@ -33,5 +43,10 @@ export class WorldEvent {
         this.sprite.y = tilePixelPosition.y + mapOffset.y;
 
         this.sprite.depth = this.sprite.y;
+
+        this.chaosProgressBar.setFilledPercentage(this.chaos / this.eventData.chaosCapacity);
+        this.chaosProgressBar.setPosition(tilePixelPosition.x + mapOffset.x, tilePixelPosition.y + mapOffset.y + 25);
+
+        this.chaosProgressBar.setDepth(this.sprite.depth + 10000);
     }
 }
