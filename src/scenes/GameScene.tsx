@@ -10,10 +10,12 @@ import {
   defaultGenerationSettings,
   defaultGridSize,
   defaultWizardSettings,
+  defaultWorldEventSettings,
 } from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
 import { WizardManager } from '../systems/wizards/WizardManager';
+import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 import { GameData } from '../types';
@@ -32,6 +34,7 @@ export default class GameScene extends Phaser.Scene {
   private worldView: WorldView;
   private empireSystem: EmpiresSystem;
   private wizardManager: WizardManager;
+  private worldEventsManager: WorldEventsManager;
 
   public constructor() {
     super({ key: 'GameScene' });
@@ -60,12 +63,18 @@ export default class GameScene extends Phaser.Scene {
       this.worldModel,
       defaultWizardSettings
     );
+    this.worldEventsManager = new WorldEventsManager(
+      this, this.hexGrid,
+      this.worldModel,
+      defaultWorldEventSettings
+    );
   }
 
   public preload() {
     this.hexGrid.preload();
     this.worldView.preload();
     this.wizardManager.preload();
+    this.worldEventsManager.preload();
   }
 
   public create() {
@@ -121,6 +130,7 @@ export default class GameScene extends Phaser.Scene {
     this.worldView.create();
     this.empireSystem.create();
     this.wizardManager.create();
+    this.worldEventsManager.create();
   }
 
   public update(time: number, deltaTimeMs: number): void {
@@ -139,6 +149,7 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.wizardManager.update(deltaTimeMs);
+    this.worldEventsManager.update();
   }
 
   public handleDataUpdate = (data: GameData) => {
