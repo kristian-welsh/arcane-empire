@@ -150,13 +150,12 @@ export class WorldModel {
 
     }
 
-    public getTile(coord: Phaser.Math.Vector2): Tile | undefined {
+    public getTile(coord: Phaser.Math.Vector2): Tile {
 
-        if (coord.x >= 0 && coord.x < this.gridSize.width && coord.y >= 0 && coord.y < this.gridSize.height) {
-            return this.tiles[coord.x][coord.y];
-        }
+        if (coord.x < 0 || coord.x >= this.gridSize.width || coord.y < 0 || coord.y >= this.gridSize.height)
+            throw "Tile coordinates are out of bounds";
 
-        return undefined;
+        return this.tiles[coord.x][coord.y];
     }
 
     public getNeighbouringTiles(centreTile: Tile): Tile[] {

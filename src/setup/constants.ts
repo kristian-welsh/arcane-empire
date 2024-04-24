@@ -1,6 +1,7 @@
 import { EmpireSettings } from "../systems/empires/EmpireSystem";
 import { GridSize } from "../systems/hex_grid/HexagonGrid";
 import { WizardSetings } from "../systems/wizards/WizardManager";
+import { WorldEventSettings } from "../systems/world_events/WorldEventsManager";
 import { GenerationSettings } from "../systems/world_generation/WorldModel";
 
 // Temp till we get a game setup menu
@@ -34,6 +35,12 @@ export const defaultWizardSettings: WizardSetings = {
         earth: 1,
         air: 1
     }
+}
+
+export const defaultWorldEventSettings: WorldEventSettings = {
+    seed: "default",
+    eventIntervalSec: 10,
+    scoreDecreasePerEvent: 1
 }
 
 export const empireColours = [
