@@ -37,10 +37,10 @@ export type Mission = {
 export type Tower = {
   baseWizardCost: number;
   perExtraWizardCost: number;
-  wizardCapacities: WizardCapacities;
+  wizardCapacities: WizardCounts;
 }
 
-export type WizardCapacities = {
+export type WizardCounts = {
   [element in ElementType]: number;
 }
 

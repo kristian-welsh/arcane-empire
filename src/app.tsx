@@ -4,7 +4,7 @@ import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
 import React, { useEffect, useState } from 'preact/compat';
-import { ElementType, GameData, Tower, Wizard, WizardCapacities, WizardCollection } from './types';
+import { ElementType, GameData, Tower, Wizard, WizardCounts, WizardCollection } from './types';
 import { eventEmitter } from './events/EventEmitter';
 import fire_wizard_src from "../src/assets/wizards/wizard_red.png";
 import water_wizard_src from "../src/assets/wizards/wizard_blue.png";
@@ -29,7 +29,8 @@ export function App() {
   };
 
   const buyWizard = (elementType: ElementType): void => {
-    console.log(elementType);
+
+    eventEmitter.emitElementType('buy-wizard', elementType);
   }
 
   const messages = [
@@ -221,7 +222,7 @@ const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, buy: (elemen
           <WizardShopPanel
             elementType={element}
             wizardTypeCount={`${wizards[element as keyof WizardCollection].length}`}
-            wizardTypeCapacity={`${tower.wizardCapacities[element as keyof WizardCapacities]}`}
+            wizardTypeCapacity={`${tower.wizardCapacities[element as keyof WizardCounts]}`}
             wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards[element as keyof WizardCollection].length - 1))}`}
             buy={buy}
           />
@@ -248,25 +249,25 @@ const WizardShopPanel: React.FC<{ elementType: string, wizardTypeCount: string, 
   switch (elementType) {
     case 'fire':
       bgColor = 'bg-red-400';
-      btnColor = 'bg-red-700';
+      btnColor = 'bg-red-600';
       btnHoverColor = 'hover:bg-red-900';
       wizardImgSrc = fire_wizard_src;
       break;
     case 'water':
       bgColor = 'bg-blue-400';
-      btnColor = 'bg-blue-700';
+      btnColor = 'bg-blue-600';
       btnHoverColor = 'hover:bg-blue-900';
       wizardImgSrc = water_wizard_src;
       break;
     case 'earth':
       bgColor = 'bg-amber-400';
-      btnColor = 'bg-amber-700';
+      btnColor = 'bg-amber-600';
       btnHoverColor = 'hover:bg-amber-900';
       wizardImgSrc = earth_wizard_src;
       break;
     case 'air':
       bgColor = 'bg-slate-400';
-      btnColor = 'bg-gray-700';
+      btnColor = 'bg-gray-600';
       btnHoverColor = 'hover:bg-gray-900';
       wizardImgSrc = air_wizard_src;
       break;
@@ -288,7 +289,8 @@ const WizardShopPanel: React.FC<{ elementType: string, wizardTypeCount: string, 
           <p className="text-white">{wizardTypeCount} of {wizardTypeCapacity}</p>
         </div>
         <button
-          className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray`}
+          className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray disabled:bg-[#333333ff] `}
+          disabled={wizardTypeCount >= wizardTypeCapacity}
           onClick={() => {
             buy(elementType as ElementType)
           }}>
