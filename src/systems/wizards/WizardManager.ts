@@ -1,12 +1,12 @@
+import GameScene from "../../scenes/GameScene";
 import { airWizardNames, earthWizardNames, fireWizardNames, guildNames, waterWizardNames } from "../../setup/wizardNames";
+import { GameData, Wizard } from "../../types";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { StructureType } from "../world_generation/StructureRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { MovementAction } from "./MovementAction";
-import { Wizard } from "./Wizard";
-import { ElementalPower, WizardCounts, WizardDatas } from "./WizardRecords";
-
-
+import { WizardEntity } from "./Wizard";
+import { WizardType, WizardCounts, WizardGraphicDatas } from "./WizardRecords";
 
 export interface WizardSetings {
     seed: string;
@@ -15,7 +15,7 @@ export interface WizardSetings {
 
 export class WizardManager {
 
-    scene: Phaser.Scene;
+    scene: GameScene;
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
     hexGrid: HexagonGrid;
@@ -24,12 +24,12 @@ export class WizardManager {
     guildName: string;
     guildTowerTile: Tile;
 
-    wizards: Wizard[];
+    wizardsEntities: WizardEntity[];
 
-    staticWizards: Map<Wizard, Tile>;
-    movingWizards: Map<Wizard, MovementAction>;
+    staticWizards: Map<WizardEntity, Tile>;
+    movingWizards: Map<WizardEntity, MovementAction>;
 
-    constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, wizardSettings: WizardSetings) {
+    constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, wizardSettings: WizardSetings) {
 
         this.scene = scene;
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([wizardSettings.seed]);
@@ -40,49 +40,112 @@ export class WizardManager {
         this.guildName = this.randomGenerator.pick(guildNames);
         this.guildTowerTile = this.worldModel.getRandomTile(undefined, [StructureType.Wizard_Tower]);
 
-        this.wizards = [];
+        this.wizardsEntities = [];
 
-        this.staticWizards = new Map<Wizard, Tile>();
-        this.movingWizards = new Map<Wizard, MovementAction>();
+        this.staticWizards = new Map<WizardEntity, Tile>();
+        this.movingWizards = new Map<WizardEntity, MovementAction>();
+
+        let gameState: GameData = {
+            ...this.scene.gameState!,
+            wizards: {
+                fire: [],
+                water: [],
+                earth: [],
+                air: []
+            }
+        };
 
         for (let i = 0; i < wizardSettings.numberOfWizaards.fire; i++) {
-            this.wizards.push(new Wizard(this, this.getRandomWizardName(ElementalPower.Fire), WizardDatas.fire));
+
+            let [name, initials] = this.getRandomWizardNameAndInitials(WizardType.Fire);
+
+            let wizard: Wizard = {
+                name: name,
+                initials: initials,
+                level: 1,
+                status: 'idle'
+            };
+
+            gameState.wizards.fire.push(wizard);
+
+            this.wizardsEntities.push(new WizardEntity(this, wizard, WizardGraphicDatas.fire));
         }
 
         for (let i = 0; i < wizardSettings.numberOfWizaards.water; i++) {
-            this.wizards.push(new Wizard(this, this.getRandomWizardName(ElementalPower.Water), WizardDatas.water));
+
+            let [name, initials] = this.getRandomWizardNameAndInitials(WizardType.Water);
+
+            let wizard: Wizard = {
+                name: name,
+                initials: initials,
+                level: 1,
+                status: 'idle'
+            };
+
+            gameState.wizards.water.push(wizard);
+
+            this.wizardsEntities.push(new WizardEntity(this, wizard, WizardGraphicDatas.water));
         }
 
         for (let i = 0; i < wizardSettings.numberOfWizaards.earth; i++) {
-            this.wizards.push(new Wizard(this, this.getRandomWizardName(ElementalPower.Earth), WizardDatas.earth));
+
+            let [name, initials] = this.getRandomWizardNameAndInitials(WizardType.Earth);
+
+            let wizard: Wizard = {
+                name: name,
+                initials: initials,
+                level: 1,
+                status: 'idle'
+            };
+
+            gameState.wizards.earth.push(wizard);
+
+            this.wizardsEntities.push(new WizardEntity(this, wizard, WizardGraphicDatas.earth));
         }
 
         for (let i = 0; i < wizardSettings.numberOfWizaards.air; i++) {
-            this.wizards.push(new Wizard(this, this.getRandomWizardName(ElementalPower.Air), WizardDatas.air));
+
+            let [name, initials] = this.getRandomWizardNameAndInitials(WizardType.Air);
+
+            let wizard: Wizard = {
+                name: name,
+                initials: initials,
+                level: 1,
+                status: 'idle'
+            };
+
+            gameState.wizards.air.push(wizard);
+
+            this.wizardsEntities.push(new WizardEntity(this, wizard, WizardGraphicDatas.air));
         }
 
-        this.wizards = this.randomGenerator.shuffle(this.wizards);
+        this.wizardsEntities = this.randomGenerator.shuffle(this.wizardsEntities);
+
+        scene.handleDataUpdate(gameState);
+        scene.sendDataToPreact();
+
+        console.log(this.scene.gameState!.wizards);
     }
 
     public preload(): void {
 
-        Object.entries(WizardDatas).forEach(([elementalPower, wizardData]) => {
+        Object.entries(WizardGraphicDatas).forEach(([elementalPower, wizardData]) => {
             this.scene.load.image(elementalPower + "_wizard", wizardData.path);
         });
     }
 
     public create(): void {
 
-        for (let i = 0; i < this.wizards.length; i++) {
+        for (let i = 0; i < this.wizardsEntities.length; i++) {
 
-            this.wizards[i].spawnWizard();
+            this.wizardsEntities[i].spawnWizard();
 
-            this.staticWizards.set(this.wizards[i], this.guildTowerTile);
+            this.staticWizards.set(this.wizardsEntities[i], this.guildTowerTile);
 
-            this.wizards[i].setIdle();
+            this.wizardsEntities[i].setIdle();
         }
 
-        this.sendWizardToTile(this.wizards[0], this.worldModel.getRandomTile());
+        this.sendWizardToTile(this.wizardsEntities[0], this.worldModel.getRandomTile());
     }
 
     public update(deltaTimeMs: number): void {
@@ -111,23 +174,29 @@ export class WizardManager {
         };
     }
 
-    public getRandomWizardName(powerType: ElementalPower): string {
+    public getRandomWizardNameAndInitials(powerType: WizardType): [string, string] {
+
+        let name: string = "Master Nonameus";
 
         switch (powerType) {
-            case ElementalPower.Fire:
-                return this.randomGenerator.pick(fireWizardNames);
-
-            case ElementalPower.Water:
-                return this.randomGenerator.pick(waterWizardNames);
-
-            case ElementalPower.Earth:
-                return this.randomGenerator.pick(earthWizardNames);
-
-            case ElementalPower.Air:
-                return this.randomGenerator.pick(airWizardNames);
+            case WizardType.Fire:
+                name = this.randomGenerator.pick(fireWizardNames);
+                break;
+            case WizardType.Water:
+                name = this.randomGenerator.pick(waterWizardNames);
+                break;
+            case WizardType.Earth:
+                name = this.randomGenerator.pick(earthWizardNames);
+                break;
+            case WizardType.Air:
+                name = this.randomGenerator.pick(airWizardNames);
+                break;
         }
 
-        return "Master Nonameus";
+        let nameParts = name.split(" ");
+        let initials = nameParts.map(word => word[0].toUpperCase()).join(".") + ".";
+
+        return [name, initials];
     }
 
     public getOccupiedTiles(): Tile[] {
@@ -135,9 +204,9 @@ export class WizardManager {
         return Array.from(this.staticWizards.values());
     }
 
-    public getWizardsOnTile(tileToCheck: Tile): Wizard[] {
+    public getWizardsOnTile(tileToCheck: Tile): WizardEntity[] {
 
-        let wizards: Wizard[] = [];
+        let wizards: WizardEntity[] = [];
 
         for (const [wizard, tile] of this.staticWizards.entries()) {
             if (tile === tileToCheck) {
@@ -148,7 +217,7 @@ export class WizardManager {
         return wizards;
     }
 
-    public sendWizardToTile(targetWizard: Wizard, targetTile: Tile): void {
+    public sendWizardToTile(targetWizard: WizardEntity, targetTile: Tile): void {
 
         if (this.staticWizards.has(targetWizard) == false)
             return;
@@ -165,7 +234,7 @@ export class WizardManager {
         this.staticWizards.delete(targetWizard);
     }
 
-    private setWizardToStatic(targetWizard: Wizard, targetTile: Tile): void {
+    private setWizardToStatic(targetWizard: WizardEntity, targetTile: Tile): void {
 
         this.movingWizards.delete(targetWizard);
         this.staticWizards.set(targetWizard, targetTile);

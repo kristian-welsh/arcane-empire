@@ -1,31 +1,28 @@
+import { Wizard } from "../../types";
 import { WizardManager } from "./WizardManager";
-import { WizardData } from "./WizardRecords";
+import { WizardGraphicData } from "./WizardRecords";
 
-export class Wizard {
+export class WizardEntity {
 
     wizardManager: WizardManager;
 
-    name: string;
-    level: number;
+    wizardData: Wizard;
 
-    wizardData: WizardData;
+    wizardGraphicData: WizardGraphicData;
 
     image: Phaser.GameObjects.Image | undefined;
 
-    constructor(wizardManager: WizardManager, name: string, wizardData: WizardData) {
+    constructor(wizardManager: WizardManager, wizardData: Wizard, wizardGraphicData: WizardGraphicData) {
 
         this.wizardManager = wizardManager;
-
-        this.name = name;
         this.wizardData = wizardData;
-
-        this.level = 1;
+        this.wizardGraphicData = wizardGraphicData;
     }
 
     public spawnWizard(): Phaser.GameObjects.Image {
 
-        this.image = this.wizardManager.scene.add.image(0, 0, this.wizardData.power + "_wizard");
-        this.image.setScale(this.wizardData.scale);
+        this.image = this.wizardManager.scene.add.image(0, 0, this.wizardGraphicData.power + "_wizard");
+        this.image.setScale(this.wizardGraphicData.scale);
         return this.image;
     }
 
