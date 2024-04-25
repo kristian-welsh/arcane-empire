@@ -1,12 +1,13 @@
+import { eventEmitter } from "../../events/EventEmitter";
 import GameScene from "../../scenes/GameScene";
 import { airWizardNames, earthWizardNames, fireWizardNames, guildNames, waterWizardNames } from "../../setup/wizardNames";
-import { GameData, Wizard } from "../../types";
+import { ElementType, GameData, Wizard, WizardCollection } from "../../types";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { StructureType } from "../world_generation/StructureRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { MovementAction } from "./MovementAction";
 import { WizardEntity } from "./Wizard";
-import { WizardType, WizardCounts, WizardGraphicDatas } from "./WizardRecords";
+import { WizardType, WizardCounts, WizardGraphicDatas, WizardGraphicData } from "./WizardRecords";
 
 export interface WizardSetings {
     seed: string;
@@ -28,6 +29,8 @@ export class WizardManager {
 
     staticWizards: Map<WizardEntity, Tile>;
     movingWizards: Map<WizardEntity, MovementAction>;
+
+    buyWizardListerner: (() => void);
 
     constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, wizardSettings: WizardSetings) {
 
@@ -123,6 +126,11 @@ export class WizardManager {
 
         scene.handleDataUpdate(gameState);
         scene.sendDataToPreact();
+
+        this.buyWizardListerner = eventEmitter.subscribe(
+            'buy-wizard',
+            this.buyWizard.bind(this)
+        );
     }
 
     public preload(): void {
@@ -236,6 +244,41 @@ export class WizardManager {
 
         this.movingWizards.delete(targetWizard);
         this.staticWizards.set(targetWizard, targetTile);
+    }
+
+    private buyWizard = (elementType: ElementType) => {
+
+        console.log("Buy wizard", elementType)
+
+        let [name, initials] = this.getRandomWizardNameAndInitials(elementType as WizardType);
+
+        let newWizard: Wizard = {
+            name: name,
+            initials: initials,
+            level: 1,
+            status: 'idle'
+        };
+
+        let newWizardEntity = new WizardEntity(this, newWizard, WizardGraphicDatas[elementType as WizardType]);
+
+
+        newWizardEntity.spawnWizard();
+
+        newWizardEntity.setIdle();
+
+
+        let modifiedGameState: GameData = { ...this.scene.gameState! };
+
+        modifiedGameState.playerGold -= modifiedGameState.tower.baseWizardCost + (modifiedGameState.tower.perExtraWizardCost * (modifiedGameState.wizards[elementType as keyof WizardCollection].length - 1))
+        modifiedGameState.wizards[elementType as keyof WizardCollection].push(newWizard);
+
+        this.wizardsEntities.push(newWizardEntity);
+
+        this.staticWizards.set(newWizardEntity, this.guildTowerTile);
+
+
+        this.scene.handleDataUpdate(modifiedGameState);
+        this.scene.sendDataToPreact();
     }
 
 }

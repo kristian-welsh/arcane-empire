@@ -49,7 +49,17 @@ export default class GameScene extends Phaser.Scene {
         air: []
       },
       empires: [],
-      playerGold: 0,
+      tower: {
+        baseWizardCost: 50,
+        perExtraWizardCost: 10,
+        wizardCapacities: {
+          fire: 3,
+          water: 3,
+          earth: 3,
+          air: 3
+        }
+      },
+      playerGold: 50,
       reputation: 100,
       upgrades: {},
       events: [],
