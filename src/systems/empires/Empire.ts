@@ -1,14 +1,14 @@
+import { eventEmitter } from "../../events/EventEmitter";
 import { CreateQuestMarker } from "../overlay_elements/OverlayElementsFactory";
 import { QuestMarker } from "../overlay_elements/QuestMarker";
 import { RegionOutline } from "../regions/RegionOutline";
-import { WorldEvent } from "../world_events/WorldEvent";
 import { StructureDatas } from "../world_generation/StructureRecords";
 import { TerrainDatas } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { EmpiresSystem } from "./EmpireSystem";
 
 
-export class Empire {
+export class EmpireEntity {
 
     empireSystem: EmpiresSystem;
 
@@ -41,8 +41,17 @@ export class Empire {
 
         this.territoyOutline = new RegionOutline(this.empireSystem.scene, this.empireSystem.hexGrid, [], colour, 3.5, false)
 
-        capitalTile.terrainData = TerrainDatas.Grass;
-        capitalTile.structureData = StructureDatas.Castle;
+        this.capitalTile.terrainData = TerrainDatas.Grass;
+        this.capitalTile.structureData = StructureDatas.Castle;
+    }
+
+    public create(): void {
+
+        this.redrawTerritoryOutline();
+
+        this.capitalTile.terrainImage?.setInteractive();
+
+        this.capitalTile.terrainImage?.on('pointerdown', this.empireSelected, this);
     }
 
     public update(time: number, mapOffset: Phaser.Math.Vector2): void {
@@ -135,6 +144,10 @@ export class Empire {
         return this.territoryTiles.some(territoryTile => territoryTile == tileToCheck);
     }
 
+    private empireSelected(): void {
+
+        eventEmitter.emit('empire-selected', this.empireSystem.scene.gameState);
+    }
 
 
 }

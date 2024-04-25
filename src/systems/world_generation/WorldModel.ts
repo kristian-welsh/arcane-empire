@@ -20,6 +20,8 @@ export class Tile {
     terrainData: TerrainData
     structureData: StructureData | undefined;
 
+    terrainImage: Phaser.GameObjects.Image | undefined;
+
     wizardSlots: Wizard[];
 
     constructor(parentWorldModel: WorldModel, coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {
@@ -33,6 +35,10 @@ export class Tile {
 
     public getWizardCapacity(): number {
         return 5 - this.wizardSlots.length; // Hard coded 5 slots for now but should probably be in a setting somewhere
+    }
+
+    public setImage(terrainImage: Phaser.GameObjects.Image): void {
+        this.terrainImage = terrainImage;
     }
 }
 

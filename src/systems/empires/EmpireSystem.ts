@@ -4,7 +4,7 @@ import { empireNames, castleNames, rulerNames } from "../../setup/empireNames";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
-import { Empire } from "./Empire";
+import { EmpireEntity } from "./Empire";
 
 export interface EmpireSettings {
     seed: string;
@@ -22,7 +22,7 @@ export class EmpiresSystem {
     hexGrid: HexagonGrid;
     worldModel: WorldModel;
 
-    empires: Empire[];
+    empires: EmpireEntity[];
 
     constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, empireSettings: EmpireSettings) {
 
@@ -42,7 +42,7 @@ export class EmpiresSystem {
                 captialTile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
             }
 
-            this.empires[i] = new Empire(this,
+            this.empires[i] = new EmpireEntity(this,
                 empireNames[this.randomGenerator.between(0, empireNames.length)],
                 castleNames[this.randomGenerator.between(0, castleNames.length)],
                 rulerNames[this.randomGenerator.between(0, rulerNames.length)],
@@ -77,21 +77,21 @@ export class EmpiresSystem {
 
     public create(): void {
 
-        this.empires.forEach((empire: Empire) => {
+        this.empires.forEach((empire: EmpireEntity) => {
 
-            empire.redrawTerritoryOutline();
+            empire.create();
         });
     }
 
     public update(time: number): void {
 
-        this.empires.forEach((empire: Empire) => {
+        this.empires.forEach((empire: EmpireEntity) => {
 
             empire.update(time, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
         });
     }
 
-    public getOwningEmpire(tileToCheck: Tile): Empire | undefined {
+    public getOwningEmpire(tileToCheck: Tile): EmpireEntity | undefined {
 
         for (let i = 0; i < this.empires.length; i++) {
             if (this.empires[i].territoryTiles.some(empireTile => empireTile == tileToCheck)) {
