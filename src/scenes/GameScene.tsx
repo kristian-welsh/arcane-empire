@@ -14,8 +14,8 @@ import {
 } from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
-import { ProgressBar } from '../systems/progress_bars/ProgressBar';
-import { CreateProgressBar, PreloadProgressBarsForScene, BarFillColour } from '../systems/progress_bars/ProgressBarFactory';
+import { ProgressBar } from '../systems/overlay_elements/ProgressBar';
+import { CreateProgressBar, PreloadOverlayAssets, BarFillColour } from '../systems/overlay_elements/OverlayElementsFactory';
 import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
@@ -31,12 +31,12 @@ export default class GameScene extends Phaser.Scene {
   private gameTimeText: Phaser.GameObjects.Text | undefined;
   private eventSubscription: (() => void) | undefined;
 
-  private hexGrid: HexagonGrid;
-  private worldModel: WorldModel;
-  private worldView: WorldView;
-  private empireSystem: EmpiresSystem;
-  private wizardManager: WizardManager;
-  private worldEventsManager: WorldEventsManager;
+  hexGrid: HexagonGrid;
+  worldModel: WorldModel;
+  worldView: WorldView;
+  empireSystem: EmpiresSystem;
+  wizardManager: WizardManager;
+  worldEventsManager: WorldEventsManager;
 
   public constructor() {
     super({ key: 'GameScene' });
@@ -94,7 +94,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   public preload() {
-    PreloadProgressBarsForScene(this);
+    PreloadOverlayAssets(this);
 
     this.hexGrid.preload();
     this.worldView.preload();
@@ -175,6 +175,7 @@ export default class GameScene extends Phaser.Scene {
       this.scale.height / 40
     );
 
+    this.empireSystem.update(time);
     this.wizardManager.update(deltaTimeMs);
     this.worldEventsManager.update(deltaTimeMs);
   }

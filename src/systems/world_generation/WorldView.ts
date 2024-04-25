@@ -49,6 +49,8 @@ export class WorldView {
             terrainSprite.setScale(this.hexGrid.hexScale, this.hexGrid.hexScale * 1.065); // Magic number 1.065 is because the hex sprites are slightly squashed
 
             this.hexGrid.draggableContainer?.add(terrainSprite);
+
+            tile.setImage(terrainSprite);
         })
 
         // Draw the dotted structures on top

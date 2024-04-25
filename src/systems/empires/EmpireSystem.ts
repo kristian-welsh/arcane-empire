@@ -1,9 +1,11 @@
+import GameScene from "../../scenes/GameScene";
 import { empireColours } from "../../setup/constants";
 import { empireNames, castleNames, rulerNames } from "../../setup/empireNames";
+import { Empire, EmpirePersonality, GameData } from "../../types";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
-import { Empire } from "./Empire";
+import { EmpireEntity } from "./EmpireEntity";
 
 export interface EmpireSettings {
     seed: string;
@@ -15,15 +17,15 @@ export interface EmpireSettings {
 
 export class EmpiresSystem {
 
-    scene: Phaser.Scene;
+    scene: GameScene;
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
     hexGrid: HexagonGrid;
     worldModel: WorldModel;
 
-    empires: Empire[];
+    empireEntities: EmpireEntity[];
 
-    constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, empireSettings: EmpireSettings) {
+    constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, empireSettings: EmpireSettings) {
 
         this.scene = scene;
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([empireSettings.seed]);
@@ -31,27 +33,34 @@ export class EmpiresSystem {
         this.hexGrid = hexGrid;
         this.worldModel = worldModel;
 
-        this.empires = [];
+        this.empireEntities = [];
+
+        let gameState: GameData = {
+            ...this.scene.gameState!,
+            empires: []
+        };
 
         for (let i = 0; i < empireSettings.numberOfEmpires; i++) {
 
             let captialTile: Tile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
 
-            while (this.empires.some(empire => empire.capitalTile.coordinates.distance(captialTile.coordinates) <= empireSettings.minSeparationDistance)) {
+            while (this.empireEntities.some(empire => empire.capitalTile.coordinates.distance(captialTile.coordinates) <= empireSettings.minSeparationDistance)) {
                 captialTile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
             }
 
-            this.empires[i] = new Empire(this,
-                empireNames[this.randomGenerator.between(0, empireNames.length)],
-                castleNames[this.randomGenerator.between(0, castleNames.length)],
-                rulerNames[this.randomGenerator.between(0, rulerNames.length)],
-                captialTile, empireColours[i]);
-        }
+            let empire: Empire = {
+                empireName: empireNames[this.randomGenerator.between(0, empireNames.length)],
+                capitalName: castleNames[this.randomGenerator.between(0, castleNames.length)],
+                rulerName: rulerNames[this.randomGenerator.between(0, rulerNames.length)],
+                regionalStrength: this.randomGenerator.between(empireSettings.minStartSize, empireSettings.maxStartSize),
+                playerReputation: 50,
+                personality: this.getRandomPersonality(),
+                color: empireColours[i]
+            };
 
-        let empireSizes: number[] = [];
+            gameState.empires.push(empire);
 
-        for (let i = 0; i < this.empires.length; i++) {
-            empireSizes[i] = this.randomGenerator.between(empireSettings.minStartSize, empireSettings.maxStartSize);
+            this.empireEntities[i] = new EmpireEntity(this, empire, captialTile,);
         }
 
         let territoryGenerationComplete: boolean = true;
@@ -59,39 +68,63 @@ export class EmpiresSystem {
         do {
             territoryGenerationComplete = true;
 
-            for (let i = 0; i < this.empires.length; i++) {
+            for (let i = 0; i < gameState.empires.length; i++) {
 
-                if (this.empires[i].territoryTiles.length == empireSizes[i])
+                if (this.empireEntities[i].territoryTiles.length >= gameState.empires[i].regionalStrength)
                     continue;
 
-                let newTerrirotyTile: Tile = this.empires[i].getExpandableTiles(worldModel)[0];
+                let newTerrirotyTile: Tile = this.empireEntities[i].getExpandableTiles(worldModel)[0];
 
-                this.empires[i].addTileToTerritories(newTerrirotyTile);
+                this.empireEntities[i].addTileToTerritories(newTerrirotyTile);
 
                 territoryGenerationComplete = false;
             }
         } while (territoryGenerationComplete == false);
 
+        scene.handleDataUpdate(gameState);
+        scene.sendDataToPreact();
     }
 
     public create(): void {
 
-        this.empires.forEach((empire: Empire) => {
+        this.empireEntities.forEach((empire: EmpireEntity) => {
 
-            empire.redrawTerritoryOutline();
+            empire.create();
         });
     }
 
-    public getOwningEmpire(tileToCheck: Tile): Empire | undefined {
+    public update(time: number): void {
 
-        for (let i = 0; i < this.empires.length; i++) {
-            if (this.empires[i].territoryTiles.some(empireTile => empireTile == tileToCheck)) {
-                return this.empires[i];
+        this.empireEntities.forEach((empire: EmpireEntity) => {
+
+            empire.update(time, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
+        });
+    }
+
+    public getOwningEmpire(tileToCheck: Tile): EmpireEntity | undefined {
+
+        for (let i = 0; i < this.empireEntities.length; i++) {
+            if (this.empireEntities[i].territoryTiles.some(empireTile => empireTile == tileToCheck)) {
+                return this.empireEntities[i];
             }
         }
 
         return undefined;
     }
 
+    public getRandomPersonality(): EmpirePersonality {
+        switch (this.randomGenerator.between(0, 3)) {
+            case 0:
+                return "passive";
+            case 1:
+                return "aggressive";
+            case 2:
+                return "friendly";
+            case 3:
+                return "selfish";
+        }
+
+        return "passive";
+    }
 
 }

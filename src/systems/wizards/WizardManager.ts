@@ -123,8 +123,6 @@ export class WizardManager {
 
         scene.handleDataUpdate(gameState);
         scene.sendDataToPreact();
-
-        console.log(this.scene.gameState!.wizards);
     }
 
     public preload(): void {

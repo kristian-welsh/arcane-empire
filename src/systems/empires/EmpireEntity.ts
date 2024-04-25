@@ -1,3 +1,7 @@
+import { eventEmitter } from "../../events/EventEmitter";
+import { Empire, GameData } from "../../types";
+import { CreateQuestMarker } from "../overlay_elements/OverlayElementsFactory";
+import { QuestMarker } from "../overlay_elements/QuestMarker";
 import { RegionOutline } from "../regions/RegionOutline";
 import { StructureDatas } from "../world_generation/StructureRecords";
 import { TerrainDatas } from "../world_generation/TerrainTileRecords";
@@ -5,10 +9,11 @@ import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { EmpiresSystem } from "./EmpireSystem";
 
 
-
-export class Empire {
+export class EmpireEntity {
 
     empireSystem: EmpiresSystem;
+
+    empire: Empire;
 
     empireName: string;
     captialName: string;
@@ -19,7 +24,9 @@ export class Empire {
 
     territoyOutline: RegionOutline;
 
-    constructor(empireSystem: EmpiresSystem, captialName: string, empireName: string, rulerName: string, capitalTile: Tile, colour: number) {
+    missionMarker: QuestMarker | undefined;
+
+    constructor(empireSystem: EmpiresSystem, empire: Empire, capitalTile: Tile) {
 
         this.empireSystem = empireSystem;
 
@@ -31,14 +38,58 @@ export class Empire {
             this.territoryTiles.push(adjTile);
         });
 
-        this.empireName = empireName;
-        this.captialName = captialName;
-        this.rulerName = rulerName;
+        this.empire = empire;
 
-        this.territoyOutline = new RegionOutline(this.empireSystem.scene, this.empireSystem.hexGrid, [], colour, 3.5, false)
+        this.territoyOutline = new RegionOutline(this.empireSystem.scene, this.empireSystem.hexGrid, [], this.empire.color, 3.5, false)
 
-        capitalTile.terrainData = TerrainDatas.Grass;
-        capitalTile.structureData = StructureDatas.Castle;
+        this.capitalTile.terrainData = TerrainDatas.Grass;
+        this.capitalTile.structureData = StructureDatas.Castle;
+    }
+
+    public create(): void {
+
+        this.redrawTerritoryOutline();
+
+        this.capitalTile.terrainImage?.setInteractive();
+
+        //this.capitalTile.terrainImage?.on('pointerdown', this.empireSelected, this);
+    }
+
+    public update(time: number, mapOffset: Phaser.Math.Vector2): void {
+
+        let capitalPixelPositon = this.empireSystem.hexGrid.convertGridHexToPixelHex(this.capitalTile.coordinates);
+
+        if (this.missionMarker === undefined) {
+
+            for (let activeEvent of this.empireSystem.scene.worldEventsManager.activeEvents) {
+
+                if (this.isTileInTerritory(activeEvent.targetTile)) {
+                    this.missionMarker = CreateQuestMarker(this.empireSystem.scene, capitalPixelPositon.x + mapOffset.x, capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5), 0.75);
+                    break;
+                }
+            }
+        } else {
+
+            let allEventsCleared: boolean = true;
+
+            for (let activeEvent of this.empireSystem.scene.worldEventsManager.activeEvents) {
+
+                if (this.isTileInTerritory(activeEvent.targetTile)) {
+                    allEventsCleared = false
+                    break;
+                }
+            }
+
+            if (allEventsCleared) {
+
+                this.missionMarker.markerImage.destroy();
+                this.missionMarker = undefined;
+            } else {
+
+                this.missionMarker.setPosition(capitalPixelPositon.x + mapOffset.x, capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5));
+                this.missionMarker.setDepth(capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5));
+            }
+        }
     }
 
     public addTileToTerritories(newTile: Tile): void {
@@ -93,5 +144,4 @@ export class Empire {
     public isTileInTerritory(tileToCheck: Tile): boolean {
         return this.territoryTiles.some(territoryTile => territoryTile == tileToCheck);
     }
-
 }

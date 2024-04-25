@@ -1,5 +1,5 @@
-import { ProgressBar } from "../progress_bars/ProgressBar";
-import { BarFillColour, CreateProgressBar } from "../progress_bars/ProgressBarFactory";
+import { ProgressBar } from "../overlay_elements/ProgressBar";
+import { BarFillColour, CreateProgressBar } from "../overlay_elements/OverlayElementsFactory";
 import { Tile } from "../world_generation/WorldModel";
 import { WorldEventData } from "./WorldEventRecords";
 import { WorldEventsManager } from "./WorldEventsManager";
