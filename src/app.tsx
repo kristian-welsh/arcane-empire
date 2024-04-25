@@ -31,21 +31,10 @@ export function App() {
   ];
 
   const mockWizardsData: WizardCollection = {
-    air: [
-      { name: 'Aero Hu', initials: 'AH', level: 1, status: 'idle' },
-      { name: 'Sky Alo', initials: 'SA', level: 2, status: 'away' },
-      { name: 'Winno Wina', initials: 'WW', level: 1, status: 'away' },
-    ],
-    earth: [{ name: 'Terrat T', initials: 'TT', level: 1, status: 'idle' }],
-    fire: [
-      { name: 'Pyro A', initials: 'PA', level: 2, status: 'idle' },
-      { name: 'Flama R', initials: 'FR', level: 3, status: 'away' },
-      { name: 'Infar O', initials: 'IO', level: 1, status: 'idle' },
-    ],
-    water: [
-      { name: 'Aqua L', initials: 'AL', level: 1, status: 'idle' },
-      { name: 'Tidal W', initials: 'TW', level: 2, status: 'idle' },
-    ],
+    air: [],
+    earth: [],
+    fire: [],
+    water: [],
   };
 
   return (
@@ -80,7 +69,7 @@ export function App() {
               </button>
             )}
           >
-            <WizardsTab wizards={mockWizardsData} />
+            <WizardsTab wizards={gameState?.wizards ?? mockWizardsData} />
           </Tab>
           <Tab
             id="second"
