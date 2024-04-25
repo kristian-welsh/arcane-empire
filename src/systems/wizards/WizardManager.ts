@@ -269,6 +269,7 @@ export class WizardManager {
 
         let modifiedGameState: GameData = { ...this.scene.gameState! };
 
+        modifiedGameState.playerGold -= modifiedGameState.tower.baseWizardCost + (modifiedGameState.tower.perExtraWizardCost * (modifiedGameState.wizards[elementType as keyof WizardCollection].length - 1))
         modifiedGameState.wizards[elementType as keyof WizardCollection].push(newWizard);
 
         this.wizardsEntities.push(newWizardEntity);

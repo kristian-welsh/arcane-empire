@@ -106,6 +106,7 @@ export function App() {
             <TowerTab
               wizards={gameState?.wizards ?? emptyWizardsData}
               tower={gameState?.tower ?? emptyTowerData}
+              playerGold={gameState?.playerGold ?? 0}
               buy={buyWizard}
             />
           </Tab>
@@ -207,10 +208,11 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
   );
 };
 
-const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, buy: (element: ElementType) => void }> = (props) => {
+const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, playerGold: number, buy: (element: ElementType) => void }> = (props) => {
   const {
     wizards,
     tower,
+    playerGold,
     buy
   } = props;
 
@@ -221,9 +223,10 @@ const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, buy: (elemen
         <div className="py-2">
           <WizardShopPanel
             elementType={element}
-            wizardTypeCount={`${wizards[element as keyof WizardCollection].length}`}
-            wizardTypeCapacity={`${tower.wizardCapacities[element as keyof WizardCounts]}`}
-            wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards[element as keyof WizardCollection].length - 1))}`}
+            playerGold={playerGold}
+            wizardTypeCount={wizards[element as keyof WizardCollection].length}
+            wizardTypeCapacity={tower.wizardCapacities[element as keyof WizardCounts]}
+            wizardCost={tower.baseWizardCost + (tower.perExtraWizardCost * (wizards[element as keyof WizardCollection].length - 1))}
             buy={buy}
           />
         </div>
@@ -232,9 +235,10 @@ const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, buy: (elemen
   )
 };
 
-const WizardShopPanel: React.FC<{ elementType: string, wizardTypeCount: string, wizardTypeCapacity: string, wizardCost: string, buy: (element: ElementType) => void }> = (props) => {
+const WizardShopPanel: React.FC<{ elementType: string, playerGold: number, wizardTypeCount: number, wizardTypeCapacity: number, wizardCost: number, buy: (element: ElementType) => void }> = (props) => {
   const {
     elementType,
+    playerGold,
     wizardTypeCount,
     wizardTypeCapacity,
     wizardCost,
@@ -290,7 +294,7 @@ const WizardShopPanel: React.FC<{ elementType: string, wizardTypeCount: string, 
         </div>
         <button
           className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray disabled:bg-[#333333ff] `}
-          disabled={wizardTypeCount >= wizardTypeCapacity}
+          disabled={wizardTypeCount >= wizardTypeCapacity || playerGold < wizardCost}
           onClick={() => {
             buy(elementType as ElementType)
           }}>

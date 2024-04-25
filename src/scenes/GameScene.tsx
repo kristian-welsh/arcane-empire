@@ -59,7 +59,7 @@ export default class GameScene extends Phaser.Scene {
           air: 3
         }
       },
-      playerGold: 0,
+      playerGold: 50,
       reputation: 100,
       upgrades: {},
       events: [],
