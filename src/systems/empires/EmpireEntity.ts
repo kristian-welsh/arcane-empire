@@ -1,5 +1,5 @@
 import { eventEmitter } from "../../events/EventEmitter";
-import { GameData } from "../../types";
+import { Empire, GameData } from "../../types";
 import { CreateQuestMarker } from "../overlay_elements/OverlayElementsFactory";
 import { QuestMarker } from "../overlay_elements/QuestMarker";
 import { RegionOutline } from "../regions/RegionOutline";
@@ -13,6 +13,8 @@ export class EmpireEntity {
 
     empireSystem: EmpiresSystem;
 
+    empire: Empire;
+
     empireName: string;
     captialName: string;
     rulerName: string;
@@ -24,7 +26,7 @@ export class EmpireEntity {
 
     missionMarker: QuestMarker | undefined;
 
-    constructor(empireSystem: EmpiresSystem, empireName: string, captialName: string, rulerName: string, capitalTile: Tile, colour: number) {
+    constructor(empireSystem: EmpiresSystem, empire: Empire, capitalTile: Tile) {
 
         this.empireSystem = empireSystem;
 
@@ -36,11 +38,9 @@ export class EmpireEntity {
             this.territoryTiles.push(adjTile);
         });
 
-        this.empireName = empireName;
-        this.captialName = captialName;
-        this.rulerName = rulerName;
+        this.empire = empire;
 
-        this.territoyOutline = new RegionOutline(this.empireSystem.scene, this.empireSystem.hexGrid, [], colour, 3.5, false)
+        this.territoyOutline = new RegionOutline(this.empireSystem.scene, this.empireSystem.hexGrid, [], this.empire.color, 3.5, false)
 
         this.capitalTile.terrainData = TerrainDatas.Grass;
         this.capitalTile.structureData = StructureDatas.Castle;
@@ -52,7 +52,7 @@ export class EmpireEntity {
 
         this.capitalTile.terrainImage?.setInteractive();
 
-        this.capitalTile.terrainImage?.on('pointerdown', this.empireSelected, this);
+        //this.capitalTile.terrainImage?.on('pointerdown', this.empireSelected, this);
     }
 
     public update(time: number, mapOffset: Phaser.Math.Vector2): void {
@@ -144,15 +144,4 @@ export class EmpireEntity {
     public isTileInTerritory(tileToCheck: Tile): boolean {
         return this.territoryTiles.some(territoryTile => territoryTile == tileToCheck);
     }
-
-    private empireSelected(): void {
-
-        let gameState: GameData = { ...this.empireSystem.scene.gameState! };
-        gameState.empiresCollection.selectedEmpireId = this.empireName;
-
-        this.empireSystem.scene.handleDataUpdate(gameState);
-        eventEmitter.emit('empire-selected', this.empireSystem.scene.gameState);
-    }
-
-
 }

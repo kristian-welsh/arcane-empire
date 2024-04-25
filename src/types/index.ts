@@ -21,7 +21,8 @@ export type Empire = {
   rulerName: string;
   regionalStrength: number;
   playerReputation: number;
-  personality: 'aggressive' | 'passive' | 'friendly' | 'selfish';
+  personality: EmpirePersonality;
+  color: number;
 };
 
 export type Mission = {
@@ -48,5 +49,7 @@ export type Wizard = {
   level: number;
   status: 'idle' | 'moving' | 'away';
 };
+
+export type EmpirePersonality = 'aggressive' | 'passive' | 'friendly' | 'selfish';
 
 export type ElementType = 'fire' | 'water' | 'earth' | 'air';
