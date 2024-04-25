@@ -31,3 +31,4 @@ Terrain tiles - https://opengameart.org/content/pixel-art-terrain-from-elite-com
 Structures - https://opengameart.org/content/basic-hex-tile-set-16x16 and https://opengameart.org/content/basic-hex-tile-set-plus-16x16
 Wizards - https://free-game-assets.itch.io/mage-towers-pixel-art-for-tower-defense
 Progress bars = https://opengameart.org/content/health-and-mana-bars
+Quest marker - https://opengameart.org/content/exclamation-quest-icon

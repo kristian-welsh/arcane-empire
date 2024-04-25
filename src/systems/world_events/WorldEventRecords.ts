@@ -40,7 +40,7 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         originY: 0.8,
         terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain],
         chaosRate: 1,
-        chaosCapacity: 20
+        chaosCapacity: 10
     },
     [WorldEventType.Fire]: {
         type: WorldEventType.Fire,
@@ -53,7 +53,7 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         originY: 0.6,
         terrainFilter: [TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain],
         chaosRate: 1,
-        chaosCapacity: 20
+        chaosCapacity: 10
     },
     [WorldEventType.Earthquake]: {
         type: WorldEventType.Earthquake,
@@ -66,6 +66,6 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         originY: 0.5,
         terrainFilter: [TerrainType.Grass, TerrainType.Mountain],
         chaosRate: 1,
-        chaosCapacity: 20
+        chaosCapacity: 10
     }
 }

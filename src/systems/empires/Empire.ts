@@ -1,9 +1,11 @@
+import { CreateQuestMarker } from "../overlay_elements/OverlayElementsFactory";
+import { QuestMarker } from "../overlay_elements/QuestMarker";
 import { RegionOutline } from "../regions/RegionOutline";
+import { WorldEvent } from "../world_events/WorldEvent";
 import { StructureDatas } from "../world_generation/StructureRecords";
 import { TerrainDatas } from "../world_generation/TerrainTileRecords";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { EmpiresSystem } from "./EmpireSystem";
-
 
 
 export class Empire {
@@ -18,6 +20,8 @@ export class Empire {
     territoryTiles: Tile[];
 
     territoyOutline: RegionOutline;
+
+    missionMarker: QuestMarker | undefined;
 
     constructor(empireSystem: EmpiresSystem, captialName: string, empireName: string, rulerName: string, capitalTile: Tile, colour: number) {
 
@@ -39,6 +43,43 @@ export class Empire {
 
         capitalTile.terrainData = TerrainDatas.Grass;
         capitalTile.structureData = StructureDatas.Castle;
+    }
+
+    public update(time: number, mapOffset: Phaser.Math.Vector2): void {
+
+        let capitalPixelPositon = this.empireSystem.hexGrid.convertGridHexToPixelHex(this.capitalTile.coordinates);
+
+        if (this.missionMarker === undefined) {
+
+            for (let activeEvent of this.empireSystem.scene.worldEventsManager.activeEvents) {
+
+                if (this.isTileInTerritory(activeEvent.targetTile)) {
+                    this.missionMarker = CreateQuestMarker(this.empireSystem.scene, capitalPixelPositon.x + mapOffset.x, capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5), 0.75);
+                    break;
+                }
+            }
+        } else {
+
+            let allEventsCleared: boolean = true;
+
+            for (let activeEvent of this.empireSystem.scene.worldEventsManager.activeEvents) {
+
+                if (this.isTileInTerritory(activeEvent.targetTile)) {
+                    allEventsCleared = false
+                    break;
+                }
+            }
+
+            if (allEventsCleared) {
+
+                this.missionMarker.markerImage.destroy();
+                this.missionMarker = undefined;
+            } else {
+
+                this.missionMarker.setPosition(capitalPixelPositon.x + mapOffset.x, capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5));
+                this.missionMarker.setDepth(capitalPixelPositon.y + mapOffset.y - (Math.sin(time / 100) * 5));
+            }
+        }
     }
 
     public addTileToTerritories(newTile: Tile): void {
@@ -93,5 +134,7 @@ export class Empire {
     public isTileInTerritory(tileToCheck: Tile): boolean {
         return this.territoryTiles.some(territoryTile => territoryTile == tileToCheck);
     }
+
+
 
 }

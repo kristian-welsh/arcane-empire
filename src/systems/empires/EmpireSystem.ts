@@ -1,3 +1,4 @@
+import GameScene from "../../scenes/GameScene";
 import { empireColours } from "../../setup/constants";
 import { empireNames, castleNames, rulerNames } from "../../setup/empireNames";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
@@ -15,7 +16,7 @@ export interface EmpireSettings {
 
 export class EmpiresSystem {
 
-    scene: Phaser.Scene;
+    scene: GameScene;
     randomGenerator: Phaser.Math.RandomDataGenerator;
 
     hexGrid: HexagonGrid;
@@ -23,7 +24,7 @@ export class EmpiresSystem {
 
     empires: Empire[];
 
-    constructor(scene: Phaser.Scene, hexGrid: HexagonGrid, worldModel: WorldModel, empireSettings: EmpireSettings) {
+    constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, empireSettings: EmpireSettings) {
 
         this.scene = scene;
         this.randomGenerator = new Phaser.Math.RandomDataGenerator([empireSettings.seed]);
@@ -79,6 +80,14 @@ export class EmpiresSystem {
         this.empires.forEach((empire: Empire) => {
 
             empire.redrawTerritoryOutline();
+        });
+    }
+
+    public update(time: number): void {
+
+        this.empires.forEach((empire: Empire) => {
+
+            empire.update(time, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
         });
     }
 

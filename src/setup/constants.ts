@@ -39,7 +39,7 @@ export const defaultWizardSettings: WizardSetings = {
 
 export const defaultWorldEventSettings: WorldEventSettings = {
     seed: "default",
-    eventIntervalSec: 10,
+    eventIntervalSec: 5,
     scoreDecreasePerEvent: 1
 }
 
