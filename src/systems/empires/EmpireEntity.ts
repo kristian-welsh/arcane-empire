@@ -88,6 +88,10 @@ export class EmpireEntity {
         }
     }
 
+    public tick(): void {
+
+    }
+
     public addTileToTerritories(newTile: Tile): void {
 
         this.territoryTiles.push(newTile);

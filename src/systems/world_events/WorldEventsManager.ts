@@ -1,5 +1,6 @@
 import GameScene from "../../scenes/GameScene";
-import { GameData } from "../../types";
+import { Empire, GameData, Mission } from "../../types";
+import { EmpireEntity } from "../empires/EmpireEntity";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
 import { WorldEvent } from "./WorldEvent";
@@ -23,6 +24,8 @@ export class WorldEventsManager {
 
     activeEvents: WorldEvent[];
 
+    nextEventCountdown: number;
+
     constructor(scene: GameScene, hexGrid: HexagonGrid, worldModel: WorldModel, worldEventSettings: WorldEventSettings) {
 
         this.scene = scene;
@@ -34,6 +37,8 @@ export class WorldEventsManager {
         this.worldEventSettings = worldEventSettings;
 
         this.activeEvents = [];
+
+        this.nextEventCountdown = this.worldEventSettings.eventIntervalSec;
     }
 
     public preload(): void {
@@ -60,20 +65,6 @@ export class WorldEventsManager {
                 repeat: -1,
             });
         });
-
-        this.scene.time.addEvent({
-            callback: this.spawnRandomWorldEvent,
-            callbackScope: this,
-            delay: this.worldEventSettings.eventIntervalSec * 1000,
-            loop: true
-        });
-
-        this.scene.time.addEvent({
-            callback: this.applyEventEffects,
-            callbackScope: this,
-            delay: 1000,
-            loop: true
-        });
     }
 
     public update(deltaTimeMs: number): void {
@@ -83,12 +74,28 @@ export class WorldEventsManager {
         });
     }
 
+    public tick(): void {
+
+        if (this.nextEventCountdown > 0) {
+
+            this.nextEventCountdown--;
+        } else {
+
+            this.nextEventCountdown = this.worldEventSettings.eventIntervalSec;
+
+            this.spawnRandomWorldEvent();
+        }
+
+        this.applyEventEffects();
+    }
+
     private spawnRandomWorldEvent(): void {
 
         let randomEventData: WorldEventData = WorldEventDatas[WorldEventTypes[this.randomGenerator.between(0, WorldEventTypes.length - 1)]];
 
         let targetTile: Tile = this.worldModel.getRandomTile(randomEventData.terrainFilter, randomEventData.structureFilter);
 
+        // Make sure it's not spawning on top of another event
         while (this.activeEvents.some(event => event.targetTile === targetTile)) {
 
             targetTile = this.worldModel.getRandomTile(randomEventData.terrainFilter, randomEventData.structureFilter);
@@ -97,6 +104,39 @@ export class WorldEventsManager {
         let worldEvent: WorldEvent = new WorldEvent(this, randomEventData, targetTile);
 
         this.activeEvents.push(worldEvent);
+
+        let modifiedGameState = { ...this.scene.gameState! };
+
+        let mission: Mission | undefined;
+
+        let affectedEmpire: EmpireEntity | undefined = this.scene.empireSystem.getOwningEmpire(targetTile);
+
+        if (affectedEmpire !== undefined) {
+
+            mission = {
+                name: "Help stop the " + randomEventData.type,
+                description: "Help stop the " + randomEventData.type,
+                empireName: affectedEmpire.empire.empireName,
+                reward: 50,
+                status: 'available'
+            }
+        }
+
+        modifiedGameState.events.push({
+            name: randomEventData.type,
+            description: randomEventData.type,
+            difficultyRating: 1,
+            elementalEffectiveness: {
+                fire: 1,
+                water: 1,
+                earth: 1,
+                air: 1,
+            },
+            mission: mission
+        });
+
+        this.scene.handleDataUpdate(modifiedGameState);
+        this.scene.sendDataToPreact();
     }
 
     private applyEventEffects(): void {

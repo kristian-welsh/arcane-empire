@@ -42,9 +42,9 @@ export class EmpiresSystem {
 
         for (let i = 0; i < empireSettings.numberOfEmpires; i++) {
 
-            let captialTile: Tile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
+            let captialTile: Tile | undefined = undefined;
 
-            while (this.empireEntities.some(empire => empire.capitalTile.coordinates.distance(captialTile.coordinates) <= empireSettings.minSeparationDistance)) {
+            while (captialTile === undefined || this.empireEntities.some(empire => empire.capitalTile.coordinates.distance(captialTile!.coordinates) <= empireSettings.minSeparationDistance)) {
                 captialTile = worldModel.getRandomTile([TerrainType.Grass, TerrainType.Forest, TerrainType.Mountain]);
             }
 
@@ -98,6 +98,13 @@ export class EmpiresSystem {
         this.empireEntities.forEach((empire: EmpireEntity) => {
 
             empire.update(time, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
+        });
+    }
+
+    public tick(): void {
+        this.empireEntities.forEach((empire: EmpireEntity) => {
+
+            empire.tick();
         });
     }
 

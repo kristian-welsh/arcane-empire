@@ -166,6 +166,13 @@ export default class GameScene extends Phaser.Scene {
     this.empireSystem.create();
     this.wizardManager.create();
     this.worldEventsManager.create();
+
+    this.time.addEvent({
+      callback: this.tick,
+      callbackScope: this,
+      delay: 1000,
+      loop: true
+    });
   }
 
   prog: ProgressBar | undefined;
@@ -188,6 +195,11 @@ export default class GameScene extends Phaser.Scene {
     this.empireSystem.update(time);
     this.wizardManager.update(deltaTimeMs);
     this.worldEventsManager.update(deltaTimeMs);
+  }
+
+  public tick(): void {
+    this.worldEventsManager.tick();
+    this.empireSystem.tick();
   }
 
   public handleDataUpdate = (data: GameData) => {
