@@ -20,6 +20,8 @@ export class Tile {
     terrainData: TerrainData
     structureData: StructureData | undefined;
 
+    terrainImage: Phaser.GameObjects.Image | undefined;
+
     wizardSlots: WizardEntity[];
 
     constructor(parentWorldModel: WorldModel, coordinates: Phaser.Math.Vector2, terrainType: TerrainData) {

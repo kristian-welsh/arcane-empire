@@ -103,8 +103,6 @@ export class WorldEventsManager {
 
         let eventsAtMaxPowerCount = this.activeEvents.filter(event => event.atMaxPower()).length;
 
-        console.log(this.scene.gameState!.wizards);
-
         if (eventsAtMaxPowerCount <= 0)
             return;
 

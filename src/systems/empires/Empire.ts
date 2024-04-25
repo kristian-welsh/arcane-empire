@@ -1,4 +1,5 @@
 import { eventEmitter } from "../../events/EventEmitter";
+import { GameData } from "../../types";
 import { CreateQuestMarker } from "../overlay_elements/OverlayElementsFactory";
 import { QuestMarker } from "../overlay_elements/QuestMarker";
 import { RegionOutline } from "../regions/RegionOutline";
@@ -23,7 +24,7 @@ export class EmpireEntity {
 
     missionMarker: QuestMarker | undefined;
 
-    constructor(empireSystem: EmpiresSystem, captialName: string, empireName: string, rulerName: string, capitalTile: Tile, colour: number) {
+    constructor(empireSystem: EmpiresSystem, empireName: string, captialName: string, rulerName: string, capitalTile: Tile, colour: number) {
 
         this.empireSystem = empireSystem;
 
@@ -146,6 +147,10 @@ export class EmpireEntity {
 
     private empireSelected(): void {
 
+        let gameState: GameData = { ...this.empireSystem.scene.gameState! };
+        gameState.empiresCollection.selectedEmpireId = this.empireName;
+
+        this.empireSystem.scene.handleDataUpdate(gameState);
         eventEmitter.emit('empire-selected', this.empireSystem.scene.gameState);
     }
 
