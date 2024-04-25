@@ -4,7 +4,7 @@ import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
 import React, { useEffect, useState } from 'preact/compat';
-import { ElementType, GameData, Tower, Wizard, WizardCollection } from './types';
+import { ElementType, GameData, Tower, Wizard, WizardCapacities, WizardCollection } from './types';
 import { eventEmitter } from './events/EventEmitter';
 import fire_wizard_src from "../src/assets/wizards/wizard_red.png";
 import water_wizard_src from "../src/assets/wizards/wizard_blue.png";
@@ -27,6 +27,10 @@ export function App() {
   const sendGameStateToPhaser = (gameState: GameData) => {
     eventEmitter.emit('update-phaser-data', gameState);
   };
+
+  const buyWizard = (elementType: ElementType): void => {
+    console.log(elementType);
+  }
 
   const messages = [
     'Hello World!',
@@ -98,7 +102,11 @@ export function App() {
               </button>
             )}
           >
-            <TowerTab wizards={gameState?.wizards ?? emptyWizardsData} tower={gameState?.tower ?? emptyTowerData} />
+            <TowerTab
+              wizards={gameState?.wizards ?? emptyWizardsData}
+              tower={gameState?.tower ?? emptyTowerData}
+              buy={buyWizard}
+            />
           </Tab>
           <Tab
             id="third"
@@ -198,34 +206,38 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
   );
 };
 
-const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower }> = (props) => {
-  const { wizards, tower } = props;
+const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, buy: (element: ElementType) => void }> = (props) => {
+  const {
+    wizards,
+    tower,
+    buy
+  } = props;
 
   return (
     <div className="h-full p-2">
       <h2 className="text-2xl text-green-500 pb-2">Tower</h2>
-      <div className="py-2">
-        <WizardShopPanel elementType="fire" wizardTypeCount={`${wizards.fire.length}`} wizardTypeCapacity={`${tower.wizardCapacities.fire}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.fire.length - 1))}`} />
-      </div>
-      <div className="py-2">
-        <WizardShopPanel elementType="water" wizardTypeCount={`${wizards.water.length}`} wizardTypeCapacity={`${tower.wizardCapacities.water}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.water.length - 1))}`} />
-      </div>
-      <div className="py-2">
-        <WizardShopPanel elementType="earth" wizardTypeCount={`${wizards.earth.length}`} wizardTypeCapacity={`${tower.wizardCapacities.earth}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.earth.length - 1))}`} />
-      </div>
-      <div className="py-2">
-        <WizardShopPanel elementType="air" wizardTypeCount={`${wizards.air.length}`} wizardTypeCapacity={`${tower.wizardCapacities.air}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.air.length - 1))}`} />
-      </div>
+      {["fire", "water", "earth", "air"].map(element => (
+        <div className="py-2">
+          <WizardShopPanel
+            elementType={element}
+            wizardTypeCount={`${wizards[element as keyof WizardCollection].length}`}
+            wizardTypeCapacity={`${tower.wizardCapacities[element as keyof WizardCapacities]}`}
+            wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards[element as keyof WizardCollection].length - 1))}`}
+            buy={buy}
+          />
+        </div>
+      ))}
     </div>
   )
 };
 
-const WizardShopPanel: React.FC<{ elementType: ElementType, wizardTypeCount: string, wizardTypeCapacity: string, wizardCost: string }> = (props) => {
+const WizardShopPanel: React.FC<{ elementType: string, wizardTypeCount: string, wizardTypeCapacity: string, wizardCost: string, buy: (element: ElementType) => void }> = (props) => {
   const {
     elementType,
     wizardTypeCount,
     wizardTypeCapacity,
-    wizardCost
+    wizardCost,
+    buy
   } = props;
 
   let bgColor;
@@ -275,7 +287,11 @@ const WizardShopPanel: React.FC<{ elementType: ElementType, wizardTypeCount: str
           <p className="text-white">Capacity:</p>
           <p className="text-white">{wizardTypeCount} of {wizardTypeCapacity}</p>
         </div>
-        <button className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray`}>
+        <button
+          className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray`}
+          onClick={() => {
+            buy(elementType as ElementType)
+          }}>
           <p>Buy {elementType} Wizard:</p>
           <p>{wizardCost} Gold</p>
         </button>
