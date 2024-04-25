@@ -15,10 +15,6 @@ export class EmpireEntity {
 
     empire: Empire;
 
-    empireName: string;
-    captialName: string;
-    rulerName: string;
-
     capitalTile: Tile;
     territoryTiles: Tile[];
 

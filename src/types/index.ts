@@ -1,6 +1,7 @@
 export type GameData = null | {
   wizards: WizardCollection;
   empires: EmpireCollection;
+  tower: Tower;
   playerGold: number;
   reputation: number;
   upgrades: {
@@ -32,6 +33,16 @@ export type Mission = {
   reward: number;
   status: 'available' | 'in-progress' | 'completed';
 };
+
+export type Tower = {
+  baseWizardCost: number;
+  perExtraWizardCost: number;
+  wizardCapacities: WizardCapacities;
+}
+
+export type WizardCapacities = {
+  [element in ElementType]: number;
+}
 
 export type Event = {
   name: string;

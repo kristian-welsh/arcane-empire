@@ -4,8 +4,12 @@ import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
 import React, { useEffect, useState } from 'preact/compat';
-import { GameData, Wizard, WizardCollection } from './types';
+import { ElementType, GameData, Tower, Wizard, WizardCollection } from './types';
 import { eventEmitter } from './events/EventEmitter';
+import fire_wizard_src from "../src/assets/wizards/wizard_red.png";
+import water_wizard_src from "../src/assets/wizards/wizard_blue.png";
+import earth_wizard_src from "../src/assets/wizards/wizard_brown.png";
+import air_wizard_src from "../src/assets/wizards/wizard_white.png";
 
 export function App() {
   const [gameState, setGameState] = useState<GameData>(null);
@@ -30,11 +34,22 @@ export function App() {
     'Woooo there is now a messages panel :D',
   ];
 
-  const mockWizardsData: WizardCollection = {
+  const emptyWizardsData: WizardCollection = {
     air: [],
     earth: [],
     fire: [],
     water: [],
+  };
+
+  const emptyTowerData: Tower = {
+    baseWizardCost: 0,
+    perExtraWizardCost: 0,
+    wizardCapacities: {
+      fire: 0,
+      water: 0,
+      earth: 0,
+      air: 0
+    }
   };
 
   return (
@@ -69,7 +84,7 @@ export function App() {
               </button>
             )}
           >
-            <WizardsTab wizards={gameState?.wizards ?? mockWizardsData} />
+            <WizardsTab wizards={gameState?.wizards ?? emptyWizardsData} />
           </Tab>
           <Tab
             id="second"
@@ -83,7 +98,7 @@ export function App() {
               </button>
             )}
           >
-            <TowerTab />
+            <TowerTab wizards={gameState?.wizards ?? emptyWizardsData} tower={gameState?.tower ?? emptyTowerData} />
           </Tab>
           <Tab
             id="third"
@@ -136,12 +151,6 @@ const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
   );
 };
 
-const TowerTab = () => (
-  <div className="h-full p-2">
-    <h2 className="text-2xl text-green-500 pb-2">Tower</h2>
-  </div>
-);
-
 const KingdomTab: React.FC<{ messages: string[] }> = (props) => {
   return (
     <div className="h-full flex flex-col items-end justify-end gap-y-1 p-2">
@@ -186,5 +195,91 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
     >
       <span className="text-white text-sm">{props.wizard.initials}</span>
     </div>
+  );
+};
+
+const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower }> = (props) => {
+  const { wizards, tower } = props;
+
+  return (
+    <div className="h-full p-2">
+      <h2 className="text-2xl text-green-500 pb-2">Tower</h2>
+      <div className="py-2">
+        <WizardShopPanel elementType="fire" wizardTypeCount={`${wizards.fire.length}`} wizardTypeCapacity={`${tower.wizardCapacities.fire}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.fire.length - 1))}`} />
+      </div>
+      <div className="py-2">
+        <WizardShopPanel elementType="water" wizardTypeCount={`${wizards.water.length}`} wizardTypeCapacity={`${tower.wizardCapacities.water}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.water.length - 1))}`} />
+      </div>
+      <div className="py-2">
+        <WizardShopPanel elementType="earth" wizardTypeCount={`${wizards.earth.length}`} wizardTypeCapacity={`${tower.wizardCapacities.earth}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.earth.length - 1))}`} />
+      </div>
+      <div className="py-2">
+        <WizardShopPanel elementType="air" wizardTypeCount={`${wizards.air.length}`} wizardTypeCapacity={`${tower.wizardCapacities.air}`} wizardCost={`${tower.baseWizardCost + (tower.perExtraWizardCost * (wizards.air.length - 1))}`} />
+      </div>
+    </div>
+  )
+};
+
+const WizardShopPanel: React.FC<{ elementType: ElementType, wizardTypeCount: string, wizardTypeCapacity: string, wizardCost: string }> = (props) => {
+  const {
+    elementType,
+    wizardTypeCount,
+    wizardTypeCapacity,
+    wizardCost
+  } = props;
+
+  let bgColor;
+  let btnColor;
+  let btnHoverColor;
+  let wizardImgSrc;
+
+  switch (elementType) {
+    case 'fire':
+      bgColor = 'bg-red-400';
+      btnColor = 'bg-red-700';
+      btnHoverColor = 'hover:bg-red-900';
+      wizardImgSrc = fire_wizard_src;
+      break;
+    case 'water':
+      bgColor = 'bg-blue-400';
+      btnColor = 'bg-blue-700';
+      btnHoverColor = 'hover:bg-blue-900';
+      wizardImgSrc = water_wizard_src;
+      break;
+    case 'earth':
+      bgColor = 'bg-amber-400';
+      btnColor = 'bg-amber-700';
+      btnHoverColor = 'hover:bg-amber-900';
+      wizardImgSrc = earth_wizard_src;
+      break;
+    case 'air':
+      bgColor = 'bg-slate-400';
+      btnColor = 'bg-gray-700';
+      btnHoverColor = 'hover:bg-gray-900';
+      wizardImgSrc = air_wizard_src;
+      break;
+    default:
+      bgColor = 'bg-gray-400';
+      btnColor = 'bg-gray-700';
+      btnHoverColor = 'hover:bg-gray-900';
+      wizardImgSrc = fire_wizard_src;
+  }
+
+  return (
+    <div className={`${bgColor} w-full h-48 rounded-lg p-4 flex flex-row justify-between`}>
+      <div className="w-1/3 h-full">
+        <img src={`${wizardImgSrc}`} alt={`${elementType} wizard`} className="w-full h-full object-contain" />
+      </div>
+      <div className="w-1/2 h-full flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-center items-center">
+          <p className="text-white">Capacity:</p>
+          <p className="text-white">{wizardTypeCount} of {wizardTypeCapacity}</p>
+        </div>
+        <button className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray`}>
+          <p>Buy {elementType} Wizard:</p>
+          <p>{wizardCost} Gold</p>
+        </button>
+      </div>
+    </div >
   );
 };
