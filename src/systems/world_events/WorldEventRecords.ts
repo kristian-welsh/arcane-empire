@@ -6,9 +6,9 @@ import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { StructureType } from "../world_generation/StructureRecords";
 
 export enum WorldEventType {
-    Tornado = "Tornado",
-    Fire = "Fire",
-    Earthquake = "Earthquake"
+    tornado = "tornado",
+    fire = "fire",
+    earthquake = "earthquake"
 }
 
 export type WorldEventData = {
@@ -29,8 +29,8 @@ export type WorldEventData = {
 export const WorldEventTypes: (keyof typeof WorldEventType)[] = <(keyof typeof WorldEventType)[]>Object.keys(WorldEventType);
 
 export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
-    [WorldEventType.Tornado]: {
-        type: WorldEventType.Tornado,
+    [WorldEventType.tornado]: {
+        type: WorldEventType.tornado,
         path: tornado_spirtesheet_path,
         scale: 0.6,
         frameWidth: 66,
@@ -42,8 +42,8 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         chaosRate: 1,
         chaosCapacity: 10
     },
-    [WorldEventType.Fire]: {
-        type: WorldEventType.Fire,
+    [WorldEventType.fire]: {
+        type: WorldEventType.fire,
         path: fire_1_spirtesheet_path,
         scale: 0.75,
         frameWidth: 32,
@@ -55,8 +55,8 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
         chaosRate: 1,
         chaosCapacity: 10
     },
-    [WorldEventType.Earthquake]: {
-        type: WorldEventType.Earthquake,
+    [WorldEventType.earthquake]: {
+        type: WorldEventType.earthquake,
         path: earthquake_spirtesheet_path,
         scale: 0.3,
         frameWidth: 200,

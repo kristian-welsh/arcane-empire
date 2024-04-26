@@ -1,5 +1,5 @@
 import GameScene from "../../scenes/GameScene";
-import { Empire, GameData, Mission } from "../../types";
+import { Empire, EventType as WorldEventType, GameData, Mission } from "../../types";
 import { EmpireEntity } from "../empires/EmpireEntity";
 import { HexagonGrid } from "../hex_grid/HexagonGrid";
 import { Tile, WorldModel } from "../world_generation/WorldModel";
@@ -125,6 +125,7 @@ export class WorldEventsManager {
         modifiedGameState.events.push({
             name: randomEventData.type,
             description: randomEventData.type,
+            type: randomEventData.type as WorldEventType,
             difficultyRating: 1,
             elementalEffectiveness: {
                 fire: 1,

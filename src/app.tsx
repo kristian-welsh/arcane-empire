@@ -4,12 +4,17 @@ import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
 import React, { useEffect, useState } from 'preact/compat';
-import { ElementType, GameData, Tower, Wizard, WizardCounts, WizardCollection } from './types';
+import { ElementType, GameData, Tower, Wizard, WizardCounts, WizardCollection, Event } from './types';
 import { eventEmitter } from './events/EventEmitter';
+
 import fire_wizard_src from "../src/assets/wizards/wizard_red.png";
 import water_wizard_src from "../src/assets/wizards/wizard_blue.png";
 import earth_wizard_src from "../src/assets/wizards/wizard_brown.png";
 import air_wizard_src from "../src/assets/wizards/wizard_white.png";
+
+import icon_tornado_event_src from "../src/assets/ui/event_icons/icon_tornado.png";
+import icon_fire_event_src from "../src/assets/ui/event_icons/icon_fire.png";
+import icon_earthquake_event_src from "../src/assets/ui/event_icons/icon_earthquake.png";
 
 export function App() {
   const [gameState, setGameState] = useState<GameData>(null);
@@ -56,6 +61,8 @@ export function App() {
       air: 0
     }
   };
+
+  const emptyEvents: Event[] = [];
 
   return (
     <div className="h-screen max-h-screen bg-gray-800">
@@ -122,7 +129,7 @@ export function App() {
               </button>
             )}
           >
-            <KingdomTab messages={messages} />
+            <KingdomTab events={gameState?.events ?? []} />
           </Tab>
         </Tabs>
         <GameComponent className="w-4/5 h-full overflow-y-hidden" />
@@ -161,17 +168,50 @@ const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
   );
 };
 
-const KingdomTab: React.FC<{ messages: string[] }> = (props) => {
+
+const KingdomTab: React.FC<{ events: Event[] }> = (props) => {
   return (
-    <div className="h-full flex flex-col items-end justify-end gap-y-1 p-2">
-      {props.messages.map((message, i) => (
-        <span
-          key={i}
-          className="text-xl px-4 py-2 rounded-2xl bg-gray-300 text-pretty"
-        >
-          {message}
-        </span>
+    <div className="h-full w-full flex flex-col items-start justify-start gap-y-1 p-2">
+      {props.events.map((event, i) => (
+        <Mission event={event} />
       ))}
+    </div>
+  );
+};
+
+const Mission: React.FC<{ event: Event }> = (props) => {
+  const {
+    event
+  } = props;
+
+  let eventIconSrc;
+
+  switch (event.type) {
+    case 'tornado':
+      eventIconSrc = icon_tornado_event_src;
+      break;
+    case 'fire':
+      eventIconSrc = icon_fire_event_src;
+      break;
+    case 'earthquake':
+      eventIconSrc = icon_earthquake_event_src;
+      break;
+    default:
+      eventIconSrc = air_wizard_src;
+  }
+
+  return (
+    <div className={`w-full h-18 ${event.mission === undefined ? " bg-slate-400" : "bg-amber-400"} border-2 ${event.mission === undefined ? "border-gray-800" : "border-amber-800"} rounded-lg px-4 py-2 flex flex-row items-center justify-between`}>
+      <div className="flex items-center">
+        <img src={eventIconSrc} alt={event.type} className="mr-2 object-contain" />
+      </div>
+      <div className="text-center">
+        <h3 className="text-lg font-semibold">{event.name}</h3>
+        <p className="text-sm text-gray-600">{(event.mission === undefined ? "" : event.mission.empireName)}</p>
+      </div>
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Go To
+      </button>
     </div>
   );
 };

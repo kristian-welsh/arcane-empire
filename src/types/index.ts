@@ -47,6 +47,7 @@ export type WizardCounts = {
 export type Event = {
   name: string;
   description: string;
+  type: EventType;
   difficultyRating: number;
   mission?: Mission;
   elementalEffectiveness: {
@@ -64,3 +65,5 @@ export type Wizard = {
 export type EmpirePersonality = 'aggressive' | 'passive' | 'friendly' | 'selfish';
 
 export type ElementType = 'fire' | 'water' | 'earth' | 'air';
+
+export type EventType = "tornado" | "fire" | "earthquake";
