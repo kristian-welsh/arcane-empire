@@ -5,8 +5,6 @@
  * make sure to unsubscribe from the event when the scene ends or component unmounts by calling the function returned by eventEmitter.subscribe
  */
 
-import { ElementType, GameData } from '../types';
-
 class EventEmitter {
   private events: { [eventName: string]: Function[] };
 
@@ -26,16 +24,7 @@ class EventEmitter {
     };
   };
 
-  public emit = (eventName: string, data: GameData): void => {
-    const event = this.events[eventName];
-    if (event) {
-      event.forEach((fn) => {
-        fn(data);
-      });
-    }
-  };
-
-  public emitElementType = (eventName: string, data: ElementType): void => {
+  public emit = (eventName: string, data: any): void => {
     const event = this.events[eventName];
     if (event) {
       event.forEach((fn) => {
