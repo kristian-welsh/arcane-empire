@@ -4,7 +4,7 @@
  */
 
 import { eventEmitter } from '../events/EventEmitter';
-import { secondsToMMSS, startScene } from '../helpers';
+import { secondsToMMSS } from '../helpers';
 import {
   defaultEmpireSettings,
   defaultGenerationSettings,
@@ -15,7 +15,7 @@ import {
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
 import { ProgressBar } from '../systems/overlay_elements/ProgressBar';
-import { CreateProgressBar, PreloadOverlayAssets, BarFillColour } from '../systems/overlay_elements/OverlayElementsFactory';
+import { PreloadOverlayAssets } from '../systems/overlay_elements/OverlayElementsFactory';
 import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
@@ -46,7 +46,7 @@ export default class GameScene extends Phaser.Scene {
         fire: [],
         water: [],
         earth: [],
-        air: []
+        air: [],
       },
       empires: [],
       tower: {
@@ -56,18 +56,16 @@ export default class GameScene extends Phaser.Scene {
           fire: 3,
           water: 3,
           earth: 3,
-          air: 3
-        }
+          air: 3,
+        },
       },
       playerGold: 50,
       reputation: 100,
       upgrades: {},
       events: [],
-    }
+    };
 
-    this.hexGrid = new HexagonGrid(
-      this, defaultGridSize
-    );
+    this.hexGrid = new HexagonGrid(this, defaultGridSize);
 
     this.worldModel = new WorldModel(
       this.hexGrid,
@@ -97,7 +95,8 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.worldEventsManager = new WorldEventsManager(
-      this, this.hexGrid,
+      this,
+      this.hexGrid,
       this.worldModel,
       defaultWorldEventSettings
     );
@@ -118,6 +117,7 @@ export default class GameScene extends Phaser.Scene {
       this.handleDataUpdate.bind(this)
     );
 
+    this.hexGrid.initDragListeners();
     const background = this.add.rectangle(
       0,
       0,

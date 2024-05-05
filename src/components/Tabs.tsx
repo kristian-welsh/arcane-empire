@@ -1,10 +1,4 @@
-import {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'preact/compat';
+import { ReactElement, useCallback, useEffect, useRef } from 'preact/compat';
 import useFindNestedChildren from '../hooks/useFindNestedChildren';
 import Tab, { TabProps } from './Tab';
 import { VNode } from 'preact';
@@ -13,18 +7,16 @@ interface TabsProps {
   initialSelected?: string;
   className?: string;
   children: VNode<TabProps> | VNode<TabProps>[];
+  selected: string;
+  setSelected: (id: string) => void;
 }
 
 export default function Tabs(props: TabsProps): ReactElement {
-  const { className, initialSelected, children } = props;
+  const { className, children, selected, setSelected } = props;
 
   const tabChildren = useFindNestedChildren(children, Tab);
 
   const panelRef = useRef<HTMLDivElement>(null);
-
-  const [selected, setSelected] = useState<string>(
-    initialSelected ?? tabChildren[0].props.id
-  );
 
   useEffect(() => {
     if (panelRef.current != null) {

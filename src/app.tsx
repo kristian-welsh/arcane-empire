@@ -4,13 +4,20 @@ import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Badge from './components/Badge';
 import React, { useEffect, useState } from 'preact/compat';
-import { ElementType, GameData, Tower, Wizard, WizardCounts, WizardCollection, Event } from './types';
+import {
+  ElementType,
+  GameData,
+  Tower,
+  Wizard,
+  WizardCounts,
+  WizardCollection,
+} from './types';
 import { eventEmitter } from './events/EventEmitter';
-
-import fire_wizard_src from "../src/assets/wizards/wizard_red.png";
-import water_wizard_src from "../src/assets/wizards/wizard_blue.png";
-import earth_wizard_src from "../src/assets/wizards/wizard_brown.png";
-import air_wizard_src from "../src/assets/wizards/wizard_white.png";
+import fire_wizard_src from '../src/assets/wizards/wizard_red.png';
+import water_wizard_src from '../src/assets/wizards/wizard_blue.png';
+import earth_wizard_src from '../src/assets/wizards/wizard_brown.png';
+import air_wizard_src from '../src/assets/wizards/wizard_white.png';
+import { Tile } from './systems/world_generation/WorldModel';
 
 import icon_tornado_event_src from "../src/assets/ui/event_icons/icon_tornado.png";
 import icon_fire_event_src from "../src/assets/ui/event_icons/icon_fire.png";
@@ -18,14 +25,19 @@ import icon_earthquake_event_src from "../src/assets/ui/event_icons/icon_earthqu
 
 export function App() {
   const [gameState, setGameState] = useState<GameData>(null);
+  const [selectedTab, setSelectedTab] = useState<string>('first');
+  const [currentTile, setCurrentTile] = useState<Tile | null>(null);
+
+  const appEvent = eventEmitter.subscribe('update-app-data', () => {});
+  const tileEvent = eventEmitter.subscribe('tile-clicked', (tile: Tile) =>
+    handleTileClicked(tile)
+  );
 
   useEffect(() => {
-    const unsubscribe = eventEmitter.subscribe(
-      'update-app-data',
-      (data: GameData) => {
-        setGameState(data);
-      }
-    );
+    const unsubscribe = () => {
+      appEvent();
+      tileEvent();
+    };
     return () => unsubscribe();
   }, []);
 
@@ -34,9 +46,14 @@ export function App() {
   };
 
   const buyWizard = (elementType: ElementType): void => {
-
-    eventEmitter.emitElementType('buy-wizard', elementType);
-  }
+    eventEmitter.emit('buy-wizard', elementType);
+  };
+  const handleTileClicked = (tile: Tile) => {
+    (
+      document.querySelector('[aria-hidden="true"]') as HTMLButtonElement | null
+    )?.click();
+    setCurrentTile(tile);
+  };
 
   const messages = [
     'Hello World!',
@@ -58,8 +75,8 @@ export function App() {
       fire: 0,
       water: 0,
       earth: 0,
-      air: 0
-    }
+      air: 0,
+    },
   };
 
   const emptyEvents: Event[] = [];
@@ -83,13 +100,17 @@ export function App() {
         </div>
       </div>
       <div className="flex flex-wrap h-[95%] flex-col items-stretch">
-        <Tabs className="w-1/5 h-full">
+        <Tabs
+          className="w-1/5 h-full"
+          selected={selectedTab}
+          setSelected={setSelectedTab}
+        >
           <Tab
             id="first"
             className="bg-gray-600 h-full"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-blue-600 bg-blue-700 border-4 ' : ''}bg-blue-500 w-1/3 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-t-md`}
+                className={`${selected ? 'border-blue-600 bg-blue-700 border-4 ' : ''}bg-blue-500 w-1/3 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
                 Wizards
@@ -103,7 +124,7 @@ export function App() {
             className="bg-gray-600 h-full"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-red-600 bg-red-700 border-4 ' : ''}bg-red-500 w-1/3 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-t-md`}
+                className={`${selected ? 'border-red-600 bg-red-700 border-4 ' : ''}bg-red-500 w-1/3 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
                 Tower
@@ -122,7 +143,7 @@ export function App() {
             className="bg-gray-600 h-full flex flex-col items-end justify-end gap-y-2 p-2"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-green-600 bg-green-700 border-4 ' : ''}bg-green-500 w-1/3 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-t-md`}
+                className={`${selected ? 'border-green-600 bg-green-700 border-4 ' : ''}bg-green-500 w-1/3 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
                 Kingdom
@@ -130,6 +151,24 @@ export function App() {
             )}
           >
             <KingdomTab events={gameState?.events ?? []} />
+          </Tab>
+          <Tab
+            id="fourth"
+            className="bg-gray-600 h-full flex flex-col items-start justify-end gap-y-2 p-2"
+            button={(_, onSelect) => {
+              return (
+                <button
+                  style={{ display: 'none' }}
+                  onClick={onSelect}
+                  aria-hidden="true"
+                ></button>
+              );
+            }}
+          >
+            <TilesTab
+              currentTile={currentTile}
+              wizards={gameState?.wizards ?? emptyWizardsData}
+            />
           </Tab>
         </Tabs>
         <GameComponent className="w-4/5 h-full overflow-y-hidden" />
@@ -142,7 +181,7 @@ const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
   const { wizards } = props;
 
   return (
-    <div className="h-full p-2">
+    <div className="flex flex-col p-2 max-h-[90vh] overflow-auto">
       <h2 className="text-2xl text-purple-400 pb-2">Wizards</h2>
       <div className="text-cyan-300 py-2">
         <h3 className="text-xl">Air</h3>
@@ -171,9 +210,14 @@ const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
 
 const KingdomTab: React.FC<{ events: Event[] }> = (props) => {
   return (
-    <div className="h-full w-full flex flex-col items-start justify-start gap-y-1 p-2">
-      {props.events.map((event, i) => (
-        <Mission event={event} />
+    <div className="h-full flex flex-col items-end justify-end gap-y-1 p-2 max-h-[90vh] overflow-auto">
+      {props.messages.map((message, i) => (
+        <span
+          key={i}
+          className="text-xl px-4 py-2 rounded-2xl bg-gray-300 text-pretty"
+        >
+          {message}
+        </span>
       ))}
     </div>
   );
@@ -248,41 +292,90 @@ const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
   );
 };
 
-const TowerTab: React.FC<{ wizards: WizardCollection, tower: Tower, playerGold: number, buy: (element: ElementType) => void }> = (props) => {
-  const {
-    wizards,
-    tower,
-    playerGold,
-    buy
-  } = props;
+const TowerTab: React.FC<{
+  wizards: WizardCollection;
+  tower: Tower;
+  playerGold: number;
+  buy: (element: ElementType) => void;
+}> = (props) => {
+  const { wizards, tower, playerGold, buy } = props;
 
   return (
-    <div className="h-full p-2">
+    <div className="flex flex-col p-2 max-h-[90vh] overflow-auto">
       <h2 className="text-2xl text-green-500 pb-2">Tower</h2>
-      {["fire", "water", "earth", "air"].map(element => (
+      {['fire', 'water', 'earth', 'air'].map((element) => (
         <div className="py-2">
           <WizardShopPanel
             elementType={element}
             playerGold={playerGold}
             wizardTypeCount={wizards[element as keyof WizardCollection].length}
-            wizardTypeCapacity={tower.wizardCapacities[element as keyof WizardCounts]}
-            wizardCost={tower.baseWizardCost + (tower.perExtraWizardCost * (wizards[element as keyof WizardCollection].length - 1))}
+            wizardTypeCapacity={
+              tower.wizardCapacities[element as keyof WizardCounts]
+            }
+            wizardCost={
+              tower.baseWizardCost +
+              tower.perExtraWizardCost *
+                (wizards[element as keyof WizardCollection].length - 1)
+            }
             buy={buy}
           />
         </div>
       ))}
     </div>
-  )
+  );
 };
 
-const WizardShopPanel: React.FC<{ elementType: string, playerGold: number, wizardTypeCount: number, wizardTypeCapacity: number, wizardCost: number, buy: (element: ElementType) => void }> = (props) => {
+const TilesTab: React.FC<{
+  currentTile: Tile | null;
+  wizards: WizardCollection;
+}> = (props) => {
+  const { currentTile, wizards } = props;
+  console.log(currentTile);
+
+  if (!currentTile) return <p className="text-white">No tile selected</p>;
+
+  return (
+    <div className="flex flex-col max-h-[90vh] h-full overflow-auto">
+      <h2 className="text-2xl text-purple-400 pb-2">
+        {`(${currentTile.coordinates.x}, ${currentTile.coordinates.y}) ${currentTile.terrainData.name}`}
+      </h2>
+      <p className="text-white">
+        {currentTile.terrainData.is_walkable ? 'Walkable' : 'Not walkable'}
+      </p>
+      <p className="text-white pt-2">Wizards here: </p>
+      <p className="text-white">(none)</p>
+      <p className="text-white pt-2">Send a wizard here: </p>
+      {wizards.air.map((wizard) => (
+        <WizardCircle key={wizard.name} wizard={wizard} />
+      ))}
+      {wizards.earth.map((wizard) => (
+        <WizardCircle key={wizard.name} wizard={wizard} />
+      ))}
+      {wizards.fire.map((wizard) => (
+        <WizardCircle key={wizard.name} wizard={wizard} />
+      ))}
+      {wizards.water.map((wizard) => (
+        <WizardCircle key={wizard.name} wizard={wizard} />
+      ))}
+    </div>
+  );
+};
+
+const WizardShopPanel: React.FC<{
+  elementType: string;
+  playerGold: number;
+  wizardTypeCount: number;
+  wizardTypeCapacity: number;
+  wizardCost: number;
+  buy: (element: ElementType) => void;
+}> = (props) => {
   const {
     elementType,
     playerGold,
     wizardTypeCount,
     wizardTypeCapacity,
     wizardCost,
-    buy
+    buy,
   } = props;
 
   let bgColor;
@@ -323,25 +416,36 @@ const WizardShopPanel: React.FC<{ elementType: string, playerGold: number, wizar
   }
 
   return (
-    <div className={`${bgColor} w-full h-48 rounded-lg p-4 flex flex-row justify-between`}>
+    <div
+      className={`${bgColor} w-full h-48 rounded-lg p-4 flex flex-row justify-between`}
+    >
       <div className="w-1/3 h-full">
-        <img src={`${wizardImgSrc}`} alt={`${elementType} wizard`} className="w-full h-full object-contain" />
+        <img
+          src={`${wizardImgSrc}`}
+          alt={`${elementType} wizard`}
+          className="w-full h-full object-contain"
+        />
       </div>
       <div className="w-1/2 h-full flex flex-col justify-center items-center">
         <div className="flex flex-col justify-center items-center">
           <p className="text-white">Capacity:</p>
-          <p className="text-white">{wizardTypeCount} of {wizardTypeCapacity}</p>
+          <p className="text-white">
+            {wizardTypeCount} of {wizardTypeCapacity}
+          </p>
         </div>
         <button
           className={`${btnColor} text-white px-3 py-4 rounded-md shadow-md ${btnHoverColor} hover:text-gray disabled:bg-[#333333ff] `}
-          disabled={wizardTypeCount >= wizardTypeCapacity || playerGold < wizardCost}
+          disabled={
+            wizardTypeCount >= wizardTypeCapacity || playerGold < wizardCost
+          }
           onClick={() => {
-            buy(elementType as ElementType)
-          }}>
+            buy(elementType as ElementType);
+          }}
+        >
           <p>Buy {elementType} Wizard:</p>
           <p>{wizardCost} Gold</p>
         </button>
       </div>
-    </div >
+    </div>
   );
 };
