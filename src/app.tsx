@@ -17,7 +17,8 @@ import fire_wizard_src from '../src/assets/wizards/wizard_red.png';
 import water_wizard_src from '../src/assets/wizards/wizard_blue.png';
 import earth_wizard_src from '../src/assets/wizards/wizard_brown.png';
 import air_wizard_src from '../src/assets/wizards/wizard_white.png';
-import { Tile } from './systems/world_generation/WorldModel';
+import { Tile } from './systems/world_generation/Tile';
+import { eventImages } from './app-utils/image-maps';
 
 import icon_tornado_event_src from "../src/assets/ui/event_icons/icon_tornado.png";
 import icon_fire_event_src from "../src/assets/ui/event_icons/icon_fire.png";
@@ -110,7 +111,7 @@ export function App() {
             className="bg-gray-600 h-full"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-blue-600 bg-blue-700 border-4 ' : ''}bg-blue-500 w-1/3 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
+                className={`${selected ? 'border-blue-600 bg-blue-700 border-4 ' : ''}bg-blue-500 w-1/3 hover:bg-blue-700 text-white font-bold rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
                 Wizards
@@ -124,7 +125,7 @@ export function App() {
             className="bg-gray-600 h-full"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-red-600 bg-red-700 border-4 ' : ''}bg-red-500 w-1/3 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
+                className={`${selected ? 'border-red-600 bg-red-700 border-4 ' : ''}bg-red-500 w-1/3 hover:bg-red-700 text-white font-bold rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
                 Tower
@@ -143,10 +144,10 @@ export function App() {
             className="bg-gray-600 h-full flex flex-col items-end justify-end gap-y-2 p-2"
             button={(selected, onSelect) => (
               <button
-                className={`${selected ? 'border-green-600 bg-green-700 border-4 ' : ''}bg-green-500 w-1/3 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-t-md min-h-[40px]`}
+                className={`${selected ? 'border-green-600 bg-green-700 border-4 ' : ''}bg-green-500 w-1/3 hover:bg-green-700 text-white font-bold rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
-                Kingdom
+                Kingdoms
               </button>
             )}
           >
@@ -182,7 +183,7 @@ const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
 
   return (
     <div className="flex flex-col p-2 max-h-[90vh] overflow-auto">
-      <h2 className="text-2xl text-purple-400 pb-2">Wizards</h2>
+      <h2 className="text-2xl text-blue-400 pb-2">Wizards</h2>
       <div className="text-cyan-300 py-2">
         <h3 className="text-xl">Air</h3>
         <p className="text-sm">Air Wizards ignore terrain penalties.</p>
@@ -302,7 +303,7 @@ const TowerTab: React.FC<{
 
   return (
     <div className="flex flex-col p-2 max-h-[90vh] overflow-auto">
-      <h2 className="text-2xl text-green-500 pb-2">Tower</h2>
+      <h2 className="text-2xl text-red-500 pb-2">Tower</h2>
       {['fire', 'water', 'earth', 'air'].map((element) => (
         <div className="py-2">
           <WizardShopPanel
@@ -330,7 +331,6 @@ const TilesTab: React.FC<{
   wizards: WizardCollection;
 }> = (props) => {
   const { currentTile, wizards } = props;
-  console.log(currentTile);
 
   if (!currentTile) return <p className="text-white">No tile selected</p>;
 
@@ -342,7 +342,24 @@ const TilesTab: React.FC<{
       <p className="text-white">
         {currentTile.terrainData.is_walkable ? 'Walkable' : 'Not walkable'}
       </p>
-      <p className="text-white pt-2">Wizards here: </p>
+      <p className="text-white pt-2">
+        Structure:{' '}
+        {currentTile.structureData ? currentTile.structureData.name : 'None'}
+      </p>
+      <div className="text-white py-2">
+        Event:{' '}
+        {currentTile.currentEvent
+          ? currentTile.currentEvent.eventData.type
+          : 'None'}
+        {currentTile.currentEvent ? (
+          <img
+            src={eventImages[currentTile.currentEvent.eventData.type]}
+            width={'100%'}
+            className={'py-2'}
+          />
+        ) : null}
+      </div>
+      <p className="text-white">Wizards here: </p>
       <p className="text-white">(none)</p>
       <p className="text-white pt-2">Send a wizard here: </p>
       {wizards.air.map((wizard) => (

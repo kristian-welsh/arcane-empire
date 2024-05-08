@@ -8,6 +8,8 @@ It has been developed for the Gamedev.js 2024 game jam: https://itch.io/jam/game
 
 The game is built with Phaser.js in a Preact wrapper. There is a node backend to connect with the OpenAI apis here: https://github.com/GeorgeHarland/arcane-empire-backend
 
+<img width="952" alt="image" src="https://github.com/GeorgeHarland/arcane-empire/assets/37070520/35de4e8d-418a-46ac-b94f-a7c4ea3a8372">
+
 ## Getting Started
 
 1. Make sure node and git are installed on your machine

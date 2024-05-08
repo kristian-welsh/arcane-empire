@@ -1,57 +1,85 @@
-import { ProgressBar } from "../overlay_elements/ProgressBar";
-import { BarFillColour, CreateProgressBar } from "../overlay_elements/OverlayElementsFactory";
-import { Tile } from "../world_generation/WorldModel";
-import { WorldEventData } from "./WorldEventRecords";
-import { WorldEventsManager } from "./WorldEventsManager";
+import { ProgressBar } from '../overlay_elements/ProgressBar';
+import {
+  BarFillColour,
+  CreateProgressBar,
+} from '../overlay_elements/OverlayElementsFactory';
+import { Tile } from '../world_generation/Tile';
+import { WorldEventData } from './WorldEventRecords';
+import { WorldEventsManager } from './WorldEventsManager';
 
 export class WorldEvent {
+  worldEventManager: WorldEventsManager;
 
-    worldEventManager: WorldEventsManager;
+  eventData: WorldEventData;
+  targetTile: Tile;
 
-    eventData: WorldEventData;
-    targetTile: Tile;
+  sprite: Phaser.GameObjects.Sprite;
 
-    sprite: Phaser.GameObjects.Sprite;
+  chaos: number;
+  chaosProgressBar: ProgressBar;
 
-    chaos: number;
-    chaosProgressBar: ProgressBar;
+  constructor(
+    worldEventManager: WorldEventsManager,
+    eventData: WorldEventData,
+    targetTile: Tile
+  ) {
+    this.worldEventManager = worldEventManager;
 
-    constructor(worldEventManager: WorldEventsManager, eventData: WorldEventData, targetTile: Tile) {
+    this.eventData = eventData;
+    this.targetTile = targetTile;
 
-        this.worldEventManager = worldEventManager;
+    this.sprite = this.worldEventManager.scene.add.sprite(
+      0,
+      0,
+      eventData.type + '_spritesheet'
+    );
 
-        this.eventData = eventData;
-        this.targetTile = targetTile;
+    this.sprite.setOrigin(eventData.originX, eventData.originY);
+    this.sprite.setScale(
+      this.worldEventManager.hexGrid.hexScale * eventData.scale
+    );
+    this.sprite.play(eventData.type + '_animation');
 
-        this.sprite = this.worldEventManager.scene.add.sprite(0, 0, eventData.type + "_spritesheet");
+    this.chaos = 0;
+    this.chaosProgressBar = CreateProgressBar(
+      worldEventManager.scene,
+      0,
+      0,
+      0,
+      BarFillColour.Red,
+      0.5
+    );
+  }
 
-        this.sprite.setOrigin(eventData.originX, eventData.originY);
-        this.sprite.setScale(this.worldEventManager.hexGrid.hexScale * eventData.scale);
-        this.sprite.play(eventData.type + "_animation");
+  public update(deltaTimeMs: number, mapOffset: Phaser.Math.Vector2): void {
+    this.chaos = Phaser.Math.Clamp(
+      this.chaos + deltaTimeMs / 1000,
+      0,
+      this.eventData.chaosCapacity
+    );
 
-        this.chaos = 0;
-        this.chaosProgressBar = CreateProgressBar(worldEventManager.scene, 0, 0, 0, BarFillColour.Red, 0.5);
-    }
+    let tilePixelPosition =
+      this.worldEventManager.hexGrid.convertGridHexToPixelHex(
+        this.targetTile.coordinates
+      );
 
-    public update(deltaTimeMs: number, mapOffset: Phaser.Math.Vector2): void {
+    this.sprite.x = tilePixelPosition.x + mapOffset.x;
+    this.sprite.y = tilePixelPosition.y + mapOffset.y;
 
-        this.chaos = Phaser.Math.Clamp(this.chaos + (deltaTimeMs / 1000), 0, this.eventData.chaosCapacity);
+    this.sprite.depth = this.sprite.y;
 
-        let tilePixelPosition = this.worldEventManager.hexGrid.convertGridHexToPixelHex(this.targetTile.coordinates);
+    this.chaosProgressBar.setFilledPercentage(
+      this.chaos / this.eventData.chaosCapacity
+    );
+    this.chaosProgressBar.setPosition(
+      tilePixelPosition.x + mapOffset.x,
+      tilePixelPosition.y + mapOffset.y + 25
+    );
 
-        this.sprite.x = tilePixelPosition.x + mapOffset.x;
-        this.sprite.y = tilePixelPosition.y + mapOffset.y;
+    this.chaosProgressBar.setDepth(this.sprite.depth + 10000);
+  }
 
-        this.sprite.depth = this.sprite.y;
-
-        this.chaosProgressBar.setFilledPercentage(this.chaos / this.eventData.chaosCapacity);
-        this.chaosProgressBar.setPosition(tilePixelPosition.x + mapOffset.x, tilePixelPosition.y + mapOffset.y + 25);
-
-        this.chaosProgressBar.setDepth(this.sprite.depth + 10000);
-    }
-
-    public atMaxPower(): boolean {
-
-        return this.chaos >= this.eventData.chaosCapacity;
-    }
+  public atMaxPower(): boolean {
+    return this.chaos >= this.eventData.chaosCapacity;
+  }
 }
