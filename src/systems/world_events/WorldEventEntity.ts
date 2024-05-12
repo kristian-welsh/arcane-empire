@@ -7,7 +7,7 @@ import { Tile } from '../world_generation/Tile';
 import { WorldEventData } from './WorldEventRecords';
 import { WorldEventsManager } from './WorldEventsManager';
 
-export class WorldEvent {
+export class WorldEventEntity {
   worldEventManager: WorldEventsManager;
 
   eventData: WorldEventData;

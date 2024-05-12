@@ -2,7 +2,7 @@ import GameScene from '../../scenes/GameScene';
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
 import { WorldModel } from '../world_generation/WorldModel';
 import { Tile } from '../world_generation/Tile';
-import { WorldEvent } from './WorldEvent';
+import { WorldEventEntity } from './WorldEventEntity';
 import {
   WorldEventData,
   WorldEventDatas,
@@ -26,7 +26,7 @@ export class WorldEventsManager {
 
   worldEventSettings: WorldEventSettings;
 
-  activeEvents: WorldEvent[];
+  activeEvents: WorldEventEntity[];
 
   nextEventCountdown: number;
 
@@ -127,7 +127,7 @@ export class WorldEventsManager {
       );
     }
 
-    let worldEvent: WorldEvent = new WorldEvent(
+    let worldEvent: WorldEventEntity = new WorldEventEntity(
       this,
       randomEventData,
       targetTile
@@ -157,7 +157,7 @@ export class WorldEventsManager {
     modifiedGameState.events.push({
       name: randomEventData.type,
       description: randomEventData.type,
-      //type: randomEventData.type as WorldEventType,
+      type: randomEventData.type as WorldEventType,
       difficultyRating: 1,
       elementalEffectiveness: {
         fire: 1,

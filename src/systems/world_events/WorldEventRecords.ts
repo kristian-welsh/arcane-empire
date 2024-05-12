@@ -1,7 +1,7 @@
-import tornado_spirtesheet_path from "../../assets/effects/tornado_spritesheet.png";
-import fire_1_spirtesheet_path from "../../assets/effects/fire_1_spritesheet.png";
+import tornado_spritesheet_path from "../../assets/effects/tornado_spritesheet.png";
+import fire_1_spritesheet_path from "../../assets/effects/fire_1_spritesheet.png";
 import fire_2_spirtesheet_path from "../../assets/effects/fire_2_spritesheet.png";
-import earthquake_spirtesheet_path from "../../assets/effects/earthquake_spritesheet.png";
+import earthquake_spritesheet_path from "../../assets/effects/earthquake_spritesheet.png";
 import { TerrainType } from "../world_generation/TerrainTileRecords";
 import { StructureType } from "../world_generation/StructureRecords";
 
@@ -31,7 +31,7 @@ export const WorldEventTypes: (keyof typeof WorldEventType)[] = <(keyof typeof W
 export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
     [WorldEventType.tornado]: {
         type: WorldEventType.tornado,
-        path: tornado_spirtesheet_path,
+        path: tornado_spritesheet_path,
         scale: 0.6,
         frameWidth: 66,
         frameHeight: 66,
@@ -44,7 +44,7 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
     },
     [WorldEventType.fire]: {
         type: WorldEventType.fire,
-        path: fire_1_spirtesheet_path,
+        path: fire_1_spritesheet_path,
         scale: 0.75,
         frameWidth: 32,
         frameHeight: 32,
@@ -57,7 +57,7 @@ export const WorldEventDatas: Record<WorldEventType, WorldEventData> = {
     },
     [WorldEventType.earthquake]: {
         type: WorldEventType.earthquake,
-        path: earthquake_spirtesheet_path,
+        path: earthquake_spritesheet_path,
         scale: 0.3,
         frameWidth: 200,
         frameHeight: 200,

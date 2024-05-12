@@ -73,9 +73,9 @@ export class EmpiresSystem {
                 if (this.empireEntities[i].territoryTiles.length >= gameState.empires[i].regionalStrength)
                     continue;
 
-                let newTerrirotyTile: Tile = this.empireEntities[i].getExpandableTiles(worldModel)[0];
+                let newTerritoryTile: Tile = this.empireEntities[i].getExpandableTiles(worldModel)[0];
 
-                this.empireEntities[i].addTileToTerritories(newTerrirotyTile);
+                this.empireEntities[i].addTileToTerritories(newTerritoryTile);
 
                 territoryGenerationComplete = false;
             }
@@ -98,13 +98,6 @@ export class EmpiresSystem {
         this.empireEntities.forEach((empire: EmpireEntity) => {
 
             empire.update(time, new Phaser.Math.Vector2(this.hexGrid.getContainer().x, this.hexGrid.getContainer().y));
-        });
-    }
-
-    public tick(): void {
-        this.empireEntities.forEach((empire: EmpireEntity) => {
-
-            empire.tick();
         });
     }
 

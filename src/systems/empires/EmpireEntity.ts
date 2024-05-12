@@ -17,7 +17,7 @@ export class EmpireEntity {
   capitalTile: Tile;
   territoryTiles: Tile[];
 
-  territoyOutline: RegionOutline;
+  territoryOutline: RegionOutline;
 
   missionMarker: QuestMarker | undefined;
 
@@ -36,7 +36,7 @@ export class EmpireEntity {
 
     this.empire = empire;
 
-    this.territoyOutline = new RegionOutline(
+    this.territoryOutline = new RegionOutline(
       this.empireSystem.scene,
       this.empireSystem.hexGrid,
       [],
@@ -58,7 +58,7 @@ export class EmpireEntity {
   }
 
   public update(time: number, mapOffset: Phaser.Math.Vector2): void {
-    let capitalPixelPositon =
+    let capitalPixelPosition =
       this.empireSystem.hexGrid.convertGridHexToPixelHex(
         this.capitalTile.coordinates
       );
@@ -69,8 +69,8 @@ export class EmpireEntity {
         if (this.isTileInTerritory(activeEvent.targetTile)) {
           this.missionMarker = CreateQuestMarker(
             this.empireSystem.scene,
-            capitalPixelPositon.x + mapOffset.x,
-            capitalPixelPositon.y + mapOffset.y - Math.sin(time / 100) * 5,
+            capitalPixelPosition.x + mapOffset.x,
+            capitalPixelPosition.y + mapOffset.y - Math.sin(time / 100) * 5,
             0.75
           );
           break;
@@ -92,18 +92,13 @@ export class EmpireEntity {
         this.missionMarker = undefined;
       } else {
         this.missionMarker.setPosition(
-          capitalPixelPositon.x + mapOffset.x,
-          capitalPixelPositon.y + mapOffset.y - Math.sin(time / 100) * 5
+          capitalPixelPosition.x + mapOffset.x,
+          capitalPixelPosition.y + mapOffset.y - Math.sin(time / 100) * 5
         );
         this.missionMarker.setDepth(
-          capitalPixelPositon.y + mapOffset.y - Math.sin(time / 100) * 5
+          capitalPixelPosition.y + mapOffset.y - Math.sin(time / 100) * 5
         );
       }
-
-    public tick(): void {
-
-    }
-
     }
   }
 
@@ -112,7 +107,7 @@ export class EmpireEntity {
   }
 
   public redrawTerritoryOutline() {
-    this.territoyOutline.setHexes(
+    this.territoryOutline.setHexes(
       this.territoryTiles.map((tile) => tile.coordinates)
     );
   }
