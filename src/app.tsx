@@ -290,11 +290,11 @@ const TilesTab: React.FC<{
       <div className="text-white py-2">
         Event:{' '}
         {currentTile.currentEvent
-          ? currentTile.currentEvent.eventData.type
+          ? currentTile.currentEvent.worldEventSettings.type
           : 'None'}
         {currentTile.currentEvent ? (
           <img
-            src={eventImages[currentTile.currentEvent.eventData.type]}
+            src={eventImages[currentTile.currentEvent.worldEventSettings.type]}
             width={'100%'}
             className={'py-2'}
           />

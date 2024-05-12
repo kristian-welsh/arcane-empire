@@ -1,6 +1,12 @@
 import { WizardEntity } from '../systems/wizards/Wizard';
-import { StructureData } from '../systems/world_generation/StructureRecords';
-import { TerrainData } from '../systems/world_generation/TerrainTileRecords';
+import {
+  StructureData,
+  StructureType,
+} from '../systems/world_generation/StructureRecords';
+import {
+  TerrainData,
+  TerrainType,
+} from '../systems/world_generation/TerrainTileRecords';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 
 export type GameData = null | {
@@ -65,7 +71,7 @@ export type WizardCounts = {
 export type WorldEvent = {
   name: string;
   description: string;
-  type: WorldEventType,
+  type: WorldEventType;
   difficultyRating: number;
   mission?: Mission;
   elementalEffectiveness: {
@@ -89,3 +95,27 @@ export type EmpirePersonality =
 export type ElementType = 'fire' | 'water' | 'earth' | 'air';
 
 export type WorldEventType = 'tornado' | 'fire' | 'earthquake';
+
+export type WorldEventsSettingsCollection = {
+  seed: string;
+  spawnIntervalSec: number;
+  perEventSettings: {
+    [element in WorldEventType]: WorldEventSettings;
+  };
+};
+
+export type WorldEventSettings = {
+  type: WorldEventType;
+  path: string;
+  scale: number;
+  frameWidth: number;
+  frameHeight: number;
+  frameCount: number;
+  originX: number;
+  originY: number;
+  terrainFilter?: TerrainType[];
+  structureFilter?: StructureType[];
+  chaosRate: number;
+  chaosCapacity: number;
+  scoreDeductionPerTick: number;
+};

@@ -1,12 +1,13 @@
-import { Empire, WorldEvent } from "../types";
+import { Empire, WorldEvent } from '../types';
 
-import icon_tornado_event_src from "../src/assets/ui/event_icons/icon_tornado.png";
-import icon_fire_event_src from "../src/assets/ui/event_icons/icon_fire.png";
-import icon_earthquake_event_src from "../src/assets/ui/event_icons/icon_earthquake.png";
+import icon_tornado_event_src from '../assets/ui/event_icons/icon_tornado.png';
+import icon_fire_event_src from '../assets/ui/event_icons/icon_fire.png';
+import icon_earthquake_event_src from '../assets/ui/event_icons/icon_earthquake.png';
 
-export const EmpiresTab: React.FC<{ empires: Empire[]; worldEvents: WorldEvent[] }> = (
-  props
-) => {
+export const EmpiresTab: React.FC<{
+  empires: Empire[];
+  worldEvents: WorldEvent[];
+}> = (props) => {
   return (
     <div className="h-full w-full flex flex-col items-start justify-start gap-y-1 p-2 max-h-[90vh] overflow-auto">
       <h2 className="text-2xl text-green-500 pb-2">Empires</h2>
@@ -50,10 +51,12 @@ export const EmpireStatus: React.FC<{ empire: Empire }> = (props) => {
   );
 };
 
-export const WorldEventStatus: React.FC<{ worldEvent: WorldEvent }> = (props) => {
+export const WorldEventStatus: React.FC<{ worldEvent: WorldEvent }> = (
+  props
+) => {
   const { worldEvent } = props;
 
-  let eventIconSrc = "";
+  let eventIconSrc = '';
 
   switch (worldEvent.type) {
     case 'tornado':

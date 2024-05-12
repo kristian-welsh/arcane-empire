@@ -10,7 +10,6 @@ import {
   defaultGenerationSettings,
   defaultGridSize,
   defaultWizardSettings,
-  defaultWorldEventSettings,
 } from '../setup/constants';
 import { EmpiresSystem } from '../systems/empires/EmpireSystem';
 import { HexagonGrid } from '../systems/hex_grid/HexagonGrid';
@@ -21,6 +20,7 @@ import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 import { GameData } from '../types';
+import { worldEventsSettings } from '../systems/world_events/WorldEventSettings';
 
 export default class GameScene extends Phaser.Scene {
   public gameState: GameData = null;
@@ -98,7 +98,7 @@ export default class GameScene extends Phaser.Scene {
       this,
       this.hexGrid,
       this.worldModel,
-      defaultWorldEventSettings
+      worldEventsSettings
     );
   }
 
@@ -171,7 +171,7 @@ export default class GameScene extends Phaser.Scene {
       callback: this.tick,
       callbackScope: this,
       delay: 1000,
-      loop: true
+      loop: true,
     });
   }
 
@@ -199,7 +199,6 @@ export default class GameScene extends Phaser.Scene {
 
   public tick(): void {
     this.worldEventsManager.tick();
-    this.empireSystem.tick();
   }
 
   public handleDataUpdate = (data: GameData) => {
