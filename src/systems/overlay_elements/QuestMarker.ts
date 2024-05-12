@@ -1,26 +1,27 @@
-
 export class QuestMarker {
+  markerImage: Phaser.GameObjects.Image;
+  scale: number;
 
-    markerImage: Phaser.GameObjects.Image;
-    scale: number;
+  constructor(
+    x: number,
+    y: number,
+    markerImage: Phaser.GameObjects.Image,
+    scale: number
+  ) {
+    this.markerImage = markerImage;
+    this.scale = scale;
 
-    constructor(x: number, y: number, markerImage: Phaser.GameObjects.Image, scale: number) {
+    this.markerImage.setScale(this.scale);
 
-        this.markerImage = markerImage;
-        this.scale = scale;
+    this.setPosition(x, y);
+  }
 
-        this.markerImage.setScale(this.scale);
+  public setDepth(depth: number): void {
+    this.markerImage.depth = depth;
+  }
 
-        this.setPosition(x, y);
-    }
-
-    public setDepth(depth: number): void {
-        this.markerImage.depth = depth;
-    }
-
-    public setPosition(x: number, y: number): void {
-
-        this.markerImage.x = x;
-        this.markerImage.y = y;
-    }
+  public setPosition(x: number, y: number): void {
+    this.markerImage.x = x;
+    this.markerImage.y = y;
+  }
 }

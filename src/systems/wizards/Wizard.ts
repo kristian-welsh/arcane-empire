@@ -1,54 +1,55 @@
-import { Wizard } from "../../types";
-import { WizardManager } from "./WizardManager";
-import { WizardGraphicData } from "./WizardRecords";
+import { Wizard } from '../../types';
+import { WizardManager } from './WizardManager';
+import { WizardGraphicData } from './WizardRecords';
 
 export class WizardEntity {
+  wizardManager: WizardManager;
 
-    wizardManager: WizardManager;
+  wizardData: Wizard;
 
-    wizardData: Wizard;
+  wizardGraphicData: WizardGraphicData;
 
-    wizardGraphicData: WizardGraphicData;
+  image: Phaser.GameObjects.Image | undefined;
 
-    image: Phaser.GameObjects.Image | undefined;
+  constructor(
+    wizardManager: WizardManager,
+    wizardData: Wizard,
+    wizardGraphicData: WizardGraphicData
+  ) {
+    this.wizardManager = wizardManager;
+    this.wizardData = wizardData;
+    this.wizardGraphicData = wizardGraphicData;
+  }
 
-    constructor(wizardManager: WizardManager, wizardData: Wizard, wizardGraphicData: WizardGraphicData) {
+  public spawnWizard(): Phaser.GameObjects.Image {
+    this.image = this.wizardManager.scene.add.image(
+      0,
+      0,
+      this.wizardGraphicData.power + '_wizard'
+    );
+    this.image.setScale(this.wizardGraphicData.scale);
+    return this.image;
+  }
 
-        this.wizardManager = wizardManager;
-        this.wizardData = wizardData;
-        this.wizardGraphicData = wizardGraphicData;
-    }
+  public getImage(): Phaser.GameObjects.Image {
+    if (this.image === undefined)
+      throw "Attempting to access wizard image before it's been created";
 
-    public spawnWizard(): Phaser.GameObjects.Image {
+    return this.image;
+  }
 
-        this.image = this.wizardManager.scene.add.image(0, 0, this.wizardGraphicData.power + "_wizard");
-        this.image.setScale(this.wizardGraphicData.scale);
-        return this.image;
-    }
+  public setIdle(): void {
+    this.wizardManager.scene.time.addEvent({
+      callback: this.flipSpriteTimerEvent,
+      callbackScope: this,
+      delay: this.wizardManager.randomGenerator.between(2500, 4000),
+      loop: true,
+    });
+  }
 
-    public getImage(): Phaser.GameObjects.Image {
+  public flipSpriteTimerEvent(): void {
+    if (this.image === undefined) return;
 
-        if (this.image === undefined)
-            throw "Attempting to access wizard image before it's been created";
-
-        return this.image;
-    }
-
-    public setIdle(): void {
-        this.wizardManager.scene.time.addEvent({
-            callback: this.flipSpriteTimerEvent,
-            callbackScope: this,
-            delay: this.wizardManager.randomGenerator.between(2500, 4000),
-            loop: true
-        });
-    }
-
-    public flipSpriteTimerEvent(): void {
-
-        if (this.image === undefined)
-            return;
-
-        this.image.toggleFlipX();
-    }
-
+    this.image.toggleFlipX();
+  }
 }
