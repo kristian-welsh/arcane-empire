@@ -30,7 +30,7 @@ export const EmpireStatus: React.FC<{ empire: Empire }> = (props) => {
   // Hash the empire use that to pick a random profile picture
 
   return (
-    <div className={`w-full h-48`}>
+    <div className={`w-full h-48 bg-slate-400 border-gray-800 rounded-lg border-2`}>
       <div className="flex items-center">
         <img
           src={empireIconSrc}
