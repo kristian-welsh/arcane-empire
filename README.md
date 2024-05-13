@@ -38,3 +38,5 @@ Wizards - https://free-game-assets.itch.io/mage-towers-pixel-art-for-tower-defen
 Progress bars = https://opengameart.org/content/health-and-mana-bars
 
 Quest marker - https://opengameart.org/content/exclamation-quest-icon
+
+Ruler portraits - https://opengameart.org/content/32x32-fantasy-portrait-set
