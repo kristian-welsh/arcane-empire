@@ -21,14 +21,18 @@ import { Tile } from './systems/world_generation/Tile';
 import { eventImages } from './app-utils/image-maps';
 import { EmpiresTab } from './components/EmpiresTab';
 
-
-
 export function App() {
   const [gameState, setGameState] = useState<GameData>(null);
   const [selectedTab, setSelectedTab] = useState<string>('first');
   const [currentTile, setCurrentTile] = useState<Tile | null>(null);
 
-  const appEvent = eventEmitter.subscribe('update-app-data', () => {});
+  const appEvent = eventEmitter.subscribe(
+    'update-app-data',
+    (gameState: GameData) => {
+      setGameState(gameState);
+    }
+  );
+
   const tileEvent = eventEmitter.subscribe('tile-clicked', (tile: Tile) =>
     handleTileClicked(tile)
   );
