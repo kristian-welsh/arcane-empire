@@ -166,7 +166,9 @@ export class WorldEventsManager {
   }
 
   private getRandomWorldEvent(): WorldEventSettings {
-    const worldEventTypes: string[] = Object.keys(worldEventsSettings.perEventSettings);
+    const worldEventTypes: string[] = Object.keys(
+      worldEventsSettings.perEventSettings
+    );
 
     const chosenWorldEventType: WorldEventType = worldEventTypes[
       this.randomGenerator.between(0, worldEventTypes.length - 1)

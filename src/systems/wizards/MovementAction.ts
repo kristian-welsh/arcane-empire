@@ -1,79 +1,84 @@
-import { lerp } from "../../helpers";
-import { HexagonGrid } from "../hex_grid/HexagonGrid";
-import { Tile } from "../world_generation/WorldModel";
-import { WizardEntity } from "./Wizard";
-
+import { lerp } from '../../helpers';
+import { HexagonGrid } from '../hex_grid/HexagonGrid';
+import { Tile } from '../world_generation/WorldModel';
+import { WizardEntity } from './Wizard';
 
 export class MovementAction {
+  hexGrid: HexagonGrid;
 
-    hexGrid: HexagonGrid;
+  wizard: WizardEntity;
 
-    wizard: WizardEntity;
+  startTile: Tile;
+  endTile: Tile;
 
-    startTile: Tile;
-    endTile: Tile;
+  startPixelPosition: Phaser.Math.Vector2;
+  endPixelPosition: Phaser.Math.Vector2;
 
-    startPixelPosition: Phaser.Math.Vector2;
-    endPixelPosition: Phaser.Math.Vector2;
+  speed: number;
 
-    speed: number;
+  distance: number;
+  time: number;
 
-    distance: number;
-    time: number;
+  progress: number;
 
-    progress: number;
+  complete: boolean;
+  completeCallback: () => void;
 
-    complete: boolean;
-    completeCallback: () => void;
+  constructor(
+    hexGrid: HexagonGrid,
+    wizard: WizardEntity,
+    startTile: Tile,
+    endTile: Tile,
+    speed: number,
+    completeCallback: () => void
+  ) {
+    this.hexGrid = hexGrid;
 
-    constructor(hexGrid: HexagonGrid, wizard: WizardEntity, startTile: Tile, endTile: Tile, speed: number, completeCallback: () => void) {
+    this.wizard = wizard;
 
-        this.hexGrid = hexGrid;
+    this.startTile = startTile;
+    this.endTile = endTile;
 
-        this.wizard = wizard;
+    this.startPixelPosition = this.hexGrid.convertGridHexToPixelHex(
+      startTile.coordinates
+    );
+    this.endPixelPosition = this.hexGrid.convertGridHexToPixelHex(
+      endTile.coordinates
+    );
 
-        this.startTile = startTile;
-        this.endTile = endTile;
+    this.speed = speed;
 
-        this.startPixelPosition = this.hexGrid.convertGridHexToPixelHex(startTile.coordinates);
-        this.endPixelPosition = this.hexGrid.convertGridHexToPixelHex(endTile.coordinates);
+    this.distance = this.startPixelPosition.distance(this.endPixelPosition);
+    this.time = this.distance / this.speed;
 
-        this.speed = speed;
+    this.progress = 0;
 
-        this.distance = this.startPixelPosition.distance(this.endPixelPosition);
-        this.time = this.distance / this.speed;
+    this.complete = false;
+    this.completeCallback = completeCallback;
+  }
 
-        this.progress = 0;
+  public update(deltaTimeMs: number) {
+    if (this.complete) return;
 
-        this.complete = false;
-        this.completeCallback = completeCallback;
+    this.progress += deltaTimeMs / 1000;
+
+    if (this.progress >= this.time) {
+      this.complete = true;
+      this.completeCallback();
+      return;
     }
 
-    public update(deltaTimeMs: number) {
+    let wizardPosition = lerp(
+      this.startPixelPosition,
+      this.endPixelPosition,
+      this.progress / this.time
+    );
 
-        if (this.complete)
-            return;
+    let wizardImage = this.wizard.getImage();
 
-        this.progress += deltaTimeMs / 1000;
+    wizardImage.x = wizardPosition.x + this.hexGrid.getContainer().x;
+    wizardImage.y = wizardPosition.y + this.hexGrid.getContainer().y;
 
-        if (this.progress >= this.time) {
-
-            this.complete = true;
-            this.completeCallback();
-            return;
-        }
-
-        let wizardPosition = lerp(this.startPixelPosition, this.endPixelPosition, this.progress / this.time);
-
-        let wizardImage = this.wizard.getImage();
-
-        wizardImage.x = wizardPosition.x + this.hexGrid.getContainer().x;
-        wizardImage.y = wizardPosition.y + this.hexGrid.getContainer().y;
-
-        wizardImage.depth = wizardImage.y;
-
-
-    }
-
-
+    wizardImage.depth = wizardImage.y;
+  }
 }
