@@ -35,11 +35,12 @@ export class WorldEventEntity {
     );
 
     this.sprite.setOrigin(
-      worldEventSettings.originX,
-      worldEventSettings.originY
+      worldEventSettings.graphics.originX,
+      worldEventSettings.graphics.originY
     );
     this.sprite.setScale(
-      this.worldEventManager.hexGrid.hexScale * worldEventSettings.scale
+      this.worldEventManager.hexGrid.hexScale *
+        worldEventSettings.graphics.scale
     );
     this.sprite.play(worldEventSettings.type + '_animation');
 

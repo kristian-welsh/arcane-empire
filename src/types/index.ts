@@ -106,13 +106,15 @@ export type WorldEventsSettingsCollection = {
 
 export type WorldEventSettings = {
   type: WorldEventType;
-  path: string;
-  scale: number;
-  frameWidth: number;
-  frameHeight: number;
-  frameCount: number;
-  originX: number;
-  originY: number;
+  graphics: {
+    path: string;
+    scale: number;
+    frameWidth: number;
+    frameHeight: number;
+    frameCount: number;
+    originX: number;
+    originY: number;
+  };
   terrainFilter?: TerrainType[];
   structureFilter?: StructureType[];
   chaosRate: number;

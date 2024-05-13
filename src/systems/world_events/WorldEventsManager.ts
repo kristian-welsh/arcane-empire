@@ -51,10 +51,10 @@ export class WorldEventsManager {
       ([worldEventType, worldEventGraphicSettings]) => {
         this.scene.load.spritesheet(
           worldEventType + '_spritesheet',
-          worldEventGraphicSettings.path,
+          worldEventGraphicSettings.graphics.path,
           {
-            frameWidth: worldEventGraphicSettings.frameWidth,
-            frameHeight: worldEventGraphicSettings.frameHeight,
+            frameWidth: worldEventGraphicSettings.graphics.frameWidth,
+            frameHeight: worldEventGraphicSettings.graphics.frameHeight,
           }
         );
       }
@@ -70,7 +70,7 @@ export class WorldEventsManager {
             worldEventData.type + '_spritesheet',
             {
               start: 0,
-              end: worldEventData.frameCount - 1,
+              end: worldEventData.graphics.frameCount - 1,
             }
           ),
           frameRate: 12,
