@@ -2,6 +2,7 @@ import { WizardEntity } from '../systems/wizards/Wizard';
 import { WorldEvent } from '../systems/world_events/WorldEvent';
 import { StructureData } from '../systems/world_generation/StructureRecords';
 import { TerrainData } from '../systems/world_generation/TerrainTileRecords';
+import { Tile } from '../systems/world_generation/Tile';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 
 export type GameData = null | {
@@ -88,3 +89,8 @@ export type EmpirePersonality =
   | 'selfish';
 
 export type ElementType = 'fire' | 'water' | 'earth' | 'air';
+
+export type WizardDispatchData = {
+  wizard: Wizard;
+  tile: Tile;
+};

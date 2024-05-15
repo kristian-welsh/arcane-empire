@@ -11,6 +11,7 @@ import {
   Wizard,
   WizardCounts,
   WizardCollection,
+  WizardDispatchData,
 } from './types';
 import { eventEmitter } from './events/EventEmitter';
 import fire_wizard_src from '../src/assets/wizards/wizard_red.png';
@@ -234,7 +235,17 @@ const TilesTab: React.FC<{
 }> = (props) => {
   const { currentTile, wizards } = props;
 
-  if (!currentTile) return <p className="text-white">No tile selected</p>;
+  const handleDispatchWizard = (targetWizard: Wizard, targetTile: Tile) => {
+    let wizardDispatchData: WizardDispatchData = {
+      wizard: targetWizard,
+      tile: targetTile,
+    };
+
+    eventEmitter.emit('dispatch-wizard', wizardDispatchData);
+  };
+
+  if (currentTile === null)
+    return <p className="text-white">No tile selected</p>;
 
   return (
     <div className="flex flex-col max-h-[90vh] h-full overflow-auto">
@@ -265,16 +276,40 @@ const TilesTab: React.FC<{
       <p className="text-white">(none)</p>
       <p className="text-white pt-2">Send a wizard here: </p>
       {wizards.air.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.earth.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.fire.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.water.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
     </div>
   );

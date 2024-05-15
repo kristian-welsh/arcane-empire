@@ -42,10 +42,18 @@ export const WizardGroup: React.FC<{ wizardRow: Wizard[] }> = (props) => {
   return (
     <div className="flex flex-wrap items-center justify-start mb-4">
       {idleWizards.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {}}
+        />
       ))}
       {awayWizards.map((wizard) => (
-        <WizardProfile key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {}}
+        />
       ))}
     </div>
   );
