@@ -27,7 +27,13 @@ export function App() {
   const [selectedTab, setSelectedTab] = useState<string>('first');
   const [currentTile, setCurrentTile] = useState<Tile | null>(null);
 
-  const appEvent = eventEmitter.subscribe('update-app-data', () => {});
+  const appEvent = eventEmitter.subscribe(
+    'update-app-data',
+    (gameState: GameData) => {
+      setGameState(gameState);
+    }
+  );
+
   const tileEvent = eventEmitter.subscribe('tile-clicked', (tile: Tile) =>
     handleTileClicked(tile)
   );
