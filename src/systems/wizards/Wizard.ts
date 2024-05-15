@@ -27,7 +27,7 @@ export class WizardEntity {
       0,
       this.wizardGraphicData.power + '_wizard'
     );
-    this.image.setScale(this.wizardGraphicData.scale);
+    this.image.setScale(this.wizardGraphicData.scale * this.wizardManager.hexGrid.hexScale);
     return this.image;
   }
 
