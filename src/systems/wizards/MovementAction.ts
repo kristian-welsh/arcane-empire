@@ -49,7 +49,7 @@ export class MovementAction {
 
     this.speed = speed;
     
-    this.path = this.pathfind(startTile); 
+    this.path = this.pathfind(startTile, endTile); 
     this.distance = this.startPixelPosition.distance(this.endPixelPosition);
     this.time = this.distance / this.speed;
 
@@ -59,12 +59,36 @@ export class MovementAction {
     this.completeCallback = completeCallback;
   }
 
-  private pathfind(startPoint: Tile) {
-    return [this.startPixelPosition, this.endPixelPosition];
-    let curPos = startPoint;
-    // for now just go in a circle around starting position
-    return this.hexGrid.getNeighbouringHexes(curPos.coordinates).map(pos =>
-    this.hexGrid.convertGridHexToPixelHex(pos));
+  private pathfind(startPoint: Tile, endPoint: Tile) {
+    const start = startPoint.coordinates;
+    const end = endPoint.coordinates;
+
+    /* list of hexes leading to hashed hex, hashed by Vec2 hex position */ 
+    const paths = {};
+    // define paths before isNew
+
+    const neighbours = (hex) => this.hexGrid.getNeighbouringHexes(hex);
+    const hash = (hex) => "<" + hex.x + "," + hex.y + ">";
+    const isNew = (hex) => paths[hash(hex)] === undefined;
+    const isWalkable = (hex) => true;//todo, need to index into worldmap for Tile info somehow
+
+    paths[hash(start)] = [start];
+    let curPass = [start];
+    let nextPass = [];
+    while(curPass.length !== 0) {
+      curPass.forEach(curHex => {
+        const newHexes = neighbours(curHex).filter(isNew).filter(isWalkable);
+        newHexes.forEach(newHex => {
+          const pathHere = paths[hash(curHex)].concat([newHex]);
+          paths[hash(newHex)] = pathHere;
+          nextPass.push(newHex);
+        });
+      });
+      curPass = nextPass;
+      nextPass = [];
+    }
+
+    return paths[hash(end)].map(hex => this.hexGrid.convertGridHexToPixelHex(hex));
   }
 
   public update(deltaTimeMs: number) {
