@@ -116,7 +116,11 @@ export class MovementAction {
     let legStart = this.path[legStartIndex];
     let legEnd = this.path[legStartIndex + 1];
     let legProgress = journeyProgress - legStartIndex;
-    return lerp(legStart, legEnd, legProgress);
+    if (legStartIndex + 1 >= this.path.length) {
+      return legStart;// end doesn't exist after arrival, start is final position
+    } else {
+      return lerp(legStart, legEnd, legProgress);
+    }
   }
 }
 
