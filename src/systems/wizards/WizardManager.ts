@@ -265,6 +265,7 @@ export class WizardManager {
     this.movingWizards.set(
       targetWizard,
       new MovementAction(
+        this.worldModel,
         this.hexGrid,
         targetWizard,
         currentTile,
