@@ -10,6 +10,7 @@ export class MovementAction {
 
   startTile: Tile;
   endTile: Tile;
+  path: Phaser.Math.Vector2[];
 
   startPixelPosition: Phaser.Math.Vector2;
   endPixelPosition: Phaser.Math.Vector2;
@@ -47,7 +48,8 @@ export class MovementAction {
     );
 
     this.speed = speed;
-
+    
+    this.path = this.pathfind(startTile); 
     this.distance = this.startPixelPosition.distance(this.endPixelPosition);
     this.time = this.distance / this.speed;
 
@@ -55,6 +57,14 @@ export class MovementAction {
 
     this.complete = false;
     this.completeCallback = completeCallback;
+  }
+
+  private pathfind(startPoint: Tile) {
+    return [this.startPixelPosition, this.endPixelPosition];
+    let curPos = startPoint;
+    // for now just go in a circle around starting position
+    return this.hexGrid.getNeighbouringHexes(curPos.coordinates).map(pos =>
+    this.hexGrid.convertGridHexToPixelHex(pos));
   }
 
   public update(deltaTimeMs: number) {
@@ -68,17 +78,21 @@ export class MovementAction {
       return;
     }
 
-    let wizardPosition = lerp(
-      this.startPixelPosition,
-      this.endPixelPosition,
-      this.progress / this.time
-    );
-
     let wizardImage = this.wizard.getImage();
 
-    wizardImage.x = wizardPosition.x + this.hexGrid.getContainer().x;
-    wizardImage.y = wizardPosition.y + this.hexGrid.getContainer().y;
+    wizardImage.x = wizardPosition().x + this.hexGrid.getContainer().x;
+    wizardImage.y = wizardPosition().y + this.hexGrid.getContainer().y;
 
     wizardImage.depth = wizardImage.y;
   }
+
+  private wizardPosition(): Phaser.Math.Vector2 {
+    let journeyProgress = (this.progress / this.time) * this.path.length
+    let legStartIndex = Math.floor(journeyProgress)
+    let legStart = this.path[legStartIndex];
+    let legEnd = this.path[legStartIndex + 1];
+    let legProgress = journeyProgress - legStartIndex;
+    return lerp(legStart, legEnd, legProgress);
+  }
 }
+
