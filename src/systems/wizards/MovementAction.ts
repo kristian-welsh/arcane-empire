@@ -1,9 +1,10 @@
 import { lerp } from '../../helpers';
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
-import { Tile } from '../world_generation/WorldModel';
+import { WorldModel, Tile } from '../world_generation/WorldModel';
 import { WizardEntity } from './Wizard';
 
 export class MovementAction {
+  worldModel: WorldModel;
   hexGrid: HexagonGrid;
 
   wizard: WizardEntity;
@@ -26,6 +27,7 @@ export class MovementAction {
   completeCallback: () => void;
 
   constructor(
+    worldModel: WorldModel,
     hexGrid: HexagonGrid,
     wizard: WizardEntity,
     startTile: Tile,
@@ -33,6 +35,7 @@ export class MovementAction {
     speed: number,
     completeCallback: () => void
   ) {
+    this.worldModel = worldModel;
     this.hexGrid = hexGrid;
 
     this.wizard = wizard;
@@ -70,7 +73,7 @@ export class MovementAction {
     const neighbours = (hex) => this.hexGrid.getNeighbouringHexes(hex);
     const hash = (hex) => "<" + hex.x + "," + hex.y + ">";
     const isNew = (hex) => paths[hash(hex)] === undefined;
-    const isWalkable = (hex) => true;//todo, need to index into worldmap for Tile info somehow
+    const isWalkable = (hex) => this.worldModel.getTile(hex).terrainData.is_walkable;
 
     paths[hash(start)] = [start];
     let curPass = [start];
@@ -104,8 +107,8 @@ export class MovementAction {
 
     let wizardImage = this.wizard.getImage();
 
-    wizardImage.x = wizardPosition().x + this.hexGrid.getContainer().x;
-    wizardImage.y = wizardPosition().y + this.hexGrid.getContainer().y;
+    wizardImage.x = this.wizardPosition().x + this.hexGrid.getContainer().x;
+    wizardImage.y = this.wizardPosition().y + this.hexGrid.getContainer().y;
 
     wizardImage.depth = wizardImage.y;
   }
