@@ -4,7 +4,8 @@ import { empireNames, castleNames, rulerNames } from '../../setup/empireNames';
 import { Empire, EmpirePersonality, GameData } from '../../types';
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
 import { TerrainType } from '../world_generation/TerrainTileRecords';
-import { Tile, WorldModel } from '../world_generation/WorldModel';
+import { Tile } from '../world_generation/Tile';
+import { WorldModel } from '../world_generation/WorldModel';
 import { EmpireEntity } from './EmpireEntity';
 
 export interface EmpireSettings {
@@ -46,20 +47,17 @@ export class EmpiresSystem {
     };
 
     for (let i = 0; i < empireSettings.numberOfEmpires; i++) {
-      let captialTile: Tile = worldModel.getRandomTile([
-        TerrainType.Grass,
-        TerrainType.Forest,
-        TerrainType.Mountain,
-      ]);
+      let capitalTile: Tile | undefined = undefined;
 
       while (
+        capitalTile === undefined ||
         this.empireEntities.some(
           (empire) =>
-            empire.capitalTile.coordinates.distance(captialTile.coordinates) <=
+            empire.capitalTile.coordinates.distance(capitalTile!.coordinates) <=
             empireSettings.minSeparationDistance
         )
       ) {
-        captialTile = worldModel.getRandomTile([
+        capitalTile = worldModel.getRandomTile([
           TerrainType.Grass,
           TerrainType.Forest,
           TerrainType.Mountain,
@@ -84,7 +82,7 @@ export class EmpiresSystem {
 
       gameState.empires.push(empire);
 
-      this.empireEntities[i] = new EmpireEntity(this, empire, captialTile);
+      this.empireEntities[i] = new EmpireEntity(this, empire, capitalTile);
     }
 
     let territoryGenerationComplete: boolean = true;
@@ -99,10 +97,10 @@ export class EmpiresSystem {
         )
           continue;
 
-        let newTerrirotyTile: Tile =
+        let newTerritoryTile: Tile =
           this.empireEntities[i].getExpandableTiles(worldModel)[0];
 
-        this.empireEntities[i].addTileToTerritories(newTerrirotyTile);
+        this.empireEntities[i].addTileToTerritories(newTerritoryTile);
 
         territoryGenerationComplete = false;
       }

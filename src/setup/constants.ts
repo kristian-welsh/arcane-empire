@@ -22,8 +22,8 @@ export const defaultGenerationSettings: GenerationSettings = {
 export const defaultEmpireSettings: EmpireSettings = {
   seed: 'default',
   numberOfEmpires: 4,
-  minStartSize: 10,
-  maxStartSize: 22,
+  minStartSize: 20,
+  maxStartSize: 30,
   minSeparationDistance: 12,
 };
 
@@ -35,12 +35,6 @@ export const defaultWizardSettings: WizardSetings = {
     earth: 1,
     air: 1,
   },
-};
-
-export const defaultWorldEventSettings: WorldEventSettings = {
-  seed: 'default',
-  eventIntervalSec: 5,
-  scoreDecreasePerEvent: 1,
 };
 
 export const empireColours = [

@@ -4,13 +4,13 @@ import {
   CreateProgressBar,
 } from '../overlay_elements/OverlayElementsFactory';
 import { Tile } from '../world_generation/Tile';
-import { WorldEventData } from './WorldEventRecords';
 import { WorldEventsManager } from './WorldEventsManager';
+import { WorldEventSettings } from '../../types';
 
-export class WorldEvent {
+export class WorldEventEntity {
   worldEventManager: WorldEventsManager;
 
-  eventData: WorldEventData;
+  worldEventSettings: WorldEventSettings;
   targetTile: Tile;
 
   sprite: Phaser.GameObjects.Sprite;
@@ -20,25 +20,29 @@ export class WorldEvent {
 
   constructor(
     worldEventManager: WorldEventsManager,
-    eventData: WorldEventData,
+    worldEventSettings: WorldEventSettings,
     targetTile: Tile
   ) {
     this.worldEventManager = worldEventManager;
 
-    this.eventData = eventData;
+    this.worldEventSettings = worldEventSettings;
     this.targetTile = targetTile;
 
     this.sprite = this.worldEventManager.scene.add.sprite(
       0,
       0,
-      eventData.type + '_spritesheet'
+      worldEventSettings.type + '_spritesheet'
     );
 
-    this.sprite.setOrigin(eventData.originX, eventData.originY);
-    this.sprite.setScale(
-      this.worldEventManager.hexGrid.hexScale * eventData.scale
+    this.sprite.setOrigin(
+      worldEventSettings.graphics.originX,
+      worldEventSettings.graphics.originY
     );
-    this.sprite.play(eventData.type + '_animation');
+    this.sprite.setScale(
+      this.worldEventManager.hexGrid.hexScale *
+        worldEventSettings.graphics.scale
+    );
+    this.sprite.play(worldEventSettings.type + '_animation');
 
     this.chaos = 0;
     this.chaosProgressBar = CreateProgressBar(
@@ -55,7 +59,7 @@ export class WorldEvent {
     this.chaos = Phaser.Math.Clamp(
       this.chaos + deltaTimeMs / 1000,
       0,
-      this.eventData.chaosCapacity
+      this.worldEventSettings.chaosCapacity
     );
 
     let tilePixelPosition =
@@ -69,7 +73,7 @@ export class WorldEvent {
     this.sprite.depth = this.sprite.y;
 
     this.chaosProgressBar.setFilledPercentage(
-      this.chaos / this.eventData.chaosCapacity
+      this.chaos / this.worldEventSettings.chaosCapacity
     );
     this.chaosProgressBar.setPosition(
       tilePixelPosition.x + mapOffset.x,
@@ -80,6 +84,6 @@ export class WorldEvent {
   }
 
   public atMaxPower(): boolean {
-    return this.chaos >= this.eventData.chaosCapacity;
+    return this.chaos >= this.worldEventSettings.chaosCapacity;
   }
 }
