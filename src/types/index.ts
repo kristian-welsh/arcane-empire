@@ -7,6 +7,7 @@ import {
   TerrainData,
   TerrainType,
 } from '../systems/world_generation/TerrainTileRecords';
+import { Tile } from '../systems/world_generation/Tile';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 
 export type GameData = null | {
@@ -121,7 +122,6 @@ export type WorldEventSettings = {
   chaosCapacity: number;
   scoreDeductionPerTick: number;
 };
-
 
 export type WizardDispatchData = {
   wizard: Wizard;
