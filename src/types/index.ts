@@ -1,8 +1,12 @@
 import { WizardEntity } from '../systems/wizards/Wizard';
-import { WorldEvent } from '../systems/world_events/WorldEvent';
-import { StructureData } from '../systems/world_generation/StructureRecords';
-import { TerrainData } from '../systems/world_generation/TerrainTileRecords';
-import { Tile } from '../systems/world_generation/Tile';
+import {
+  StructureData,
+  StructureType,
+} from '../systems/world_generation/StructureRecords';
+import {
+  TerrainData,
+  TerrainType,
+} from '../systems/world_generation/TerrainTileRecords';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 
 export type GameData = null | {
@@ -14,7 +18,7 @@ export type GameData = null | {
   upgrades: {
     [key: string]: boolean;
   };
-  events: Event[];
+  events: WorldEvent[];
 };
 
 export type WizardCollection = {
@@ -64,16 +68,16 @@ export type WizardCounts = {
   [element in ElementType]: number;
 };
 
-/* WorldEvent is used for events at the moment */
-// export type EventType = {
-//   name: string;
-//   description: string;
-//   difficultyRating: number;
-//   mission?: Mission;
-//   elementalEffectiveness: {
-//     [element in ElementType]: number;
-//   };
-// };
+export type WorldEvent = {
+  name: string;
+  description: string;
+  type: WorldEventType;
+  difficultyRating: number;
+  mission?: Mission;
+  elementalEffectiveness: {
+    [element in ElementType]: number;
+  };
+};
 
 export type Wizard = {
   name: string;
@@ -89,6 +93,35 @@ export type EmpirePersonality =
   | 'selfish';
 
 export type ElementType = 'fire' | 'water' | 'earth' | 'air';
+
+export type WorldEventType = 'tornado' | 'fire' | 'earthquake';
+
+export type WorldEventsSettingsCollection = {
+  seed: string;
+  spawnIntervalSec: number;
+  perEventSettings: {
+    [element in WorldEventType]: WorldEventSettings;
+  };
+};
+
+export type WorldEventSettings = {
+  type: WorldEventType;
+  graphics: {
+    path: string;
+    scale: number;
+    frameWidth: number;
+    frameHeight: number;
+    frameCount: number;
+    originX: number;
+    originY: number;
+  };
+  terrainFilter?: TerrainType[];
+  structureFilter?: StructureType[];
+  chaosRate: number;
+  chaosCapacity: number;
+  scoreDeductionPerTick: number;
+};
+
 
 export type WizardDispatchData = {
   wizard: Wizard;

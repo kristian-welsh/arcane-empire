@@ -1,7 +1,7 @@
 import { eventEmitter } from '../../events/EventEmitter';
 import { TileType } from '../../types';
 import { WizardEntity } from '../wizards/Wizard';
-import { WorldEvent } from '../world_events/WorldEvent';
+import { WorldEventEntity } from '../world_events/WorldEventEntity';
 import { StructureData } from './StructureRecords';
 import { TerrainData } from './TerrainTileRecords';
 import { WorldModel } from './WorldModel';
@@ -12,7 +12,7 @@ export class Tile implements TileType {
   coordinates: Phaser.Math.Vector2;
   terrainData: TerrainData;
   structureData: StructureData | undefined;
-  currentEvent: WorldEvent | null;
+  currentEvent: WorldEventEntity | null;
 
   terrainImage: Phaser.GameObjects.Image | undefined;
 

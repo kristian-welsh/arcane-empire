@@ -22,6 +22,7 @@ import { Tile } from './systems/world_generation/Tile';
 import { eventImages } from './app-utils/image-maps';
 import { WizardProfile } from './components/WizardProfile';
 import { WizardsTab } from './components/WizardsTab';
+import { EmpiresTab } from './components/EmpiresTab';
 
 export function App() {
   const [gameState, setGameState] = useState<GameData>(null);
@@ -60,12 +61,6 @@ export function App() {
     )?.click();
     setCurrentTile(tile);
   };
-
-  const messages = [
-    'Hello World!',
-    'Another one 🤙',
-    'Woooo there is now a messages panel :D',
-  ];
 
   const emptyWizardsData: WizardCollection = {
     air: [],
@@ -150,11 +145,14 @@ export function App() {
                 className={`${selected ? 'border-green-600 bg-green-700 border-4 ' : ''}bg-green-500 w-1/3 hover:bg-green-700 text-white font-bold rounded-t-md min-h-[40px]`}
                 onClick={onSelect}
               >
-                Kingdoms
+                Empires
               </button>
             )}
           >
-            <KingdomTab messages={messages} />
+            <EmpiresTab
+              empires={gameState?.empires ?? []}
+              worldEvents={gameState?.events ?? []}
+            />
           </Tab>
           <Tab
             id="fourth"
@@ -180,21 +178,6 @@ export function App() {
     </div>
   );
 }
-
-const KingdomTab: React.FC<{ messages: string[] }> = (props) => {
-  return (
-    <div className="h-full flex flex-col items-end justify-end gap-y-1 p-2 max-h-[90vh] overflow-auto">
-      {props.messages.map((message, i) => (
-        <span
-          key={i}
-          className="text-xl px-4 py-2 rounded-2xl bg-gray-300 text-pretty"
-        >
-          {message}
-        </span>
-      ))}
-    </div>
-  );
-};
 
 const TowerTab: React.FC<{
   wizards: WizardCollection;
@@ -262,11 +245,11 @@ const TilesTab: React.FC<{
       <div className="text-white py-2">
         Event:{' '}
         {currentTile.currentEvent
-          ? currentTile.currentEvent.eventData.type
+          ? currentTile.currentEvent.worldEventSettings.type
           : 'None'}
         {currentTile.currentEvent ? (
           <img
-            src={eventImages[currentTile.currentEvent.eventData.type]}
+            src={eventImages[currentTile.currentEvent.worldEventSettings.type]}
             width={'100%'}
             className={'py-2'}
           />

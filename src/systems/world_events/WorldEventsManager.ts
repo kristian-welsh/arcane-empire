@@ -2,18 +2,15 @@ import GameScene from '../../scenes/GameScene';
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
 import { WorldModel } from '../world_generation/WorldModel';
 import { Tile } from '../world_generation/Tile';
-import { WorldEvent } from './WorldEvent';
+import { WorldEventEntity } from './WorldEventEntity';
+import { worldEventsSettings } from './WorldEventSettings';
 import {
-  WorldEventData,
-  WorldEventDatas,
-  WorldEventTypes,
-} from './WorldEventRecords';
-
-export interface WorldEventSettings {
-  seed: string;
-  eventIntervalSec: number;
-  scoreDecreasePerEvent: number;
-}
+  Mission,
+  WorldEventSettings,
+  WorldEventType,
+  WorldEventsSettingsCollection,
+} from '../../types';
+import { EmpireEntity } from '../empires/EmpireEntity';
 
 export class WorldEventsManager {
   scene: GameScene;
@@ -22,15 +19,17 @@ export class WorldEventsManager {
   hexGrid: HexagonGrid;
   worldModel: WorldModel;
 
-  worldEventSettings: WorldEventSettings;
+  worldEventSettings: WorldEventsSettingsCollection;
 
-  activeEvents: WorldEvent[];
+  activeEvents: WorldEventEntity[];
+
+  nextEventCountdown: number;
 
   constructor(
     scene: GameScene,
     hexGrid: HexagonGrid,
     worldModel: WorldModel,
-    worldEventSettings: WorldEventSettings
+    worldEventSettings: WorldEventsSettingsCollection
   ) {
     this.scene = scene;
     this.randomGenerator = new Phaser.Math.RandomDataGenerator([
@@ -43,17 +42,19 @@ export class WorldEventsManager {
     this.worldEventSettings = worldEventSettings;
 
     this.activeEvents = [];
+
+    this.nextEventCountdown = this.worldEventSettings.spawnIntervalSec;
   }
 
   public preload(): void {
-    Object.entries(WorldEventDatas).forEach(
-      ([worldEventType, worldEventData]) => {
+    Object.entries(worldEventsSettings.perEventSettings).forEach(
+      ([worldEventType, worldEventGraphicSettings]) => {
         this.scene.load.spritesheet(
           worldEventType + '_spritesheet',
-          worldEventData.path,
+          worldEventGraphicSettings.graphics.path,
           {
-            frameWidth: worldEventData.frameWidth,
-            frameHeight: worldEventData.frameHeight,
+            frameWidth: worldEventGraphicSettings.graphics.frameWidth,
+            frameHeight: worldEventGraphicSettings.graphics.frameHeight,
           }
         );
       }
@@ -61,34 +62,22 @@ export class WorldEventsManager {
   }
 
   public create(): void {
-    Object.entries(WorldEventDatas).forEach(([_, worldEventData]) => {
-      this.scene.anims.create({
-        key: worldEventData.type + '_animation',
-        frames: this.scene.anims.generateFrameNumbers(
-          worldEventData.type + '_spritesheet',
-          {
-            start: 0,
-            end: worldEventData.frameCount - 1,
-          }
-        ),
-        frameRate: 12,
-        repeat: -1,
-      });
-    });
-
-    this.scene.time.addEvent({
-      callback: this.spawnRandomWorldEvent,
-      callbackScope: this,
-      delay: this.worldEventSettings.eventIntervalSec * 1000,
-      loop: true,
-    });
-
-    this.scene.time.addEvent({
-      callback: this.applyEventEffects,
-      callbackScope: this,
-      delay: 1000,
-      loop: true,
-    });
+    Object.entries(worldEventsSettings.perEventSettings).forEach(
+      ([worldEventType, worldEventData]) => {
+        this.scene.anims.create({
+          key: worldEventData.type + '_animation',
+          frames: this.scene.anims.generateFrameNumbers(
+            worldEventData.type + '_spritesheet',
+            {
+              start: 0,
+              end: worldEventData.graphics.frameCount - 1,
+            }
+          ),
+          frameRate: 12,
+          repeat: -1,
+        });
+      }
+    );
   }
 
   public update(deltaTimeMs: number): void {
@@ -103,45 +92,105 @@ export class WorldEventsManager {
     });
   }
 
+  public tick(): void {
+    if (this.nextEventCountdown > 0) {
+      this.nextEventCountdown--;
+    } else {
+      this.nextEventCountdown = this.worldEventSettings.spawnIntervalSec;
+
+      this.spawnRandomWorldEvent();
+    }
+
+    this.applyEventEffects();
+  }
+
   private spawnRandomWorldEvent(): void {
-    let randomEventData: WorldEventData =
-      WorldEventDatas[
-        WorldEventTypes[
-          this.randomGenerator.between(0, WorldEventTypes.length - 1)
-        ]
-      ];
+    const chosenWorldEventSettings: WorldEventSettings =
+      this.getRandomWorldEvent();
 
-    let targetTile: Tile = this.worldModel.getRandomTile(
-      randomEventData.terrainFilter,
-      randomEventData.structureFilter
-    );
+    let targetTile: Tile | undefined = undefined;
 
-    while (this.activeEvents.some((event) => event.targetTile === targetTile)) {
+    while (
+      targetTile === undefined ||
+      this.activeEvents.some((event) => event.targetTile === targetTile)
+    ) {
       targetTile = this.worldModel.getRandomTile(
-        randomEventData.terrainFilter,
-        randomEventData.structureFilter
+        chosenWorldEventSettings.terrainFilter,
+        chosenWorldEventSettings.structureFilter
       );
     }
 
-    let worldEvent: WorldEvent = new WorldEvent(
+    let worldEvent: WorldEventEntity = new WorldEventEntity(
       this,
-      randomEventData,
+      chosenWorldEventSettings,
       targetTile
     );
+
     targetTile.currentEvent = worldEvent;
 
     this.activeEvents.push(worldEvent);
+
+    let modifiedGameState = { ...this.scene.gameState! };
+
+    let mission: Mission | undefined;
+
+    let affectedEmpire: EmpireEntity | undefined =
+      this.scene.empireSystem.getOwningEmpire(targetTile);
+
+    if (affectedEmpire !== undefined) {
+      mission = {
+        name: 'Help stop the ' + chosenWorldEventSettings.type,
+        description: 'Help stop the ' + chosenWorldEventSettings.type,
+        empireName: affectedEmpire.empire.empireName,
+        reward: 50,
+        status: 'available',
+      };
+    }
+
+    modifiedGameState.events.push({
+      name: chosenWorldEventSettings.type,
+      description: chosenWorldEventSettings.type,
+      type: chosenWorldEventSettings.type as WorldEventType,
+      difficultyRating: 1,
+      elementalEffectiveness: {
+        fire: 1,
+        water: 1,
+        earth: 1,
+        air: 1,
+      },
+      mission: mission,
+    });
+
+    this.scene.handleDataUpdate(modifiedGameState);
+    this.scene.sendDataToPreact();
+  }
+
+  private getRandomWorldEvent(): WorldEventSettings {
+    const worldEventTypes: string[] = Object.keys(
+      worldEventsSettings.perEventSettings
+    );
+
+    const chosenWorldEventType: WorldEventType = worldEventTypes[
+      this.randomGenerator.between(0, worldEventTypes.length - 1)
+    ] as WorldEventType;
+
+    const chosenWorldEventSettings: WorldEventSettings =
+      worldEventsSettings.perEventSettings[chosenWorldEventType];
+
+    return chosenWorldEventSettings;
   }
 
   private applyEventEffects(): void {
-    let eventsAtMaxPowerCount = this.activeEvents.filter((event) =>
-      event.atMaxPower()
-    ).length;
+    let totalReputationImpact = 0;
 
-    if (eventsAtMaxPowerCount <= 0) return;
+    this.activeEvents
+      .filter((event) => event.atMaxPower())
+      .forEach((activeEvent) => {
+        totalReputationImpact +=
+          activeEvent.worldEventSettings.scoreDeductionPerTick;
+      });
 
-    let totalReputationImpact =
-      eventsAtMaxPowerCount * this.worldEventSettings.scoreDecreasePerEvent;
+    if (totalReputationImpact <= 0) return;
 
     this.scene.handleDataUpdate({
       ...this.scene.gameState!,
