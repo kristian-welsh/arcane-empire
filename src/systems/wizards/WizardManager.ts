@@ -169,7 +169,13 @@ export class WizardManager {
     this.dispatchWizard = eventEmitter.subscribe(
       'dispatch-wizard',
       (wizardDispatchData: WizardDispatchData) => {
-        console.log(wizardDispatchData.wizard, wizardDispatchData.tile);
+        let wizardEntity: WizardEntity | undefined = this.getWizardEntityByName(
+          wizardDispatchData.wizard.name
+        );
+
+        if (wizardEntity === undefined) return;
+
+        this.sendWizardToTile(wizardEntity, wizardDispatchData.tile);
       }
     );
   }
@@ -261,6 +267,12 @@ export class WizardManager {
     return wizards;
   }
 
+  private getWizardEntityByName(name: string): WizardEntity | undefined {
+    return this.wizardsEntities.find(
+      (entity) => entity.wizardData.name == name
+    );
+  }
+
   public sendWizardToTile(targetWizard: WizardEntity, targetTile: Tile): void {
     if (this.staticWizards.has(targetWizard) == false) return;
 
@@ -276,7 +288,7 @@ export class WizardManager {
         targetWizard,
         currentTile,
         targetTile,
-        30,
+        20 * this.hexGrid.hexScale,
         () => {
           this.setWizardToStatic(targetWizard, targetTile);
         }
@@ -338,3 +350,4 @@ export class WizardManager {
     this.scene.sendDataToPreact();
   };
 }
+

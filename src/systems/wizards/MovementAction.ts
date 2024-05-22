@@ -67,17 +67,17 @@ export class MovementAction {
     const end = endPoint.coordinates;
 
     /* list of hexes leading to hashed hex, hashed by Vec2 hex position */ 
-    const paths = {};
+    const paths: { [key: string]: any } = {};
     // define paths before isNew
 
-    const neighbours = (hex) => this.hexGrid.getNeighbouringHexes(hex);
-    const hash = (hex) => "<" + hex.x + "," + hex.y + ">";
-    const isNew = (hex) => paths[hash(hex)] === undefined;
-    const isWalkable = (hex) => this.worldModel.getTile(hex).terrainData.is_walkable;
+    const neighbours = (hex: Phaser.Math.Vector2) => this.hexGrid.getNeighbouringHexes(hex);
+    const hash = (hex: Phaser.Math.Vector2) => "<" + hex.x + "," + hex.y + ">";
+    const isNew = (hex: any) => paths[hash(hex)] === undefined;
+    const isWalkable = (hex: Phaser.Math.Vector2) => this.worldModel.getTile(hex).terrainData.is_walkable;
 
     paths[hash(start)] = [start];
     let curPass = [start];
-    let nextPass = [];
+    let nextPass: any[] = [];
     while(curPass.length !== 0) {
       curPass.forEach(curHex => {
         const newHexes = neighbours(curHex).filter(isNew).filter(isWalkable);
@@ -91,7 +91,7 @@ export class MovementAction {
       nextPass = [];
     }
 
-    return paths[hash(end)].map(hex => this.hexGrid.convertGridHexToPixelHex(hex));
+    return paths[hash(end)].map((hex: Phaser.Math.Vector2) => this.hexGrid.convertGridHexToPixelHex(hex));
   }
 
   public update(deltaTimeMs: number) {
