@@ -1,7 +1,7 @@
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
 import { StructureDatas } from './StructureRecords';
 import { TerrainDatas } from './TerrainTileRecords';
-import { GenerationSettings, Tile, WorldModel } from './WorldModel';
+import { GenerationSettings, WorldModel } from './WorldModel';
 
 export class WorldView {
   scene: Phaser.Scene;

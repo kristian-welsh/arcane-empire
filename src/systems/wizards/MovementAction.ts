@@ -1,7 +1,8 @@
 import { lerp } from '../../helpers';
 import { HexagonGrid } from '../hex_grid/HexagonGrid';
-import { WorldModel, Tile } from '../world_generation/WorldModel';
-import { WizardEntity } from './Wizard';
+import { Tile } from '../world_generation/Tile';
+import { WorldModel } from '../world_generation/WorldModel';
+import { WizardEntity } from './WizardEntity';
 
 export class MovementAction {
   worldModel: WorldModel;
@@ -51,8 +52,8 @@ export class MovementAction {
     );
 
     this.speed = speed;
-    
-    this.path = this.pathfind(startTile, endTile); 
+
+    this.path = this.pathfind(startTile, endTile);
     this.distance = this.startPixelPosition.distance(this.endPixelPosition);
     this.time = this.distance / this.speed;
 
@@ -66,22 +67,24 @@ export class MovementAction {
     const start = startPoint.coordinates;
     const end = endPoint.coordinates;
 
-    /* list of hexes leading to hashed hex, hashed by Vec2 hex position */ 
+    /* list of hexes leading to hashed hex, hashed by Vec2 hex position */
     const paths: { [key: string]: any } = {};
     // define paths before isNew
 
-    const neighbours = (hex: Phaser.Math.Vector2) => this.hexGrid.getNeighbouringHexes(hex);
-    const hash = (hex: Phaser.Math.Vector2) => "<" + hex.x + "," + hex.y + ">";
+    const neighbours = (hex: Phaser.Math.Vector2) =>
+      this.hexGrid.getNeighbouringHexes(hex);
+    const hash = (hex: Phaser.Math.Vector2) => '<' + hex.x + ',' + hex.y + '>';
     const isNew = (hex: any) => paths[hash(hex)] === undefined;
-    const isWalkable = (hex: Phaser.Math.Vector2) => this.worldModel.getTile(hex).terrainData.is_walkable;
+    const isWalkable = (hex: Phaser.Math.Vector2) =>
+      this.worldModel.getTile(hex).terrainData.is_walkable;
 
     paths[hash(start)] = [start];
     let curPass = [start];
     let nextPass: any[] = [];
-    while(curPass.length !== 0) {
-      curPass.forEach(curHex => {
+    while (curPass.length !== 0) {
+      curPass.forEach((curHex) => {
         const newHexes = neighbours(curHex).filter(isNew).filter(isWalkable);
-        newHexes.forEach(newHex => {
+        newHexes.forEach((newHex) => {
           const pathHere = paths[hash(curHex)].concat([newHex]);
           paths[hash(newHex)] = pathHere;
           nextPass.push(newHex);
@@ -91,7 +94,9 @@ export class MovementAction {
       nextPass = [];
     }
 
-    return paths[hash(end)].map((hex: Phaser.Math.Vector2) => this.hexGrid.convertGridHexToPixelHex(hex));
+    return paths[hash(end)].map((hex: Phaser.Math.Vector2) =>
+      this.hexGrid.convertGridHexToPixelHex(hex)
+    );
   }
 
   public update(deltaTimeMs: number) {
@@ -114,16 +119,15 @@ export class MovementAction {
   }
 
   private wizardPosition(): Phaser.Math.Vector2 {
-    let journeyProgress = (this.progress / this.time) * this.path.length
-    let legStartIndex = Math.floor(journeyProgress)
+    let journeyProgress = (this.progress / this.time) * this.path.length;
+    let legStartIndex = Math.floor(journeyProgress);
     let legStart = this.path[legStartIndex];
     let legEnd = this.path[legStartIndex + 1];
     let legProgress = journeyProgress - legStartIndex;
     if (legStartIndex + 1 >= this.path.length) {
-      return legStart;// end doesn't exist after arrival, start is final position
+      return legStart; // end doesn't exist after arrival, start is final position
     } else {
       return lerp(legStart, legEnd, legProgress);
     }
   }
 }
-

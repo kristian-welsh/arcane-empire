@@ -65,7 +65,7 @@ export class EmpireEntity {
 
     if (this.missionMarker === undefined) {
       for (let activeEvent of this.empireSystem.scene.worldEventsManager
-        .activeEvents) {
+        .activeWorldEventEntities) {
         if (this.isTileInTerritory(activeEvent.targetTile)) {
           this.missionMarker = CreateQuestMarker(
             this.empireSystem.scene,
@@ -80,7 +80,7 @@ export class EmpireEntity {
       let allEventsCleared: boolean = true;
 
       for (let activeEvent of this.empireSystem.scene.worldEventsManager
-        .activeEvents) {
+        .activeWorldEventEntities) {
         if (this.isTileInTerritory(activeEvent.targetTile)) {
           allEventsCleared = false;
           break;

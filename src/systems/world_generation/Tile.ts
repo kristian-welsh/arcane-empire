@@ -1,6 +1,6 @@
 import { eventEmitter } from '../../events/EventEmitter';
 import { TileType } from '../../types';
-import { WizardEntity } from '../wizards/Wizard';
+import { WizardEntity } from '../wizards/WizardEntity';
 import { WorldEventEntity } from '../world_events/WorldEventEntity';
 import { StructureData } from './StructureRecords';
 import { TerrainData } from './TerrainTileRecords';

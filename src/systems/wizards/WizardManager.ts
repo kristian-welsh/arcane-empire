@@ -19,7 +19,7 @@ import { StructureType } from '../world_generation/StructureRecords';
 import { Tile } from '../world_generation/Tile';
 import { WorldModel } from '../world_generation/WorldModel';
 import { MovementAction } from './MovementAction';
-import { WizardEntity } from './Wizard';
+import { WizardEntity } from './WizardEntity';
 import { WizardType, WizardCounts, WizardGraphicDatas } from './WizardRecords';
 
 export interface WizardSettings {
@@ -307,8 +307,6 @@ export class WizardManager {
   }
 
   private buyWizard = (elementType: ElementType) => {
-    console.log('Buy wizard', elementType);
-
     let [name, initials] = this.getRandomWizardNameAndInitials(
       elementType as WizardType
     );
@@ -338,6 +336,7 @@ export class WizardManager {
         (modifiedGameState.wizards[elementType as keyof WizardCollection]
           .length -
           1);
+
     modifiedGameState.wizards[elementType as keyof WizardCollection].push(
       newWizard
     );
@@ -350,4 +349,3 @@ export class WizardManager {
     this.scene.sendDataToPreact();
   };
 }
-

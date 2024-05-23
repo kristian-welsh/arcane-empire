@@ -7,7 +7,7 @@ import { WorldEventsSettingsCollection } from '../../types';
 
 export const worldEventsSettings: WorldEventsSettingsCollection = {
   seed: 'default',
-  spawnIntervalSec: 5,
+  spawnIntervalSec: 15,
   perEventSettings: {
     tornado: {
       type: 'tornado',
@@ -26,8 +26,9 @@ export const worldEventsSettings: WorldEventsSettingsCollection = {
         TerrainType.Mountain,
       ],
       chaosRate: 1,
-      chaosCapacity: 10,
+      chaosCapacity: 15,
       scoreDeductionPerTick: 1,
+      banishmentScore: 20,
     },
     fire: {
       type: 'fire',
@@ -46,8 +47,9 @@ export const worldEventsSettings: WorldEventsSettingsCollection = {
         TerrainType.Mountain,
       ],
       chaosRate: 1,
-      chaosCapacity: 10,
+      chaosCapacity: 15,
       scoreDeductionPerTick: 1,
+      banishmentScore: 20,
     },
     earthquake: {
       type: 'earthquake',
@@ -62,8 +64,9 @@ export const worldEventsSettings: WorldEventsSettingsCollection = {
       },
       terrainFilter: [TerrainType.Grass, TerrainType.Mountain],
       chaosRate: 1,
-      chaosCapacity: 10,
+      chaosCapacity: 15,
       scoreDeductionPerTick: 1,
+      banishmentScore: 20,
     },
   },
 };

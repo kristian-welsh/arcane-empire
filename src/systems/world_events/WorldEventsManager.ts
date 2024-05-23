@@ -6,11 +6,13 @@ import { WorldEventEntity } from './WorldEventEntity';
 import { worldEventsSettings } from './WorldEventSettings';
 import {
   Mission,
+  WorldEvent,
   WorldEventSettings,
   WorldEventType,
   WorldEventsSettingsCollection,
 } from '../../types';
 import { EmpireEntity } from '../empires/EmpireEntity';
+import { WizardManager } from '../wizards/WizardManager';
 
 export class WorldEventsManager {
   scene: GameScene;
@@ -21,7 +23,9 @@ export class WorldEventsManager {
 
   worldEventSettings: WorldEventsSettingsCollection;
 
-  activeEvents: WorldEventEntity[];
+  wizardManager: WizardManager;
+
+  activeWorldEventEntities: WorldEventEntity[];
 
   nextEventCountdown: number;
 
@@ -29,7 +33,8 @@ export class WorldEventsManager {
     scene: GameScene,
     hexGrid: HexagonGrid,
     worldModel: WorldModel,
-    worldEventSettings: WorldEventsSettingsCollection
+    worldEventSettings: WorldEventsSettingsCollection,
+    wizardManager: WizardManager
   ) {
     this.scene = scene;
     this.randomGenerator = new Phaser.Math.RandomDataGenerator([
@@ -41,7 +46,9 @@ export class WorldEventsManager {
 
     this.worldEventSettings = worldEventSettings;
 
-    this.activeEvents = [];
+    this.wizardManager = wizardManager;
+
+    this.activeWorldEventEntities = [];
 
     this.nextEventCountdown = this.worldEventSettings.spawnIntervalSec;
   }
@@ -81,7 +88,7 @@ export class WorldEventsManager {
   }
 
   public update(deltaTimeMs: number): void {
-    this.activeEvents.forEach((activeEvent) => {
+    this.activeWorldEventEntities.forEach((activeEvent) => {
       activeEvent.update(
         deltaTimeMs,
         new Phaser.Math.Vector2(
@@ -112,23 +119,15 @@ export class WorldEventsManager {
 
     while (
       targetTile === undefined ||
-      this.activeEvents.some((event) => event.targetTile === targetTile)
+      this.activeWorldEventEntities.some(
+        (event) => event.targetTile === targetTile
+      )
     ) {
       targetTile = this.worldModel.getRandomTile(
         chosenWorldEventSettings.terrainFilter,
         chosenWorldEventSettings.structureFilter
       );
     }
-
-    let worldEvent: WorldEventEntity = new WorldEventEntity(
-      this,
-      chosenWorldEventSettings,
-      targetTile
-    );
-
-    targetTile.currentEvent = worldEvent;
-
-    this.activeEvents.push(worldEvent);
 
     let modifiedGameState = { ...this.scene.gameState! };
 
@@ -147,7 +146,7 @@ export class WorldEventsManager {
       };
     }
 
-    modifiedGameState.events.push({
+    const newWorldEvent: WorldEvent = {
       name: chosenWorldEventSettings.type,
       description: chosenWorldEventSettings.type,
       type: chosenWorldEventSettings.type as WorldEventType,
@@ -159,7 +158,20 @@ export class WorldEventsManager {
         air: 1,
       },
       mission: mission,
-    });
+    };
+
+    modifiedGameState.events.push(newWorldEvent);
+
+    const worldEventEntity: WorldEventEntity = new WorldEventEntity(
+      this,
+      chosenWorldEventSettings,
+      newWorldEvent,
+      targetTile
+    );
+
+    targetTile.currentEvent = worldEventEntity;
+
+    this.activeWorldEventEntities.push(worldEventEntity);
 
     this.scene.handleDataUpdate(modifiedGameState);
     this.scene.sendDataToPreact();
@@ -183,7 +195,21 @@ export class WorldEventsManager {
   private applyEventEffects(): void {
     let totalReputationImpact = 0;
 
-    this.activeEvents
+    this.activeWorldEventEntities.forEach((activeWorldEventEntity) => {
+      const wizardsOnEvent = this.wizardManager.getWizardsOnTile(
+        activeWorldEventEntity.targetTile
+      );
+
+      if (wizardsOnEvent.length > 0) {
+        activeWorldEventEntity.reduceChaosPower(wizardsOnEvent.length + 1);
+
+        if (activeWorldEventEntity.atNegativePower()) {
+          this.banishActiveWorldEvent(activeWorldEventEntity);
+        }
+      }
+    });
+
+    this.activeWorldEventEntities
       .filter((event) => event.atMaxPower())
       .forEach((activeEvent) => {
         totalReputationImpact +=
@@ -197,6 +223,34 @@ export class WorldEventsManager {
       reputation: this.scene.gameState!.reputation - totalReputationImpact,
     });
 
+    this.scene.sendDataToPreact();
+  }
+
+  private banishActiveWorldEvent(worldEventEntity: WorldEventEntity): void {
+    if (
+      this.activeWorldEventEntities.some(
+        (activeWorldEvent) => activeWorldEvent === worldEventEntity
+      ) == false
+    )
+      return;
+
+    worldEventEntity.targetTile.currentEvent = null;
+    worldEventEntity.destroy();
+
+    this.activeWorldEventEntities = this.activeWorldEventEntities.filter(
+      (activeEvent) => activeEvent !== worldEventEntity
+    );
+
+    let modifiedGameState = { ...this.scene.gameState! };
+
+    modifiedGameState.events = modifiedGameState.events.filter(
+      (worldEvent) => worldEvent !== worldEventEntity.worldEvent
+    );
+
+    modifiedGameState.reputation +=
+      worldEventEntity.worldEventSettings.banishmentScore;
+
+    this.scene.handleDataUpdate(modifiedGameState);
     this.scene.sendDataToPreact();
   }
 }

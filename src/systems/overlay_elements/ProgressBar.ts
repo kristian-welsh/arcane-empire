@@ -48,4 +48,9 @@ export class ProgressBar {
     this.fillImage.x = x - this.barImage.displayWidth / 2 + 6 * this.scale;
     this.fillImage.y = y;
   }
+
+  public destroy(): void {
+    this.barImage.destroy();
+    this.fillImage.destroy();
+  }
 }
