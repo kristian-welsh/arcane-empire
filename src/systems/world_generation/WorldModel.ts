@@ -17,79 +17,78 @@ export interface GenerationSettings {
   wizardTowersCount: number;
 }
 
-export class WorldModel {
-  gridSize: GridSize;
+export class UniformDistributionGenerator {
   generationSettings: GenerationSettings;
-
-  hexGrid: HexagonGrid;
-  tiles: Tile[][];
-
   randomGenerator: Phaser.Math.RandomDataGenerator;
 
   public constructor(
-    hexGrid: HexagonGrid,
-    gridSize: GridSize,
-    generationSettings: GenerationSettings
+    generationSettings: GenerationSettings,
+    gridSize: GridSize
   ) {
-    this.hexGrid = hexGrid;
-    this.gridSize = gridSize;
     this.generationSettings = generationSettings;
+    this.gridSize = gridSize;
+    this.randomGenerator = new Phaser.Math.RandomDataGenerator([generationSettings.seed]);
+  }
 
-    this.randomGenerator = new Phaser.Math.RandomDataGenerator([
-      generationSettings.seed,
-    ]);
+  public generate(hexGrid: HexagonGrid): WorldModel {
+    const world = new WorldModel(hexGrid, this.gridSize, this.randomGenerator)
 
+    // todo: first tile parameter is tangling the worldgen with world model, refactor
+
+    this.placeTerrain(world);
+    this.placeStructures(world);
+    return world;
+  }
+
+  public placeTerrain(world: WorldModel, gridSize: Phaser.Math.Vector2): Tile[][] {
+    const { width, height }: {width: number, height: number} = this.gridSize;
     // Pre fill with ocean
-
-    this.tiles = [];
-
-    for (let x = 0; x < this.gridSize.width; x++) {
-      this.tiles[x] = [];
-
-      for (let y = 0; y < this.gridSize.height; y++) {
-        this.tiles[x][y] = new Tile(
-          this,
+    const tiles = [];
+    for (let x = 0; x < width; x++) {
+      tiles[x] = [];
+      for (let y = 0; y < height; y++) {
+        tiles[x][y] = new Tile(
+          world,
           new Phaser.Math.Vector2(x, y),
           TerrainDatas.Ocean
         );
       }
     }
 
-    this.generateTerrain();
-
-    this.generateStructures();
-  }
-
-  private generateTerrain(): void {
-    for (let x = 0; x < this.gridSize.width; x++) {
-      for (let y = 0; y < this.gridSize.height; y++) {
+    // generate terrain
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
         if (
           y <= 1 ||
           x <= 1 ||
-          y >= this.gridSize.height - 2 ||
-          x >= this.gridSize.width - 2
+          y >= height - 2 ||
+          x >= width - 2
         ) {
-          this.tiles[x][y] = new Tile(
-            this,
+          tiles[x][y] = new Tile(
+            world,
             new Phaser.Math.Vector2(x, y),
             TerrainDatas.Ocean
           );
         } else {
           let randomTerrainData: TerrainData =
             TerrainDatas[TerrainTypes[this.randomGenerator.between(0, 3)]];
-          this.tiles[x][y] = new Tile(
-            this,
+          tiles[x][y] = new Tile(
+            world,
             new Phaser.Math.Vector2(x, y),
             randomTerrainData
           );
         }
       }
     }
+    world.updateTerrain(tiles);
+    return tiles;
   }
 
-  private generateStructures(): void {
-    for (let c = 0; c < this.generationSettings.fortsCount; c++) {
-      let chosenTile: Tile = this.getRandomTile(
+  public placeStructures(world: WorldModel): void {
+    let { fortsCount, cavesCount, farmsCount, villagesCount, wizardTowersCount } = this.generationSettings;
+    // forts
+    for (let f = 0; f < fortsCount; f++) {
+      let chosenTile: Tile = world.getRandomTile(
         StructureDatas.Fort.terrain_filter
       );
       chosenTile.structureData = StructureDatas.Fort;
@@ -98,9 +97,9 @@ export class WorldModel {
         chosenTile.terrainData = TerrainDatas.Grass;
       }
     }
-
-    for (let c = 0; c < this.generationSettings.cavesCount; c++) {
-      let chosenTile: Tile = this.getRandomTile(
+    // caves
+    for (let c = 0; c < cavesCount; c++) {
+      let chosenTile: Tile = world.getRandomTile(
         StructureDatas.Cave_Entrance.terrain_filter
       );
       chosenTile.structureData = StructureDatas.Cave_Entrance;
@@ -109,9 +108,9 @@ export class WorldModel {
         chosenTile.terrainData = TerrainDatas.Grass;
       }
     }
-
-    for (let f = 0; f < this.generationSettings.farmsCount; f++) {
-      let chosenTile: Tile = this.getRandomTile(
+    // farms
+    for (let f = 0; f < farmsCount; f++) {
+      let chosenTile: Tile = world.getRandomTile(
         StructureDatas.Farm_Hut.terrain_filter
       );
       chosenTile.structureData = StructureDatas.Farm_Hut;
@@ -121,8 +120,8 @@ export class WorldModel {
       }
 
       let neighbourHexes: Phaser.Math.Vector2[] =
-        this.hexGrid.getNeighbouringHexes(chosenTile.coordinates);
-      let chosenFieldTile: Tile | undefined = this.getTile(
+        world.hexGrid.getNeighbouringHexes(chosenTile.coordinates);
+      let chosenFieldTile: Tile | undefined = world.getTile(
         neighbourHexes[
           this.randomGenerator.between(0, neighbourHexes.length - 1)
         ]
@@ -133,9 +132,9 @@ export class WorldModel {
         chosenFieldTile.structureData = StructureDatas.Wheat_Farm;
       }
     }
-
-    for (let v = 0; v < this.generationSettings.villagesCount; v++) {
-      let chosenTile: Tile = this.getRandomTile(
+    // villages
+    for (let v = 0; v < villagesCount; v++) {
+      let chosenTile: Tile = world.getRandomTile(
         StructureDatas.Village_Small.terrain_filter
       );
       chosenTile.structureData = StructureDatas.Village_Small;
@@ -144,9 +143,9 @@ export class WorldModel {
         chosenTile.terrainData = TerrainDatas.Grass;
       }
     }
-
-    for (let c = 0; c < this.generationSettings.wizardTowersCount; c++) {
-      let chosenTile: Tile = this.getRandomTile(
+    // wizard towers
+    for (let w = 0; w < wizardTowersCount; w++) {
+      let chosenTile: Tile = world.getRandomTile(
         StructureDatas.Wizard_Tower.terrain_filter
       );
       chosenTile.structureData = StructureDatas.Wizard_Tower;
@@ -156,6 +155,29 @@ export class WorldModel {
       }
     }
   }
+}
+
+export class WorldModel {
+  hexGrid: HexagonGrid;
+  gridSize: GridSize;
+  randomGenerator: Phaser.Math.RandomDataGenerator;
+  tiles: Tile[][];
+
+  public constructor(
+    hexGrid: HexagonGrid,
+    gridSize: GridSize,
+    randomGenerator: Phaser.Math.RandomDataGenerator
+  ) {
+    this.hexGrid = hexGrid;
+    this.gridSize = gridSize;
+    this.randomGenerator = randomGenerator;
+    // WARNING, object is not fully initialized until updateTerrain is called
+  }
+
+  public updateTerrain(tiles: Tile[][]): void {
+    this.tiles = tiles;
+  }
+
 
   public getTile(coord: Phaser.Math.Vector2): Tile {
     if (

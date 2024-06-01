@@ -17,7 +17,7 @@ import { ProgressBar } from '../systems/overlay_elements/ProgressBar';
 import { PreloadOverlayAssets } from '../systems/overlay_elements/OverlayElementsFactory';
 import { WizardManager } from '../systems/wizards/WizardManager';
 import { WorldEventsManager } from '../systems/world_events/WorldEventsManager';
-import { WorldModel } from '../systems/world_generation/WorldModel';
+import { UniformDistributionGenerator, WorldModel } from '../systems/world_generation/WorldModel';
 import { WorldView } from '../systems/world_generation/WorldView';
 import { GameData } from '../types';
 import { worldEventsSettings } from '../systems/world_events/WorldEventSettings';
@@ -67,11 +67,8 @@ export default class GameScene extends Phaser.Scene {
 
     this.hexGrid = new HexagonGrid(this, defaultGridSize);
 
-    this.worldModel = new WorldModel(
-      this.hexGrid,
-      defaultGridSize,
-      defaultGenerationSettings
-    );
+    let worldgen = new UniformDistributionGenerator(defaultGenerationSettings, defaultGridSize);
+    this.worldModel = worldgen.generate(this.hexGrid);
 
     this.worldView = new WorldView(
       this,
