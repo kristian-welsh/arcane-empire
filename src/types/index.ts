@@ -1,4 +1,5 @@
-import { WizardEntity } from '../systems/wizards/Wizard';
+import { WizardEntity } from '../systems/wizards/WizardEntity';
+import { WorldEventEntity } from '../systems/world_events/WorldEventEntity';
 import {
   StructureData,
   StructureType,
@@ -7,6 +8,7 @@ import {
   TerrainData,
   TerrainType,
 } from '../systems/world_generation/TerrainTileRecords';
+import { Tile } from '../systems/world_generation/Tile';
 import { WorldModel } from '../systems/world_generation/WorldModel';
 
 export type GameData = null | {
@@ -32,7 +34,7 @@ export type TileType = {
   structureData: StructureData | undefined;
   terrainImage: Phaser.GameObjects.Image | undefined;
   wizardSlots: WizardEntity[];
-  currentEvent: WorldEvent | null;
+  currentEvent: WorldEventEntity | null;
   getWizardCapacity: () => number;
   setImage: (terrainImage: Phaser.GameObjects.Image) => void;
   makeInteractive: () => void;
@@ -120,4 +122,10 @@ export type WorldEventSettings = {
   chaosRate: number;
   chaosCapacity: number;
   scoreDeductionPerTick: number;
+  banishmentScore: number;
+};
+
+export type WizardDispatchData = {
+  wizard: Wizard;
+  tile: Tile;
 };

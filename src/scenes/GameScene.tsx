@@ -98,7 +98,8 @@ export default class GameScene extends Phaser.Scene {
       this,
       this.hexGrid,
       this.worldModel,
-      worldEventsSettings
+      worldEventsSettings,
+      this.wizardManager
     );
   }
 

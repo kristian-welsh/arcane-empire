@@ -5,12 +5,13 @@ import {
 } from '../overlay_elements/OverlayElementsFactory';
 import { Tile } from '../world_generation/Tile';
 import { WorldEventsManager } from './WorldEventsManager';
-import { WorldEventSettings } from '../../types';
+import { WorldEvent, WorldEventSettings } from '../../types';
 
 export class WorldEventEntity {
   worldEventManager: WorldEventsManager;
-
   worldEventSettings: WorldEventSettings;
+
+  worldEvent: WorldEvent;
   targetTile: Tile;
 
   sprite: Phaser.GameObjects.Sprite;
@@ -21,11 +22,13 @@ export class WorldEventEntity {
   constructor(
     worldEventManager: WorldEventsManager,
     worldEventSettings: WorldEventSettings,
+    worldEvent: WorldEvent,
     targetTile: Tile
   ) {
     this.worldEventManager = worldEventManager;
-
     this.worldEventSettings = worldEventSettings;
+
+    this.worldEvent = worldEvent;
     this.targetTile = targetTile;
 
     this.sprite = this.worldEventManager.scene.add.sprite(
@@ -58,7 +61,7 @@ export class WorldEventEntity {
   public update(deltaTimeMs: number, mapOffset: Phaser.Math.Vector2): void {
     this.chaos = Phaser.Math.Clamp(
       this.chaos + deltaTimeMs / 1000,
-      0,
+      -1,
       this.worldEventSettings.chaosCapacity
     );
 
@@ -83,7 +86,20 @@ export class WorldEventEntity {
     this.chaosProgressBar.setDepth(this.sprite.depth + 10000);
   }
 
+  public destroy(): void {
+    this.chaosProgressBar.destroy();
+    this.sprite.destroy();
+  }
+
+  public atNegativePower(): boolean {
+    return this.chaos <= 0;
+  }
+
   public atMaxPower(): boolean {
     return this.chaos >= this.worldEventSettings.chaosCapacity;
+  }
+
+  public reduceChaosPower(amount: number): void {
+    this.chaos -= amount;
   }
 }

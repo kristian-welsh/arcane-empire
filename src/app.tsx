@@ -11,6 +11,7 @@ import {
   Wizard,
   WizardCounts,
   WizardCollection,
+  WizardDispatchData,
 } from './types';
 import { eventEmitter } from './events/EventEmitter';
 import fire_wizard_src from '../src/assets/wizards/wizard_red.png';
@@ -19,6 +20,8 @@ import earth_wizard_src from '../src/assets/wizards/wizard_brown.png';
 import air_wizard_src from '../src/assets/wizards/wizard_white.png';
 import { Tile } from './systems/world_generation/Tile';
 import { eventImages } from './app-utils/image-maps';
+import { WizardProfile } from './components/WizardProfile';
+import { WizardsTab } from './components/WizardsTab';
 import { EmpiresTab } from './components/EmpiresTab';
 
 export function App() {
@@ -176,68 +179,6 @@ export function App() {
   );
 }
 
-const WizardsTab: React.FC<{ wizards: WizardCollection }> = (props) => {
-  const { wizards } = props;
-
-  return (
-    <div className="flex flex-col p-2 max-h-[90vh] overflow-auto">
-      <h2 className="text-2xl text-blue-400 pb-2">Wizards</h2>
-      <div className="text-cyan-300 py-2">
-        <h3 className="text-xl">Air</h3>
-        <p className="text-sm">Air Wizards ignore terrain penalties.</p>
-        <ElementRow wizardRow={wizards.air} />
-      </div>
-      <div className="text-emerald-400 py-2">
-        <h3 className="text-xl">Earth</h3>
-        <p className="text-sm">Earth wizards are more hardy.</p>
-        <ElementRow wizardRow={wizards.earth} />
-      </div>
-      <div className="text-orange-500 py-2">
-        <h3 className="text-xl">Fire</h3>
-        <p className="text-sm">Fire wizards complete tasks faster.</p>
-        <ElementRow wizardRow={wizards.fire} />
-      </div>
-      <div className="text-blue-400 py-2">
-        <h3 className="text-xl">Water</h3>
-        <p className="text-sm">Water wizards earn reputation faster.</p>
-        <ElementRow wizardRow={wizards.water} />
-      </div>
-    </div>
-  );
-};
-
-const ElementRow: React.FC<{ wizardRow: Wizard[] }> = (props) => {
-  const idleWizards = props.wizardRow.filter(
-    (wizard) => wizard.status === 'idle'
-  );
-  const awayWizards = props.wizardRow.filter(
-    (wizard) => wizard.status === 'away'
-  );
-
-  return (
-    <div className="flex flex-wrap items-center justify-start mb-4">
-      {idleWizards.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
-      ))}
-      {awayWizards.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
-      ))}
-    </div>
-  );
-};
-
-const WizardCircle: React.FC<{ wizard: Wizard }> = (props) => {
-  const statusColor =
-    props.wizard.status === 'idle' ? 'bg-green-500' : 'bg-gray-300';
-  return (
-    <div
-      className={`h-12 w-12 rounded-full ${statusColor} flex items-center justify-center m-1`}
-    >
-      <span className="text-white text-sm">{props.wizard.initials}</span>
-    </div>
-  );
-};
-
 const TowerTab: React.FC<{
   wizards: WizardCollection;
   tower: Tower;
@@ -277,7 +218,17 @@ const TilesTab: React.FC<{
 }> = (props) => {
   const { currentTile, wizards } = props;
 
-  if (!currentTile) return <p className="text-white">No tile selected</p>;
+  const handleDispatchWizard = (targetWizard: Wizard, targetTile: Tile) => {
+    let wizardDispatchData: WizardDispatchData = {
+      wizard: targetWizard,
+      tile: targetTile,
+    };
+
+    eventEmitter.emit('dispatch-wizard', wizardDispatchData);
+  };
+
+  if (currentTile === null)
+    return <p className="text-white">No tile selected</p>;
 
   return (
     <div className="flex flex-col max-h-[90vh] h-full overflow-auto">
@@ -308,16 +259,40 @@ const TilesTab: React.FC<{
       <p className="text-white">(none)</p>
       <p className="text-white pt-2">Send a wizard here: </p>
       {wizards.air.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.earth.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.fire.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
       {wizards.water.map((wizard) => (
-        <WizardCircle key={wizard.name} wizard={wizard} />
+        <WizardProfile
+          key={wizard.name}
+          wizard={wizard}
+          clickedCallback={() => {
+            handleDispatchWizard(wizard, currentTile);
+          }}
+        />
       ))}
     </div>
   );

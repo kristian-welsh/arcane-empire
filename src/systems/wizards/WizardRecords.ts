@@ -35,21 +35,21 @@ export const WizardGraphicDatas: Record<WizardType, WizardGraphicData> = {
   [WizardType.Fire]: {
     power: WizardType.Fire,
     path: fire_wizard_path,
-    scale: 0.75,
+    scale: 0.45,
   },
   [WizardType.Water]: {
     power: WizardType.Water,
     path: water_wizard_path,
-    scale: 0.75,
+    scale: 0.45,
   },
   [WizardType.Earth]: {
     power: WizardType.Earth,
     path: earth_wizard_path,
-    scale: 0.75,
+    scale: 0.45,
   },
   [WizardType.Air]: {
     power: WizardType.Air,
     path: air_wizard_path,
-    scale: 0.75,
+    scale: 0.45,
   },
 };
